@@ -1,9 +1,13 @@
 /**
- * WEB APP QUẢN LÝ GIỎ HÀNG — Á ĐÔNG LAND
+ * WEB APP QUẢN LÝ GIỎ HÀNG — Á ĐÔNG LAND (phiên bản 2)
  * Google Sheets là nguồn dữ liệu gốc; app đọc và ghi trực tiếp vào sheet.
+ *
+ * Quyền truy cập (đặt bằng hàm setupAccess):
+ *  - ADMIN_USERS: mỗi admin một mã PIN riêng → nhật ký ghi đúng tên người sửa.
+ *  - VIEW_PIN (tùy chọn): mã xem chung cho sale/CTV. Để trống = ai có link đều xem được.
  */
 
-// ───────────────────────────── Web app ─────────────────────────────
+// ═════════════════════════════ Web app ═════════════════════════════
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('Index')
@@ -12,13 +16,36 @@ function doGet() {
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
-/** Thông tin khởi động cho giao diện. */
+/** Chạy MỘT LẦN trong trình soạn thảo để đặt quyền truy cập. Sửa giá trị trước khi chạy. */
+function setupAccess() {
+  var admins = {
+    // 'Tên hiển thị': 'mã PIN (ít nhất 6 số, mỗi người một mã)'
+    'Trần Đức Tuấn': '000000',
+    'Nguyễn Mạnh Cường Quốc': '111111'
+  };
+  var viewPin = ''; // mã xem cho sale/CTV; để '' nếu không cần
+  var props = PropertiesService.getScriptProperties();
+  Object.keys(admins).forEach(function (n) {
+    if (String(admins[n]).length < 6) throw new Error('PIN của ' + n + ' phải có ít nhất 6 ký tự.');
+  });
+  props.setProperty('ADMIN_USERS', JSON.stringify(admins));
+  if (viewPin) props.setProperty('VIEW_PIN', viewPin); else props.deleteProperty('VIEW_PIN');
+  props.deleteProperty('ADMIN_PIN');
+  Logger.log('Đã đặt ' + Object.keys(admins).length + ' admin. Mã xem: ' + (viewPin ? 'có' : 'không'));
+}
+
+// ═════════════════════════════ Đăng nhập ═════════════════════════════
+
 function apiBootstrap() {
   return {
+    version: CONFIG.version,
     companyName: CONFIG.companyName,
     hotline: CONFIG.hotline,
-    pinConfigured: !!getAdminPin_(),
-    statuses: Object.keys(STATUS).map(function (k) { return STATUS[k]; }),
+    appUrl: appUrl_(),
+    needView: !!getProp_('VIEW_PIN'),
+    adminConfigured: Object.keys(getAdmins_()).length > 0,
+    lockHours: CONFIG.lockHours,
+    recentHours: CONFIG.recentHours,
     projects: CONFIG.projects.map(function (p) {
       return {
         id: p.id,
@@ -33,36 +60,78 @@ function apiBootstrap() {
   };
 }
 
-/** Toàn bộ căn của một dự án (gộp các nguồn). */
-function apiGetInventory(projectId, force) {
+/** Đăng nhập admin bằng PIN riêng. Trả về token phiên. */
+function apiLogin(pin) {
+  guardBruteForce_();
+  var admins = getAdmins_();
+  var name = Object.keys(admins).filter(function (n) { return String(admins[n]) === String(pin); })[0];
+  if (!name) { recordFail_(); throw new Error('Mã PIN không đúng.'); }
+  return { token: newSession_({ role: 'admin', name: name }), name: name, role: 'admin' };
+}
+
+/** Đăng nhập xem bằng mã xem chung (chỉ khi có đặt VIEW_PIN). */
+function apiViewLogin(pin) {
+  guardBruteForce_();
+  var viewPin = getProp_('VIEW_PIN');
+  if (!viewPin) return { token: '', role: 'viewer' };
+  if (String(pin) !== viewPin) { recordFail_(); throw new Error('Mã xem không đúng.'); }
+  return { token: newSession_({ role: 'viewer', name: '' }), role: 'viewer' };
+}
+
+function apiLogout(token) {
+  if (token) CacheService.getScriptCache().remove('sess_' + token);
+  return true;
+}
+
+/** Kiểm tra token còn hiệu lực (khi tải lại trang). */
+function apiWhoAmI(token) {
+  var s = getSession_(token);
+  return s ? { role: s.role, name: s.name } : null;
+}
+
+// ═════════════════════════════ Đọc dữ liệu ═════════════════════════════
+
+/** Toàn bộ căn của một dự án + biến động gần đây + các căn đang được giữ. */
+function apiGetInventory(token, projectId, force) {
+  requireView_(token);
   var project = getProject_(projectId);
   var cacheKey = 'inv_' + projectId;
-  if (!force) {
-    var cached = cacheGet_(cacheKey);
-    if (cached) return cached;
+  var result = force ? null : cacheGet_(cacheKey);
+  if (!result) {
+    result = buildInventory_(project);
+    cachePut_(cacheKey, result);
   }
+  return result;
+}
+
+function buildInventory_(project) {
   var units = [];
   var sourceInfo = [];
   project.sources.filter(isEnabled_).forEach(function (source) {
     var res = readSource_(project, source);
     sourceInfo.push({
-      key: sourceKey_(project, source),
-      label: source.label,
-      editable: !!source.editable,
-      count: res.units.length,
-      error: res.error || '',
-      statusMode: res.statusMode,
-      legend: res.legend
+      key: sourceKey_(project, source), label: source.label, editable: !!source.editable,
+      count: res.units.length, error: res.error || '', statusMode: res.statusMode, legend: res.legend
     });
     units = units.concat(res.units);
   });
-  var result = { projectId: projectId, units: units, sources: sourceInfo, updatedAt: new Date().toISOString() };
-  cachePut_(cacheKey, result);
-  return result;
+
+  var ss = SpreadsheetApp.openById(project.spreadsheetId);
+  try { trackChanges_(ss, units, sourceInfo); } catch (e) { /* theo dõi biến động lỗi không chặn việc xem */ }
+
+  return {
+    projectId: project.id,
+    units: units,
+    sources: sourceInfo,
+    feed: readFeed_(ss, CONFIG.feedDays, 400),
+    locks: activeLocks_(ss, project.id),
+    updatedAt: new Date().toISOString()
+  };
 }
 
 /** Bảng tham khảo (STK cọc, quỹ VOS...) — trả về giá trị hiển thị. */
-function apiGetReference(projectId, sheetName) {
+function apiGetReference(token, projectId, sheetName) {
+  requireView_(token);
   var project = getProject_(projectId);
   var ok = (project.references || []).some(function (r) { return r.sheet === sheetName; });
   if (!ok) throw new Error('Bảng tham khảo không có trong cấu hình.');
@@ -77,91 +146,286 @@ function apiGetReference(projectId, sheetName) {
   return { sheet: sheetName, rows: rows.map(function (r) { return r.slice(0, width); }) };
 }
 
-/** Kiểm tra mã PIN admin. */
-function apiCheckPin(pin) {
-  var real = getAdminPin_();
-  if (!real) throw new Error('Chưa đặt mã PIN admin. Chạy hàm setAdminPin trong Apps Script.');
-  return String(pin) === real;
+/** Nhật ký sửa trên app (chỉ admin). */
+function apiGetLog(token, projectId, limit) {
+  requireAdmin_(token);
+  var project = getProject_(projectId);
+  var sh = SpreadsheetApp.openById(project.spreadsheetId).getSheetByName(CONFIG.logSheetName);
+  if (!sh || sh.getLastRow() < 2) return [];
+  var n = Math.min(limit || 100, sh.getLastRow() - 1);
+  return sh.getRange(sh.getLastRow() - n + 1, 1, n, 7).getDisplayValues().reverse();
 }
 
+// ═════════════════════════════ Cập nhật căn ═════════════════════════════
+
 /**
- * Cập nhật một căn.
- * payload = { projectId, sourceKey, row, code, expectedStatus, changes: {status, note, date}, pin, user }
+ * Cập nhật một hoặc nhiều căn.
+ * items = [{ sourceKey, row, code, expectedStatus, changes: {status, note, date} }]
+ * Trả về [{ code, ok, error }] — căn lỗi không chặn các căn khác.
  */
-function apiUpdateUnit(payload) {
-  if (!apiCheckPin(payload.pin)) throw new Error('Mã PIN không đúng.');
-  var user = String(payload.user || '').trim();
-  if (!user) throw new Error('Vui lòng nhập tên người cập nhật.');
+function apiUpdateUnits(token, projectId, items) {
+  var user = requireAdmin_(token).name;
+  var project = getProject_(projectId);
+  if (!items || !items.length) throw new Error('Chưa chọn căn nào.');
+  if (items.length > 200) throw new Error('Tối đa 200 căn mỗi lần.');
+  return withLock_(function () {
+    var results = updateCore_(project, items, user);
+    invalidate_(project.id);
+    return results;
+  });
+}
 
-  var project = getProject_(payload.projectId);
-  var source = project.sources.filter(function (s) { return sourceKey_(project, s) === payload.sourceKey; })[0];
-  if (!source) throw new Error('Không tìm thấy nguồn dữ liệu.');
-  if (!source.editable) throw new Error('Tab "' + source.sheet + '" chỉ được xem, không sửa trên app.');
+function updateCore_(project, items, user) {
+  var results = [];
+  var bySource = {};
+  items.forEach(function (it) { (bySource[it.sourceKey] = bySource[it.sourceKey] || []).push(it); });
 
-  var lock = LockService.getScriptLock();
-  lock.waitLock(20000);
-  try {
+  Object.keys(bySource).forEach(function (key) {
+    var source = project.sources.filter(function (s) { return sourceKey_(project, s) === key; })[0];
+    var list = bySource[key];
+    var fail = function (msg) { list.forEach(function (it) { results.push({ code: it.code, ok: false, error: msg }); }); };
+    if (!source) return fail('Không tìm thấy nguồn dữ liệu.');
+    if (!source.editable) return fail('Tab "' + source.sheet + '" chỉ được xem, không sửa trên app.');
+
     var ss = SpreadsheetApp.openById(source.spreadsheetId || project.spreadsheetId);
     var sh = ss.getSheetByName(source.sheet);
     var meta = readSource_(project, source, sh);
-    if (meta.error) throw new Error(meta.error);
+    if (meta.error) return fail(meta.error);
+    var logs = [];
 
-    // Xác định đúng dòng: ưu tiên số dòng gửi lên, nếu lệch (sheet bị chèn dòng) thì tìm theo mã căn.
-    var unit = meta.units.filter(function (u) { return u.row === payload.row && sameCode_(u.code, payload.code); })[0]
-      || meta.units.filter(function (u) { return sameCode_(u.code, payload.code); })[0];
-    if (!unit) throw new Error('Không tìm thấy căn ' + payload.code + ' trong tab "' + source.sheet + '". Có thể căn đã bị xóa.');
+    list.forEach(function (it) {
+      try {
+        var unit = meta.units.filter(function (u) { return u.row === it.row && sameCode_(u.code, it.code); })[0]
+          || meta.units.filter(function (u) { return sameCode_(u.code, it.code); })[0];
+        if (!unit) throw new Error('Không tìm thấy căn trong tab "' + source.sheet + '".');
+        if (it.expectedStatus !== undefined && it.expectedStatus !== unit.status) {
+          throw new Error('Căn vừa được cập nhật thành "' + unit.status + '". Tải lại trước khi sửa.');
+        }
+        if (it.allowedFrom && it.allowedFrom.indexOf(unit.status) < 0) {
+          throw new Error('Căn đang ở trạng thái "' + unit.status + '".');
+        }
+        var changes = it.changes || {};
+        Object.keys(changes).forEach(function (field) {
+          if (EDITABLE_FIELDS.indexOf(field) < 0) throw new Error('Không được sửa trường ' + field + '.');
+          var newVal = String(changes[field] == null ? '' : changes[field]).slice(0, 500);
+          var oldVal = field === 'status' ? unit.status : (unit[field] || '');
+          if (newVal === String(oldVal)) return;
+          if (field === 'status' && meta.colMap.status === undefined) {
+            writeStatusColor_(sh, meta, unit.row, newVal);
+          } else {
+            var col = meta.colMap[field];
+            if (col === undefined) throw new Error('Tab không có cột cho trường ' + field + '.');
+            var cell = sh.getRange(unit.row, col + 1);
+            if (cell.getFormula()) throw new Error('Ô ' + cell.getA1Notation() + ' là công thức, không ghi đè.');
+            cell.setValue(field === 'date' ? toDate_(newVal) : newVal);
+          }
+          if (field === 'status') unit.status = newVal;
+          logs.push([new Date(), user, source.sheet, unit.code, field, oldVal, newVal]);
+        });
+        results.push({ code: it.code, ok: true });
+      } catch (e) {
+        results.push({ code: it.code, ok: false, error: e.message });
+      }
+    });
+    if (logs.length) appendRows_(ss, CONFIG.logSheetName, ['Thời gian', 'Người cập nhật', 'Tab', 'Mã căn', 'Trường', 'Giá trị cũ', 'Giá trị mới'], logs);
+  });
+  return results;
+}
 
-    if (payload.expectedStatus !== undefined && payload.expectedStatus !== unit.status) {
-      throw new Error('Căn ' + unit.code + ' vừa được cập nhật thành "' + unit.status + '". Vui lòng tải lại trước khi sửa.');
+// ═════════════════════════════ Yêu cầu giữ căn ═════════════════════════════
+
+var REQ_HEAD = ['Mã YC', 'Thời gian', 'Nguồn', 'Mã căn', 'Sale', 'SĐT sale', 'Khách hàng', 'Ghi chú',
+  'Trạng thái', 'Người xử lý', 'Thời gian xử lý', 'Giữ đến'];
+var REQ = { PENDING: 'Chờ duyệt', APPROVED: 'Đang giữ', REJECTED: 'Từ chối', RELEASED: 'Đã nhả', CONVERTED: 'Đã cọc' };
+
+/** Sale gửi yêu cầu giữ căn. */
+function apiRequestLock(token, projectId, req) {
+  requireView_(token);
+  var project = getProject_(projectId);
+  var sale = String(req.sale || '').trim().slice(0, 80);
+  var phone = String(req.phone || '').replace(/[^\d+]/g, '').slice(0, 15);
+  if (!sale || phone.length < 9) throw new Error('Nhập tên và số điện thoại sale.');
+  if (!req.code || !req.sourceKey) throw new Error('Thiếu mã căn.');
+
+  return withLock_(function () {
+    var ss = SpreadsheetApp.openById(project.spreadsheetId);
+    var rows = readRequests_(ss);
+    var dup = rows.filter(function (r) {
+      return sameCode_(r.code, req.code) && r.sourceKey === req.sourceKey && (r.state === REQ.PENDING || r.state === REQ.APPROVED);
+    })[0];
+    if (dup) throw new Error(dup.state === REQ.APPROVED ? 'Căn đang được giữ cho ' + dup.sale + '.' : 'Căn đã có yêu cầu chờ duyệt của ' + dup.sale + '.');
+    var id = 'YC' + Utilities.formatDate(new Date(), 'Asia/Ho_Chi_Minh', 'yyMMddHHmmss') + Math.floor(Math.random() * 90 + 10);
+    appendRows_(ss, CONFIG.requestSheetName, REQ_HEAD, [[id, new Date(), req.sourceKey, req.code, sale, "'" + phone,
+      String(req.customer || '').slice(0, 120), String(req.note || '').slice(0, 300), REQ.PENDING, '', '', '']]);
+    invalidate_(project.id);
+    return { id: id };
+  });
+}
+
+/** Danh sách yêu cầu (admin). */
+function apiGetRequests(token, projectId) {
+  requireAdmin_(token);
+  var ss = SpreadsheetApp.openById(getProject_(projectId).spreadsheetId);
+  return readRequests_(ss).reverse().slice(0, 300).map(function (r) {
+    r.time = r.time ? new Date(r.time).toISOString() : '';
+    r.until = r.until ? new Date(r.until).toISOString() : '';
+    r.handledAt = r.handledAt ? new Date(r.handledAt).toISOString() : '';
+    delete r.rowIndex;
+    return r;
+  });
+}
+
+/**
+ * Admin xử lý yêu cầu.
+ * action: 'approve' (giữ căn, tình trạng → Đang lock) | 'reject' | 'release' (nhả, → Còn hàng) | 'convert' (→ Đã cọc)
+ */
+function apiHandleRequest(token, projectId, id, action, hours) {
+  var user = requireAdmin_(token).name;
+  var project = getProject_(projectId);
+  return withLock_(function () {
+    var ss = SpreadsheetApp.openById(project.spreadsheetId);
+    var r = readRequests_(ss).filter(function (x) { return x.id === id; })[0];
+    if (!r) throw new Error('Không tìm thấy yêu cầu ' + id + '.');
+    var source = project.sources.filter(function (s) { return sourceKey_(project, s) === r.sourceKey; })[0];
+    var canWrite = source && source.editable;
+    var now = new Date();
+    var next, until = r.until || '', target = null, expected, allowed;
+
+    if (action === 'approve') {
+      if (r.state !== REQ.PENDING) throw new Error('Yêu cầu không ở trạng thái chờ duyệt.');
+      next = REQ.APPROVED;
+      until = new Date(now.getTime() + (Number(hours) || CONFIG.lockHours) * 3600 * 1000);
+      target = STATUS.LOCKED; allowed = [STATUS.AVAILABLE, STATUS.CHECK];
+    } else if (action === 'reject') {
+      if (r.state !== REQ.PENDING) throw new Error('Yêu cầu không ở trạng thái chờ duyệt.');
+      next = REQ.REJECTED;
+    } else if (action === 'release') {
+      if (r.state !== REQ.APPROVED) throw new Error('Căn không ở trạng thái đang giữ.');
+      next = REQ.RELEASED; target = STATUS.AVAILABLE; expected = STATUS.LOCKED;
+    } else if (action === 'convert') {
+      if (r.state !== REQ.APPROVED) throw new Error('Căn không ở trạng thái đang giữ.');
+      next = REQ.CONVERTED; target = STATUS.DEPOSITED; expected = STATUS.LOCKED;
+    } else {
+      throw new Error('Thao tác không hợp lệ.');
     }
 
-    var changes = payload.changes || {};
-    var logs = [];
-    Object.keys(changes).forEach(function (field) {
-      if (EDITABLE_FIELDS.indexOf(field) < 0) throw new Error('Không được sửa trường ' + field + '.');
-      var newVal = changes[field];
-      var oldVal = field === 'status' ? unit.status : (unit[field] || '');
-      if (String(newVal) === String(oldVal)) return;
-
-      if (field === 'status' && meta.colMap.status === undefined) {
-        // Sheet đánh dấu trạng thái bằng màu nền → tô màu theo chú thích của sheet.
-        writeStatusColor_(sh, meta, unit.row, newVal);
-      } else {
-        var col = meta.colMap[field];
-        if (col === undefined) throw new Error('Tab "' + source.sheet + '" không có cột cho trường ' + field + '.');
-        var cell = sh.getRange(unit.row, col + 1);
-        if (cell.getFormula()) throw new Error('Ô ' + cell.getA1Notation() + ' là công thức, không ghi đè.');
-        cell.setValue(field === 'date' ? toDate_(newVal) : newVal);
+    var warning = '';
+    if (target && canWrite) {
+      var res = updateCore_(project, [{ sourceKey: r.sourceKey, row: -1, code: r.code, expectedStatus: expected, allowedFrom: allowed, changes: { status: target } }], user)[0];
+      if (!res.ok) {
+        if (action === 'approve') throw new Error('Không giữ được căn: ' + res.error);
+        warning = 'Đã cập nhật yêu cầu nhưng chưa đổi tình trạng trên sheet: ' + res.error;
       }
-      logs.push([new Date(), user, source.sheet, unit.code, field, oldVal, newVal]);
-    });
+    } else if (target && !canWrite) {
+      warning = 'Căn thuộc giỏ chỉ xem; hãy báo đối tác cập nhật tình trạng trên sheet của họ.';
+    }
 
-    if (logs.length) appendLog_(ss, logs);
-    CacheService.getScriptCache().remove('inv_' + project.id + '_n');
-    return { ok: true, changed: logs.length };
+    var sh = ss.getSheetByName(CONFIG.requestSheetName);
+    sh.getRange(r.rowIndex, 9, 1, 4).setValues([[next, user, now, until]]);
+    invalidate_(project.id);
+    return { ok: true, state: next, warning: warning };
+  });
+}
+
+function readRequests_(ss) {
+  var sh = ss.getSheetByName(CONFIG.requestSheetName);
+  if (!sh || sh.getLastRow() < 2) return [];
+  var vals = sh.getRange(2, 1, sh.getLastRow() - 1, REQ_HEAD.length).getValues();
+  return vals.map(function (v, i) {
+    return { rowIndex: i + 2, id: String(v[0]), time: v[1], sourceKey: String(v[2]), code: String(v[3]), sale: String(v[4]),
+      phone: String(v[5]), customer: String(v[6]), note: String(v[7]), state: String(v[8]), handledBy: String(v[9]),
+      handledAt: v[10], until: v[11] };
+  }).filter(function (r) { return r.id; });
+}
+
+/** Căn đang giữ hoặc chờ duyệt — gắn lên bảng giỏ hàng. */
+function activeLocks_(ss, projectId) {
+  var now = Date.now();
+  return readRequests_(ss).filter(function (r) { return r.state === REQ.PENDING || r.state === REQ.APPROVED; })
+    .map(function (r) {
+      var until = r.until instanceof Date ? r.until.getTime() : (r.until ? new Date(r.until).getTime() : 0);
+      return { id: r.id, sourceKey: r.sourceKey, code: r.code, sale: r.sale, state: r.state,
+        until: until ? new Date(until).toISOString() : '', expired: r.state === REQ.APPROVED && until > 0 && until < now };
+    });
+}
+
+// ═════════════════════════════ Theo dõi biến động ═════════════════════════════
+
+var FEED_HEAD = ['Thời gian', 'Tab', 'Mã căn', 'Loại biến động', 'Trước', 'Sau'];
+
+/**
+ * So sánh giỏ hàng hiện tại với ảnh chụp lần trước; ghi khác biệt vào tab biến động.
+ * Bắt được cả thay đổi sửa thẳng trên Google Sheet, không chỉ sửa qua app.
+ */
+function trackChanges_(ss, units, sourceInfo) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) return;
+  try {
+    var prev = loadSnapshot_(ss);
+    var cur = {};
+    units.forEach(function (u) { cur[u.sourceKey + '|' + u.code] = [u.status, u.priceTotal || 0]; });
+    if (!prev) { saveSnapshot_(ss, cur); return; }
+
+    var okSources = {};
+    sourceInfo.forEach(function (s) { if (!s.error) okSources[s.key] = true; });
+    var label = function (k) { var s = k.split('|')[0]; return s.substring(s.indexOf(':') + 1); };
+    var code = function (k) { return k.substring(k.indexOf('|') + 1); };
+    var now = new Date();
+    var rows = [];
+
+    Object.keys(cur).forEach(function (k) {
+      var p = prev[k], c = cur[k];
+      if (!p) { rows.push([now, label(k), code(k), 'Căn mới', '', c[0]]); return; }
+      if (p[0] !== c[0]) rows.push([now, label(k), code(k), 'Đổi trạng thái', p[0], c[0]]);
+      if (p[1] && c[1] && p[1] !== c[1]) rows.push([now, label(k), code(k), 'Đổi giá', p[1], c[1]]);
+    });
+    Object.keys(prev).forEach(function (k) {
+      // Chỉ báo "rút khỏi giỏ" khi đọc tab đó thành công, tránh báo nhầm khi tab tạm lỗi.
+      if (!cur[k] && okSources[k.split('|')[0]]) rows.push([now, label(k), code(k), 'Rút khỏi giỏ', prev[k][0], '']);
+    });
+    // Giữ lại dữ liệu cũ của tab đang lỗi để lần sau so sánh tiếp.
+    Object.keys(prev).forEach(function (k) { if (!cur[k] && !okSources[k.split('|')[0]]) cur[k] = prev[k]; });
+
+    if (rows.length) {
+      appendRows_(ss, CONFIG.feedSheetName, FEED_HEAD, rows.slice(0, 2000));
+      saveSnapshot_(ss, cur);
+    }
   } finally {
     lock.releaseLock();
   }
 }
 
-/** Nhật ký cập nhật gần nhất của dự án. */
-function apiGetLog(projectId, limit) {
-  var project = getProject_(projectId);
-  var sh = SpreadsheetApp.openById(project.spreadsheetId).getSheetByName(CONFIG.logSheetName);
+function readFeed_(ss, days, max) {
+  var sh = ss.getSheetByName(CONFIG.feedSheetName);
   if (!sh || sh.getLastRow() < 2) return [];
-  var n = Math.min(limit || 50, sh.getLastRow() - 1);
-  var rows = sh.getRange(sh.getLastRow() - n + 1, 1, n, 7).getDisplayValues();
-  return rows.reverse();
+  var n = Math.min(max * 2, sh.getLastRow() - 1);
+  var vals = sh.getRange(sh.getLastRow() - n + 1, 1, n, FEED_HEAD.length).getValues();
+  var since = Date.now() - days * 86400000;
+  return vals.filter(function (v) { return v[0] instanceof Date && v[0].getTime() >= since; })
+    .reverse().slice(0, max)
+    .map(function (v) { return { time: v[0].toISOString(), tab: String(v[1]), code: String(v[2]), kind: String(v[3]), before: v[4], after: v[5] }; });
 }
 
-/** Chạy một lần trong trình soạn thảo Apps Script để đặt PIN admin. */
-function setAdminPin() {
-  var pin = '123456'; // ← đổi thành mã PIN của anh/chị trước khi chạy
-  PropertiesService.getScriptProperties().setProperty('ADMIN_PIN', pin);
-  Logger.log('Đã đặt ADMIN_PIN.');
+function loadSnapshot_(ss) {
+  var sh = ss.getSheetByName(CONFIG.snapshotSheetName);
+  if (!sh || sh.getLastRow() < 1) return null;
+  var s = sh.getRange(1, 1, sh.getLastRow(), 1).getValues().map(function (r) { return String(r[0]); }).join('');
+  try { return JSON.parse(s); } catch (e) { return null; }
 }
 
-// ───────────────────────────── Đọc sheet ─────────────────────────────
+function saveSnapshot_(ss, obj) {
+  var sh = ss.getSheetByName(CONFIG.snapshotSheetName);
+  if (!sh) { sh = ss.insertSheet(CONFIG.snapshotSheetName); sh.hideSheet(); }
+  var s = JSON.stringify(obj);
+  var size = 40000, chunks = [];
+  for (var i = 0; i < s.length; i += size) chunks.push([s.substr(i, size)]);
+  sh.clearContents();
+  var rng = sh.getRange(1, 1, chunks.length, 1);
+  rng.setNumberFormat('@');
+  rng.setValues(chunks);
+}
+
+// ═════════════════════════════ Đọc sheet ═════════════════════════════
 
 function readSource_(project, source, sheetOpt) {
   var key = sourceKey_(project, source);
@@ -186,13 +450,13 @@ function readSource_(project, source, sheetOpt) {
   var colMap = mapColumns_(headers);
   out.colMap = colMap;
 
-  // Chú thích màu (ví dụ ô "ĐÃ BÁN", "ĐANG LOCK" ở phía trên bảng).
+  // Chú thích màu: chỉ nhận ô CHỈ chứa tên trạng thái (ví dụ "ĐÃ BÁN"), không nhận câu mô tả dài.
   var legend = {};
   for (var r = 0; r < headerIdx; r++) {
     for (var c = 0; c < display[r].length; c++) {
-      var st = canonStatus_(display[r][c], true);
+      var st = legendStatus_(display[r][c]);
       var bg = String(bgs[r][c]).toLowerCase();
-      if (st && bg && bg !== '#ffffff') legend[bg] = st;
+      if (st && bg && bg !== '#ffffff' && !legend[bg]) legend[bg] = st;
     }
   }
   out.legend = invert_(legend);
@@ -200,23 +464,25 @@ function readSource_(project, source, sheetOpt) {
 
   var links = readLinks_(sh, colMap, values.length);
   var group = '';
+  var seen = {};
 
   for (var i = headerIdx + 1; i < values.length; i++) {
     var row = display[i];
     var code = colMap.code !== undefined ? String(row[colMap.code]).trim() : '';
     if (!code) {
-      // Dòng nhóm (ví dụ "PHÂN KHU VỊNH NGỌC") → dùng làm khu mặc định cho các dòng sau.
       var label = row.filter(function (x) { return String(x).trim() !== ''; });
       if (label.length === 1 && isNaN(Number(label[0]))) group = String(label[0]).trim();
       continue;
     }
     if (normalize_(code) === normalize_(headers[colMap.code])) continue; // tiêu đề lặp lại
+    if (seen[normalize_(code)]) continue; // trùng mã trong cùng tab → lấy dòng đầu
+    seen[normalize_(code)] = true;
 
     var get = function (f) { return colMap[f] !== undefined ? String(row[colMap[f]]).trim() : ''; };
     var raw = function (f) { return colMap[f] !== undefined ? values[i][colMap[f]] : ''; };
 
     var statusRaw = get('status');
-    var status = canonStatus_(statusRaw, false);
+    var status = canonStatus_(statusRaw);
     var statusSource = 'column';
     if (!statusRaw) {
       var cBg = String(bgs[i][colMap.code]).toLowerCase();
@@ -234,7 +500,7 @@ function readSource_(project, source, sheetOpt) {
 
     var dateVal = raw('date');
     out.units.push({
-      key: key + '|' + (i + 1),
+      key: key + '|' + code,
       sourceKey: key,
       sourceLabel: source.label,
       kind: source.kind,
@@ -313,36 +579,95 @@ function readLinks_(sh, colMap, n) {
         if (m) url = m[1];
       }
       if (!url && /^https?:\/\//i.test(vals[i][0])) url = vals[i][0];
-      if (url) res[f][i] = url;
+      if (url && /^https?:\/\//i.test(url)) res[f][i] = url;
     }
   });
   return res;
 }
 
 function writeStatusColor_(sh, meta, row, status) {
-  var width = sh.getLastColumn();
-  var rng = sh.getRange(row, 1, 1, width);
+  var rng = sh.getRange(row, 1, 1, sh.getLastColumn());
   if (status === STATUS.AVAILABLE) { rng.setBackground(null); return; }
   var color = meta.legend[status];
   if (!color) {
     throw new Error('Tab này đánh dấu trạng thái bằng màu và chưa có màu cho "' + status +
-      '". Hãy thêm cột "TÌNH TRẠNG" vào sheet để dùng đủ trạng thái.');
+      '". Thêm cột "TÌNH TRẠNG" vào sheet để dùng đủ trạng thái.');
   }
   rng.setBackground(color);
 }
 
-function appendLog_(ss, rows) {
-  var sh = ss.getSheetByName(CONFIG.logSheetName);
+function appendRows_(ss, name, head, rows) {
+  var sh = ss.getSheetByName(name);
   if (!sh) {
-    sh = ss.insertSheet(CONFIG.logSheetName);
-    sh.appendRow(['Thời gian', 'Người cập nhật', 'Tab', 'Mã căn', 'Trường', 'Giá trị cũ', 'Giá trị mới']);
+    sh = ss.insertSheet(name);
+    sh.getRange(1, 1, 1, head.length).setValues([head]).setFontWeight('bold');
     sh.setFrozenRows(1);
-    sh.getRange(1, 1, 1, 7).setFontWeight('bold');
   }
-  sh.getRange(sh.getLastRow() + 1, 1, rows.length, 7).setValues(rows);
+  sh.getRange(sh.getLastRow() + 1, 1, rows.length, head.length).setValues(rows);
 }
 
-// ───────────────────────────── Tiện ích ─────────────────────────────
+// ═════════════════════════════ Phiên & bảo mật ═════════════════════════════
+
+function appUrl_() {
+  try { return ScriptApp.getService().getUrl() || ''; } catch (e) { return ''; }
+}
+
+function getProp_(k) { return PropertiesService.getScriptProperties().getProperty(k) || ''; }
+
+function getAdmins_() {
+  var raw = getProp_('ADMIN_USERS');
+  var admins = {};
+  if (raw) { try { admins = JSON.parse(raw); } catch (e) { admins = {}; } }
+  var legacy = getProp_('ADMIN_PIN'); // tương thích bản 1
+  if (legacy && !Object.keys(admins).length) admins['Admin'] = legacy;
+  return admins;
+}
+
+function newSession_(data) {
+  var token = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
+  CacheService.getScriptCache().put('sess_' + token, JSON.stringify(data), Math.min(CONFIG.sessionHours, 6) * 3600);
+  return token;
+}
+
+function getSession_(token) {
+  if (!token) return null;
+  var s = CacheService.getScriptCache().get('sess_' + token);
+  try { return s ? JSON.parse(s) : null; } catch (e) { return null; }
+}
+
+function requireView_(token) {
+  var s = getSession_(token);
+  if (s) return s;
+  if (!getProp_('VIEW_PIN')) return { role: 'public', name: '' };
+  throw new Error('AUTH: Phiên xem đã hết hạn, vui lòng nhập lại mã xem.');
+}
+
+function requireAdmin_(token) {
+  var s = getSession_(token);
+  if (!s || s.role !== 'admin') throw new Error('AUTH: Phiên admin đã hết hạn, vui lòng đăng nhập lại.');
+  return s;
+}
+
+/** Chặn dò PIN: sai 8 lần trong 15 phút → khóa đăng nhập 15 phút. */
+function guardBruteForce_() {
+  var n = Number(CacheService.getScriptCache().get('login_fail') || 0);
+  if (n >= 8) throw new Error('Nhập sai quá nhiều lần. Thử lại sau 15 phút.');
+}
+
+function recordFail_() {
+  var cache = CacheService.getScriptCache();
+  cache.put('login_fail', String(Number(cache.get('login_fail') || 0) + 1), 900);
+}
+
+function withLock_(fn) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) throw new Error('Hệ thống đang bận, thử lại sau vài giây.');
+  try { return fn(); } finally { lock.releaseLock(); }
+}
+
+function invalidate_(projectId) { CacheService.getScriptCache().remove('inv_' + projectId + '_n'); }
+
+// ═════════════════════════════ Tiện ích ═════════════════════════════
 
 function getProject_(id) {
   var p = CONFIG.projects.filter(function (x) { return x.id === id; })[0];
@@ -353,8 +678,6 @@ function getProject_(id) {
 function isEnabled_(s) { return s.enabled !== false; }
 
 function sourceKey_(project, source) { return project.id + ':' + source.sheet; }
-
-function getAdminPin_() { return PropertiesService.getScriptProperties().getProperty('ADMIN_PIN'); }
 
 function normalize_(s) {
   return String(s == null ? '' : s)
@@ -367,16 +690,24 @@ function sameCode_(a, b) { return normalize_(a).replace(/\s/g, '') === normalize
 
 function codePrefix_(code) { var m = String(code).match(/^([^-]+)-/); return m ? m[1] : ''; }
 
-/** Đưa các cách ghi trạng thái về tên chuẩn. strict = chỉ nhận chữ trạng thái rõ ràng (dùng cho chú thích). */
-function canonStatus_(raw, strict) {
+/** Đưa các cách ghi trạng thái về tên chuẩn; không nhận ra thì giữ nguyên chữ gốc. */
+function canonStatus_(raw) {
   var n = normalize_(raw);
   if (!n) return '';
-  if (/da ban|sold/.test(n)) return STATUS.SOLD;
-  if (/da coc|dat coc|coc/.test(n)) return STATUS.DEPOSITED;
-  if (/lock|giu cho|dang giu/.test(n)) return STATUS.LOCKED;
-  if (/check/.test(n)) return STATUS.CHECK;
-  if (/con hang|^ton$|available|^trong$/.test(n)) return STATUS.AVAILABLE;
-  return strict ? '' : String(raw).trim();
+  if (/\b(da ban|sold)\b/.test(n)) return STATUS.SOLD;
+  if (/\b(da coc|dat coc|coc)\b/.test(n)) return STATUS.DEPOSITED;
+  if (/\b(lock|locked|giu cho|dang giu)\b/.test(n)) return STATUS.LOCKED;
+  if (/\bcheck\b/.test(n)) return STATUS.CHECK;
+  if (/^(con hang|con|ton|trong|available|mo ban)$/.test(n)) return STATUS.AVAILABLE;
+  return String(raw).trim();
+}
+
+/** Ô chú thích màu: chỉ là tên trạng thái ngắn, ví dụ "ĐÃ BÁN", "ĐANG LOCK". */
+function legendStatus_(raw) {
+  var n = normalize_(raw);
+  if (!n || n.length > 20 || /[→>,:;]/.test(n)) return '';
+  var s = canonStatus_(raw);
+  return Object.keys(STATUS).some(function (k) { return STATUS[k] === s; }) ? s : '';
 }
 
 /** Đọc số: tiền ("41.278.010.218", "20,873,934,525") hoặc diện tích ("266,9", "131.5"). */
@@ -412,15 +743,14 @@ function invert_(obj) {
 // Cache chia nhỏ vì CacheService giới hạn 100KB mỗi khóa.
 function cachePut_(key, obj) {
   try {
-    var cache = CacheService.getScriptCache();
     var s = JSON.stringify(obj);
     var size = 90000;
     var n = Math.ceil(s.length / size);
     var map = {};
     for (var i = 0; i < n; i++) map[key + '_' + i] = s.substr(i * size, size);
     map[key + '_n'] = String(n);
-    cache.putAll(map, CONFIG.cacheSeconds);
-  } catch (e) { /* cache lỗi thì bỏ qua, vẫn trả dữ liệu */ }
+    CacheService.getScriptCache().putAll(map, CONFIG.cacheSeconds);
+  } catch (e) { /* cache lỗi thì bỏ qua */ }
 }
 
 function cacheGet_(key) {

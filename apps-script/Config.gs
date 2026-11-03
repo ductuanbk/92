@@ -1,5 +1,5 @@
 /**
- * CẤU HÌNH GIỎ HÀNG — Á ĐÔNG LAND
+ * CẤU HÌNH GIỎ HÀNG — Á ĐÔNG LAND (phiên bản 2)
  *
  * Mỗi dự án gồm nhiều "nguồn" (mỗi nguồn là một tab trong Google Sheet).
  * Muốn thêm hoặc bớt tab, chỉ cần sửa danh sách `sources` bên dưới.
@@ -9,16 +9,24 @@
  *  - enabled:  false → tạm ẩn khỏi app.
  *
  * App tự dò dòng tiêu đề (dòng có chữ "Mã căn") nên không cần khai báo cột.
+ * Mã PIN admin và mã xem đặt bằng hàm setupAccess() trong Code.gs, không ghi ở đây.
  */
 var CONFIG = {
+  version: '2.0',
   companyName: 'CÔNG TY CỔ PHẦN ĐẦU TƯ Á ĐÔNG LAND',
   hotline: 'Mr. Tuấn: 0901 303 092',
 
-  // Tên tab nhật ký, tự tạo trong từng file khi có cập nhật đầu tiên.
-  logSheetName: 'LOG CẬP NHẬT APP',
+  // Các tab app tự tạo trong file Google Sheet của từng dự án.
+  logSheetName: 'LOG CẬP NHẬT APP',        // ai sửa gì trên app
+  feedSheetName: 'BIẾN ĐỘNG GIỎ HÀNG',     // căn mới, rút giỏ, đổi trạng thái, đổi giá (kể cả sửa thẳng trên sheet)
+  requestSheetName: 'YÊU CẦU GIỮ CĂN',     // sale xin giữ căn, admin duyệt
+  snapshotSheetName: '_APP_SNAPSHOT',      // ảnh chụp giỏ hàng để so sánh biến động (tab ẩn)
 
-  // Thời gian giữ cache dữ liệu (giây). Cập nhật trên app sẽ xóa cache ngay.
-  cacheSeconds: 60,
+  cacheSeconds: 60,       // giữ cache dữ liệu (giây); cập nhật trên app xóa cache ngay
+  lockHours: 24,          // thời hạn giữ căn mặc định khi admin duyệt
+  feedDays: 7,            // số ngày biến động hiển thị
+  recentHours: 48,        // căn biến động trong khoảng này được gắn nhãn "Mới"
+  sessionHours: 6,        // thời gian đăng nhập (tối đa 6 giờ do giới hạn của Google)
 
   projects: [
     {
