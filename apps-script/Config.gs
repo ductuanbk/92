@@ -12,9 +12,20 @@
  * Mã PIN admin và mã xem đặt bằng hàm setupAccess() trong Code.gs, không ghi ở đây.
  */
 var CONFIG = {
-  version: '4.0',
+  version: '4.1',
   companyName: 'CÔNG TY CỔ PHẦN ĐẦU TƯ Á ĐÔNG LAND',
-  hotline: 'Mr. Tuấn: 0901 303 092',
+  hotline: '0933 772 422',
+  zalo: 'https://zalo.me/386470265573132310',
+
+  // Trang bảng hàng công khai cho khách (website riêng, đọc qua ?api=public).
+  // Chỉ trả các trường an toàn: không STK, ghi chú, đối tác, người giữ căn, tên giỏ.
+  publicSite: {
+    enabled: true,
+    showSold: false,          // ẩn căn đã bán
+    cacheSeconds: 120,
+    // Trạng thái nội bộ → chữ hiển thị cho khách. Trạng thái khác hiện "Liên hệ".
+    statusLabels: { 'Còn hàng': 'Còn hàng', 'Check admin': 'Đang giữ chỗ', 'Đang lock': 'Đang giữ chỗ', 'Đã cọc': 'Đang giữ chỗ', 'Đã bán': 'Đã bán' }
+  },
 
   // Các tab app tự tạo trong file Google Sheet của từng dự án.
   logSheetName: 'LOG CẬP NHẬT APP',        // ai sửa gì trên app
@@ -36,6 +47,7 @@ var CONFIG = {
       sources: [
         { sheet: 'GHĐQ ADL', label: 'Độc quyền ADL', kind: 'exclusive', editable: true, enabled: true },
         { sheet: 'GIỎ HÀNG ĐỐI TÁC', label: 'Đối tác', kind: 'partner', editable: false, enabled: true }
+        // Thêm public: false vào một nguồn để không đưa giỏ đó lên trang công khai.
       ],
       references: [
         { sheet: 'STK CỌC VHSGP', label: 'STK cọc / ký quỹ' },

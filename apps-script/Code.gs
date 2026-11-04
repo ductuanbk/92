@@ -9,7 +9,11 @@
 
 // ═════════════════════════════ Web app ═════════════════════════════
 
-function doGet() {
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  if (p.api === 'public') return publicResponse_(p);
+  // Dự án công khai (có file PublicOnly.gs) chỉ phục vụ dữ liệu công khai, không mở app nội bộ.
+  if (isPublicOnly_()) return ContentService.createTextOutput('Bảng hàng Á Đông Land: dùng ?api=public');
   return HtmlService.createHtmlOutputFromFile('Index')
     .setTitle('Giỏ hàng Á Đông Land')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
@@ -34,6 +38,68 @@ function setupAccess() {
   Logger.log('Đã đặt ' + Object.keys(admins).length + ' admin. Mã xem: ' + (viewPin ? 'có' : 'không'));
 }
 
+// ═════════════════════════════ Dữ liệu công khai cho website khách ═════════════════════════════
+
+function isPublicOnly_() { return typeof PUBLIC_ONLY !== 'undefined' && PUBLIC_ONLY === true; }
+
+/** JSON (hoặc JSONP nếu có ?callback=) gồm các căn của mọi dự án, chỉ trường an toàn. */
+function publicResponse_(p) {
+  var body;
+  try {
+    body = publicData_();
+  } catch (e) {
+    body = { ok: false, error: 'Bảng hàng tạm thời chưa tải được.' };
+  }
+  var json = JSON.stringify(body);
+  var cb = String(p.callback || '');
+  if (cb && /^[A-Za-z_$][\w$.]{0,60}$/.test(cb)) {
+    return ContentService.createTextOutput(cb + '(' + json + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+
+function publicData_() {
+  var ps = CONFIG.publicSite || {};
+  if (!ps.enabled) return { ok: false, error: 'Trang công khai đang tắt.' };
+  var cached = cacheGet_('pub_v1');
+  if (cached) return cached;
+  var labels = ps.statusLabels || {};
+  var out = {
+    ok: true,
+    updatedAt: new Date().toISOString(),
+    company: { name: CONFIG.companyName, hotline: CONFIG.hotline, zalo: CONFIG.zalo || '' },
+    projects: []
+  };
+  CONFIG.projects.forEach(function (project) {
+    var seen = {}, units = [], failed = 0;
+    project.sources.filter(isEnabled_).filter(function (s) { return s.public !== false; }).forEach(function (source) {
+      var res = readSource_(project, source);
+      if (res.error) { failed++; return; }
+      res.units.forEach(function (u) {
+        var k = normalize_(u.code).replace(/\s/g, '');
+        if (seen[k]) return; // trùng mã giữa các giỏ: lấy giỏ khai báo trước
+        seen[k] = true;
+        if (u.status === STATUS.SOLD && !ps.showSold) return;
+        units.push({
+          code: u.code, zone: u.zone, street: u.street, type: u.type, direction: u.direction,
+          handover: u.handover, land: u.land, build: u.build, price: u.priceTotal || null,
+          status: labels[u.status] || 'Liên hệ'
+        });
+      });
+    });
+    out.projects.push({ id: project.id, name: project.name, units: units, incomplete: failed > 0 });
+  });
+  cachePut_('pub_v1', out, ps.cacheSeconds || 120);
+  return out;
+}
+
+/** Chạy một lần trong trình soạn thảo của dự án công khai để cấp quyền đọc Google Sheet và xem thử số căn. */
+function kiemTraBangHangCongKhai() {
+  CacheService.getScriptCache().remove('pub_v1_n');
+  var d = publicData_();
+  d.projects.forEach(function (p) { Logger.log(p.name + ': ' + p.units.length + ' căn' + (p.incomplete ? ' (có tab đọc lỗi)' : '')); });
+}
+
 // ═════════════════════════════ Đăng nhập ═════════════════════════════
 
 function apiBootstrap() {
@@ -41,6 +107,7 @@ function apiBootstrap() {
     version: CONFIG.version,
     companyName: CONFIG.companyName,
     hotline: CONFIG.hotline,
+    zalo: CONFIG.zalo || '',
     appUrl: appUrl_(),
     needView: !!getProp_('VIEW_PIN'),
     adminConfigured: Object.keys(getAdmins_()).length > 0,
@@ -741,7 +808,7 @@ function invert_(obj) {
 }
 
 // Cache chia nhỏ vì CacheService giới hạn 100KB mỗi khóa.
-function cachePut_(key, obj) {
+function cachePut_(key, obj, ttl) {
   try {
     var s = JSON.stringify(obj);
     var size = 90000;
@@ -749,7 +816,7 @@ function cachePut_(key, obj) {
     var map = {};
     for (var i = 0; i < n; i++) map[key + '_' + i] = s.substr(i * size, size);
     map[key + '_n'] = String(n);
-    CacheService.getScriptCache().putAll(map, CONFIG.cacheSeconds);
+    CacheService.getScriptCache().putAll(map, ttl || CONFIG.cacheSeconds);
   } catch (e) { /* cache lỗi thì bỏ qua */ }
 }
 

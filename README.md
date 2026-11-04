@@ -1,4 +1,4 @@
-# Giỏ hàng Á Đông Land — phiên bản 4
+# Giỏ hàng Á Đông Land — phiên bản 4.1
 
 Web app quản lý và cập nhật giỏ hàng hai dự án **Vinhomes Saigon Park (VHSGP)** và **Vinhomes Green Paradise (VHCG)**.
 
@@ -88,6 +88,25 @@ Google Sheet vẫn là nguồn dữ liệu gốc. App đọc thẳng từ sheet 
 - Sheet bị chèn hoặc xóa dòng → app tìm lại căn theo mã trước khi ghi.
 - Ghi tuần tự bằng khóa để hai người lưu cùng lúc không đè nhau.
 - Tab đang lỗi (mất tab, đổi tên) không bị báo nhầm là "rút khỏi giỏ" hàng loạt.
+
+## Website bảng hàng công khai cho khách (thư mục `docs/`)
+
+Trang riêng cho khách hàng, đặt trên GitHub Pages. Dữ liệu lấy trực tiếp từ Google Sheet qua một dự án Apps Script công khai.
+
+- **Khách thấy:** mã căn, giá niêm yết (gồm VAT và KPBT), đơn giá triệu/m² đất, loại hình, hướng, diện tích đất, diện tích xây dựng, bàn giao, phân khu, tình trạng (Còn hàng / Đang giữ chỗ).
+- **Không bao giờ lộ:** STK, ghi chú nội bộ, đối tác, tên giỏ, người giữ căn, link phiếu tính giá. Căn đã bán bị ẩn (`publicSite.showSold` trong `Config.gs`).
+- Có tìm kiếm, sắp xếp, bộ lọc (phân khu, loại hình, hướng, bàn giao, diện tích, khoảng giá), lọc nhanh theo tình trạng.
+- Bấm một căn để xem chi tiết. Nút **Gọi hotline**, **Hỏi căn này qua Zalo** (tự sao chép tin nhắn có mã căn), **Sao chép link căn**.
+- Tự làm mới mỗi 2 phút. Chữ trên trang theo quy chuẩn thương hiệu: hotline 0933 772 422, giá ghi rõ là giá tham khảo có ngày cập nhật.
+- Xem thử bằng dữ liệu minh họa: mở `docs/index.html?demo=1`.
+
+**Cách dựng**
+
+1. Dự án Apps Script công khai gồm `Code.gs`, `Config.gs` (lấy từ `apps-script/`), cùng `PublicOnly.gs` và `appsscript.json` trong `public-script/`. Triển khai web app với quyền **Bất kỳ ai, kể cả ẩn danh**. Nhờ file `PublicOnly.gs`, dự án này chỉ trả dữ liệu đã lọc qua `?api=public`, không mở app quản lý.
+2. Trong trình soạn thảo của dự án công khai, chạy hàm `kiemTraBangHangCongKhai` một lần để cấp quyền đọc Sheet.
+3. Dán link `/exec` của dự án công khai vào `API_URL` trong `docs/config.js`.
+4. Bật GitHub Pages: repo **Settings → Pages → Build and deployment → Deploy from a branch**, chọn nhánh chứa thư mục `docs` và thư mục `/docs`.
+5. Muốn dùng tên miền riêng (ví dụ `banghang.adongland.vn`): nhập vào ô **Custom domain** trong trang Pages, rồi tạo bản ghi CNAME trỏ về `ductuanbk.github.io` ở nhà cung cấp tên miền.
 
 ## Bản đang chạy
 
