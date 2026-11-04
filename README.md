@@ -89,6 +89,13 @@ Google Sheet vẫn là nguồn dữ liệu gốc. App đọc thẳng từ sheet 
 - Ghi tuần tự bằng khóa để hai người lưu cùng lúc không đè nhau.
 - Tab đang lỗi (mất tab, đổi tên) không bị báo nhầm là "rút khỏi giỏ" hàng loạt.
 
+## Bản đang chạy
+
+- Dự án Apps Script: **Giỏ hàng Á Đông Land**, tạo ngày 04/11/2026 trên tài khoản `tranductuan06@gmail.com`. Mở để sửa tại `https://script.google.com/d/1dQF-b0wb7FiatIk102i5If10gvQzCI4WYGik-AG23-wN_89Q0IamweX6/edit`.
+- Lần triển khai @1 "v4.0 - Bảng hàng": web app chạy dưới tài khoản trên, người dùng cần đăng nhập Google để mở.
+- Link web app (`.../exec`) xem trong dự án: **Triển khai → Quản lý các lần triển khai**. Không ghi link vào repo để tránh lộ giỏ hàng.
+- Cập nhật bản mới bằng clasp: tạo `apps-script/.clasp.json` với `{"scriptId": "1dQF-b0wb7FiatIk102i5If10gvQzCI4WYGik-AG23-wN_89Q0IamweX6", "rootDir": "."}`, chạy `clasp push`, rồi `clasp update-deployment <deploymentId>` để giữ nguyên link.
+
 ## Triển khai (khoảng 10 phút)
 
 1. Vào <https://script.google.com>, chọn **Dự án mới**, đặt tên "Giỏ hàng ADL".
