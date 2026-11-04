@@ -1,4 +1,4 @@
-# Giỏ hàng Á Đông Land — phiên bản 2
+# Giỏ hàng Á Đông Land — phiên bản 3
 
 Web app quản lý và cập nhật giỏ hàng hai dự án **Vinhomes Saigon Park (VHSGP)** và **Vinhomes Green Paradise (VHCG)**.
 
@@ -8,6 +8,17 @@ Google Sheet vẫn là nguồn dữ liệu gốc. App đọc thẳng từ sheet 
 |---|---|---|
 | Vinhomes Saigon Park | `ADL_ GIỎ HÀNG VHSGP` | `GHĐQ ADL` (độc quyền, sửa được), `GIỎ HÀNG ĐỐI TÁC` (chỉ xem) |
 | Vinhomes Green Paradise | `ADL - BẢNG HÀNG VHCG` | `GHĐQ` (độc quyền), `GIỎ HÀNG ĐỐI TÁC` (đều sửa được) |
+
+## Có gì mới ở phiên bản 3: sơ đồ bảng hàng
+
+- **Sơ đồ trực quan** (mặc định): mỗi căn là một ô màu theo trạng thái, xếp theo **phân khu → đường/dãy → số căn**. Ô ghi số căn, loại căn, diện tích đất, giá. Căn đã bán gạch ngang.
+- Mỗi phân khu có thanh đầu ghi số căn theo trạng thái và tỷ lệ còn hàng; mỗi đường ghi "x/y còn".
+- Nhãn trên ô: **MỚI** (vừa biến động), **GIỮ** (đang giữ cho sale), **HẠN** (quá hạn giữ), **YC** (có yêu cầu chờ duyệt). Chấm xám là căn thuộc giỏ chỉ xem.
+- **Cập nhật nhanh (admin)**: bật "Cập nhật nhanh", bấm vào ô và chọn trạng thái mới; app lưu ngay vào Google Sheet và hiện nút **Hoàn tác** trong 7 giây.
+- **Chọn nhiều căn** ngay trên sơ đồ (bật "Chọn nhiều căn", hoặc giữ Shift/Ctrl khi bấm) để copy tin chào hoặc đổi trạng thái hàng loạt.
+- **Ẩn căn đã bán** để bảng gọn; ô thống kê vẫn đếm đủ.
+- **Tự cập nhật** mỗi 90 giây; căn vừa đổi nhấp nháy và có thông báo "N căn vừa thay đổi". Bấm "Tự cập nhật" để tắt hoặc bật.
+- Ô thống kê tô màu theo trạng thái, bấm để lọc. Chuyển về "Danh sách" để xem dạng bảng như bản 2.
 
 ## Có gì mới ở phiên bản 2
 

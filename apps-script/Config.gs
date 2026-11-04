@@ -12,7 +12,7 @@
  * Mã PIN admin và mã xem đặt bằng hàm setupAccess() trong Code.gs, không ghi ở đây.
  */
 var CONFIG = {
-  version: '2.0',
+  version: '3.0',
   companyName: 'CÔNG TY CỔ PHẦN ĐẦU TƯ Á ĐÔNG LAND',
   hotline: 'Mr. Tuấn: 0901 303 092',
 
