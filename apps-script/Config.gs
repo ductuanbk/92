@@ -33,9 +33,9 @@ var CONFIG = {
   requestSheetName: 'YÊU CẦU GIỮ CĂN',     // sale xin giữ căn, admin duyệt
   snapshotSheetName: '_APP_SNAPSHOT',      // ảnh chụp giỏ hàng để so sánh biến động (tab ẩn)
 
-  // Bắt buộc nhập mã xem (VIEW_PIN) trước khi xem app nội bộ. Giữ true khi app nhúng trên website
-  // hoặc triển khai "Bất kỳ ai, kể cả ẩn danh". Chưa đặt mã xem thì chỉ admin vào được.
-  requireViewPin: true,
+  // true: bắt buộc nhập mã xem (VIEW_PIN) trước khi xem app nội bộ, chưa đặt mã thì chỉ admin vào được.
+  // Chỉ cần bật nếu app nội bộ được triển khai "Bất kỳ ai, kể cả ẩn danh" hoặc nhúng vào website.
+  requireViewPin: false,
 
   cacheSeconds: 60,       // giữ cache dữ liệu (giây); cập nhật trên app xóa cache ngay
   lockHours: 24,          // thời hạn giữ căn mặc định khi admin duyệt

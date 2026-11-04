@@ -88,7 +88,6 @@
     '.up { text-transform: uppercase; }',
     '.m2 { color: #b3bac6; font-size: 10px; margin-left: 2px; }',
     '.stt { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: var(--c); }',
-    '.ask { background: #fff; border: 1px solid #f3c4c6; color: var(--brand); border-radius: 6px; padding: 3px 10px; cursor: pointer; font-size: 13px; font-weight: 500; text-transform: none; letter-spacing: 0; min-height: 0; line-height: 1.5; }',
     '.empty { padding: 40px; text-align: center; color: var(--muted); white-space: normal; }',
     '.legal { color: var(--muted); font-size: 12px; margin: 10px 2px 0; }',
     '.cards { display: none; }',
@@ -297,12 +296,11 @@
       { k: 'build', l: 'DT xây dựng', cell: function (u) { return u.build != null ? m2(u.build) + '<span class="m2">m²</span>' : ''; } },
       { k: 'handover', l: 'Bàn giao', cell: function (u) { return esc(u.handover); } },
       { k: 'zone', l: 'Phân khu', cell: function (u) { return '<span class="up">' + esc(u.zone) + '</span>'; } },
-      { k: 'status', l: 'Tình trạng', cell: function (u) { return '<span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span>'; } },
-      { k: 'ask', l: '', nosort: true, cell: function (u) { return '<button class="ask" data-ask="' + esc(u.code) + '">Nhận tư vấn</button>'; } }
+      { k: 'status', l: 'Tình trạng', cell: function (u) { return '<span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span>'; } }
     ];
     function cols() {
       return COLS.filter(function (c) {
-        if (['code', 'price', 'status', 'ask'].indexOf(c.k) >= 0) return true;
+        if (['code', 'price', 'status'].indexOf(c.k) >= 0) return true;
         return state.units.some(function (u) { var v = c.k === 'perM2' ? perM2(u) : u[c.k]; return v != null && v !== ''; });
       });
     }
@@ -357,8 +355,8 @@
       state.sort = { key: k, dir: state.sort.key === k ? -state.sort.dir : (k === 'land' || k === 'build' ? -1 : 1) }; render();
     };
     $('tbody').onclick = $('cards').onclick = function (e) {
-      var el = e.target.closest('[data-ask],[data-code]'); if (!el) return;
-      var u = findCode(el.dataset.ask || el.dataset.code); if (u) openUnit(u);
+      var el = e.target.closest('[data-code]'); if (!el) return;
+      var u = findCode(el.dataset.code); if (u) openUnit(u);
     };
     function findCode(c) { var n = norm(c).replace(/\s/g, ''); return state.units.filter(function (u) { return norm(u.code).replace(/\s/g, '') === n; })[0]; }
 
