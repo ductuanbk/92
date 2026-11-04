@@ -109,7 +109,7 @@ function apiBootstrap() {
     hotline: CONFIG.hotline,
     zalo: CONFIG.zalo || '',
     appUrl: appUrl_(),
-    needView: !!getProp_('VIEW_PIN'),
+    needView: !!getProp_('VIEW_PIN') || CONFIG.requireViewPin === true,
     adminConfigured: Object.keys(getAdmins_()).length > 0,
     lockHours: CONFIG.lockHours,
     recentHours: CONFIG.recentHours,
@@ -117,7 +117,6 @@ function apiBootstrap() {
       return {
         id: p.id,
         name: p.name,
-        sheetUrl: 'https://docs.google.com/spreadsheets/d/' + p.spreadsheetId + '/edit',
         sources: p.sources.filter(isEnabled_).map(function (s) {
           return { key: sourceKey_(p, s), label: s.label, kind: s.kind, editable: !!s.editable };
         }),
@@ -140,7 +139,10 @@ function apiLogin(pin) {
 function apiViewLogin(pin) {
   guardBruteForce_();
   var viewPin = getProp_('VIEW_PIN');
-  if (!viewPin) return { token: '', role: 'viewer' };
+  if (!viewPin) {
+    if (CONFIG.requireViewPin === true) throw new Error('Admin chưa đặt mã xem. Admin chạy hàm setupAccess với viewPin, hoặc đăng nhập admin.');
+    return { token: '', role: 'viewer' };
+  }
   if (String(pin) !== viewPin) { recordFail_(); throw new Error('Mã xem không đúng.'); }
   return { token: newSession_({ role: 'viewer', name: '' }), role: 'viewer' };
 }
@@ -148,6 +150,14 @@ function apiViewLogin(pin) {
 function apiLogout(token) {
   if (token) CacheService.getScriptCache().remove('sess_' + token);
   return true;
+}
+
+/** Thông tin chỉ admin được thấy: link Google Sheet gốc của từng dự án. */
+function apiAdminInfo(token) {
+  requireAdmin_(token);
+  var urls = {};
+  CONFIG.projects.forEach(function (p) { urls[p.id] = 'https://docs.google.com/spreadsheets/d/' + p.spreadsheetId + '/edit'; });
+  return { sheetUrls: urls };
 }
 
 /** Kiểm tra token còn hiệu lực (khi tải lại trang). */
@@ -705,7 +715,7 @@ function getSession_(token) {
 function requireView_(token) {
   var s = getSession_(token);
   if (s) return s;
-  if (!getProp_('VIEW_PIN')) return { role: 'public', name: '' };
+  if (!getProp_('VIEW_PIN') && CONFIG.requireViewPin !== true) return { role: 'public', name: '' };
   throw new Error('AUTH: Phiên xem đã hết hạn, vui lòng nhập lại mã xem.');
 }
 

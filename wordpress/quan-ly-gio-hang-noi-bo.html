@@ -1,0 +1,27 @@
+<!-- ================================================================
+  TRANG QUẢN LÝ GIỎ HÀNG NỘI BỘ – dán vào một trang RIÊNG TƯ trên adongland.vn
+  Bắt buộc trước khi dùng:
+    1. Trang WordPress đặt "Bảo vệ bằng mật khẩu" hoặc "Riêng tư", và tắt lập chỉ mục
+       (Rank Math/Yoast: noindex). Không đưa trang này vào menu.
+    2. App nội bộ đã chạy setupAccess có viewPin (mã xem cho sale/CTV) và PIN admin.
+    3. Bản triển khai app nội bộ để quyền truy cập "Bất kỳ ai, kể cả ẩn danh"
+       (Apps Script › Triển khai › Quản lý các lần triển khai › Chỉnh sửa).
+  Flatsome: Page Attributes › Template "Page - Full Width" để app có đủ bề ngang.
+================================================================ -->
+<div class="adl-ql">
+  <div class="adl-ql-bar">
+    <b>Quản lý giỏ hàng Á Đông Land</b>
+    <a href="https://script.google.com/macros/s/AKfycbxTCebvfJCfhezq_7FpZ7Km5cOLxY72eq1Py6TjIzhLZ2_Z7M_YXLeS-QZOItItCsRuPw/exec" target="_blank" rel="noopener">Mở toàn màn hình</a>
+  </div>
+  <iframe
+    src="https://script.google.com/macros/s/AKfycbxTCebvfJCfhezq_7FpZ7Km5cOLxY72eq1Py6TjIzhLZ2_Z7M_YXLeS-QZOItItCsRuPw/exec"
+    title="Quản lý giỏ hàng Á Đông Land"
+    allow="clipboard-write"
+    referrerpolicy="no-referrer"></iframe>
+</div>
+<style>
+  .adl-ql { margin: 0 auto; max-width: 100%; }
+  .adl-ql-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 2px; font-size: 14px; }
+  .adl-ql-bar a { color: #a31d24; font-weight: 600; }
+  .adl-ql iframe { display: block; width: 100%; height: calc(100vh - 120px); min-height: 640px; border: 1px solid #eef0f4; border-radius: 10px; background: #fff; }
+</style>

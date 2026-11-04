@@ -12,7 +12,7 @@
  * Mã PIN admin và mã xem đặt bằng hàm setupAccess() trong Code.gs, không ghi ở đây.
  */
 var CONFIG = {
-  version: '4.1',
+  version: '4.2',
   companyName: 'CÔNG TY CỔ PHẦN ĐẦU TƯ Á ĐÔNG LAND',
   hotline: '0933 772 422',
   zalo: 'https://zalo.me/386470265573132310',
@@ -32,6 +32,10 @@ var CONFIG = {
   feedSheetName: 'BIẾN ĐỘNG GIỎ HÀNG',     // căn mới, rút giỏ, đổi trạng thái, đổi giá (kể cả sửa thẳng trên sheet)
   requestSheetName: 'YÊU CẦU GIỮ CĂN',     // sale xin giữ căn, admin duyệt
   snapshotSheetName: '_APP_SNAPSHOT',      // ảnh chụp giỏ hàng để so sánh biến động (tab ẩn)
+
+  // Bắt buộc nhập mã xem (VIEW_PIN) trước khi xem app nội bộ. Giữ true khi app nhúng trên website
+  // hoặc triển khai "Bất kỳ ai, kể cả ẩn danh". Chưa đặt mã xem thì chỉ admin vào được.
+  requireViewPin: true,
 
   cacheSeconds: 60,       // giữ cache dữ liệu (giây); cập nhật trên app xóa cache ngay
   lockHours: 24,          // thời hạn giữ căn mặc định khi admin duyệt

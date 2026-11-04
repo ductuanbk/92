@@ -135,6 +135,7 @@
   .modal-bg.open { display: flex; }
   .modal { background: #fff; border-radius: 12px; padding: 20px; width: min(420px, 100%); max-height: 90vh; overflow: auto; }
   .modal h3 { margin: 0 0 6px; }
+  .modal-bg.open { z-index: 60; }
   .gate { position: fixed; inset: 0; background: var(--bg); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px; }
   .gate .modal { box-shadow: 0 10px 40px rgba(0,0,0,.08); border: 1px solid var(--line); }
 
@@ -495,7 +496,7 @@
     <div class="src">Nhập mã xem do admin cung cấp.</div>
     <label for="viewPin">Mã xem</label>
     <input id="viewPin" type="password" autocomplete="off">
-    <div class="actions"><button class="btn primary" id="viewOk">Vào xem giỏ hàng</button></div>
+    <div class="actions"><button class="btn primary" id="viewOk">Vào xem giỏ hàng</button><button class="btn" id="gateAdmin">Đăng nhập admin</button></div>
     <div id="viewMsg" class="src"></div>
   </div>
 </div>
@@ -597,7 +598,7 @@
     $('projects').innerHTML = boot.projects.map(function (p) { return '<button data-p="' + esc(p.id) + '">' + esc(p.name) + '</button>'; }).join('');
     $('projects').onclick = function (e) { var b = e.target.closest('button'); if (b) selectProject(b.dataset.p); };
     var checks = [];
-    if (state.session) checks.push(call('apiWhoAmI', state.session.token).then(function (who) { if (!who) dropSession(); }).catch(dropSession));
+    if (state.session) checks.push(call('apiWhoAmI', state.session.token).then(function (who) { if (!who) dropSession(); else loadAdminInfo(); }).catch(dropSession));
     return Promise.all(checks).then(function () {
       renderRole();
       if (boot.needView && !token()) { showGate(); return; }
@@ -624,6 +625,7 @@
     }).catch(function (e) { $('viewMsg').textContent = errMsg(e); }).then(function () { $('viewOk').disabled = false; });
   };
   $('viewPin').onkeydown = function (e) { if (e.key === 'Enter') $('viewOk').click(); };
+  $('gateAdmin').onclick = function () { $('adminBtn').click(); };
 
   function handleAuthError() {
     if (state.session) { dropSession(); toast('Phiên admin đã hết hạn, vui lòng đăng nhập lại.', 4000); }
@@ -635,7 +637,7 @@
     state.project = state.boot.projects.filter(function (p) { return p.id === id; })[0];
     writeStore('adl_project', id, true);
     Array.prototype.forEach.call($('projects').children, function (b) { b.classList.toggle('on', b.dataset.p === id); });
-    $('sheetLink').href = state.project.sheetUrl;
+    $('sheetLink').href = (state.sheetUrls || {})[id] || '#';
     state.filter = EMPTY_FILTER(); state.selected = {}; state.requests = null;
     ['q', 'fMin', 'fMax'].forEach(function (x) { $(x).value = ''; }); $('fRecent').checked = false;
     renderRefButtons();
@@ -1208,6 +1210,13 @@
   }
 
   // ═══════════ Admin ═══════════
+  function loadAdminInfo() {
+    if (!isAdmin()) return;
+    call('apiAdminInfo', token()).then(function (info) {
+      state.sheetUrls = info.sheetUrls || {};
+      if (state.project) $('sheetLink').href = state.sheetUrls[state.project.id] || '#';
+    }).catch(function () { /* bỏ qua */ });
+  }
   function renderRole() {
     var b = $('adminBtn');
     if (isAdmin()) { b.textContent = state.session.name + ' · Đăng xuất'; b.classList.add('admin'); }
@@ -1232,7 +1241,8 @@
     call('apiLogin', pin).then(function (res) {
       state.session = res; writeStore('adl_session', JSON.stringify(res));
       $('loginPin').value = ''; $('loginModal').classList.remove('open'); renderRole();
-      toast('Xin chào ' + res.name); loadRequests(true);
+      toast('Xin chào ' + res.name); loadAdminInfo();
+      if (!$('gate').hidden) { $('gate').hidden = true; start(); } else loadRequests(true);
     }).catch(function (e) { $('loginMsg').textContent = errMsg(e); }).then(function () { $('loginOk').disabled = false; });
   };
   $('loginPin').onkeydown = function (e) { if (e.key === 'Enter') $('loginOk').click(); };
@@ -1485,11 +1495,11 @@
         ['2', 'Hoàng Vân', 'TKNB-VND-Hoang Van', '19068099999882'], ['3', 'Ngọc Quý', 'TKNB-VND-Ngoc Quy', '19068099999661']]
     };
     var boot = {
-      version: '4.1', companyName: 'CÔNG TY CỔ PHẦN ĐẦU TƯ Á ĐÔNG LAND', hotline: '0933 772 422', needView: false, adminConfigured: true, lockHours: 24, recentHours: 48,
+      version: '4.2', companyName: 'CÔNG TY CỔ PHẦN ĐẦU TƯ Á ĐÔNG LAND', hotline: '0933 772 422', needView: false, adminConfigured: true, lockHours: 24, recentHours: 48,
       projects: [
-        { id: 'VHSGP', name: 'Vinhomes Saigon Park', sheetUrl: 'https://docs.google.com/spreadsheets/d/1xUA-B3RgED5RuSDrDgSB4JDYuhHfNhks--Ga8ZdswVc/edit',
+        { id: 'VHSGP', name: 'Vinhomes Saigon Park',
           references: [{ sheet: 'STK CỌC VHSGP', label: 'STK cọc / ký quỹ' }] },
-        { id: 'VHCG', name: 'Vinhomes Green Paradise', sheetUrl: 'https://docs.google.com/spreadsheets/d/1F7AQQ9vbz4oPSUIVA2UQIQMUyFZxjOMbZS9HokU1eRM/edit',
+        { id: 'VHCG', name: 'Vinhomes Green Paradise',
           references: [{ sheet: 'STK VỊNH NGỌC', label: 'STK Vịnh Ngọc' }] }
       ]
     };
@@ -1509,6 +1519,7 @@
     function clone(x) { return JSON.parse(JSON.stringify(x)); }
     return {
       apiBootstrap: function () { return boot; },
+      apiAdminInfo: function (t) { admin(t); return { sheetUrls: { VHSGP: 'https://docs.google.com/spreadsheets/d/1xUA-B3RgED5RuSDrDgSB4JDYuhHfNhks--Ga8ZdswVc/edit', VHCG: 'https://docs.google.com/spreadsheets/d/1F7AQQ9vbz4oPSUIVA2UQIQMUyFZxjOMbZS9HokU1eRM/edit' } }; },
       apiWhoAmI: function (t) { return sessions[t] ? { role: 'admin', name: sessions[t].name } : null; },
       apiLogin: function (pin) { if (!admins[pin]) throw new Error('Mã PIN không đúng.'); var t = 'tok' + Math.random().toString(36).slice(2); sessions[t] = { role: 'admin', name: admins[pin] }; return { token: t, name: admins[pin], role: 'admin' }; },
       apiViewLogin: function () { return { token: '', role: 'viewer' }; },

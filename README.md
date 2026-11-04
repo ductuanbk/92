@@ -1,4 +1,4 @@
-# Giỏ hàng Á Đông Land — phiên bản 4.1
+# Giỏ hàng Á Đông Land — phiên bản 4.2
 
 Web app quản lý và cập nhật giỏ hàng hai dự án **Vinhomes Saigon Park (VHSGP)** và **Vinhomes Green Paradise (VHCG)**.
 
@@ -107,6 +107,28 @@ Trang riêng cho khách hàng, đặt trên GitHub Pages. Dữ liệu lấy tr�
 3. Dán link `/exec` của dự án công khai vào `API_URL` trong `docs/config.js`.
 4. Bật GitHub Pages: repo **Settings → Pages → Build and deployment → Deploy from a branch**, chọn nhánh chứa thư mục `docs` và thư mục `/docs`.
 5. Muốn dùng tên miền riêng (ví dụ `banghang.adongland.vn`): nhập vào ô **Custom domain** trong trang Pages, rồi tạo bản ghi CNAME trỏ về `ductuanbk.github.io` ở nhà cung cấp tên miền.
+
+## Đưa lên website adongland.vn (WordPress, theme Flatsome)
+
+Hai đoạn mã trong thư mục `wordpress/`, dán vào phần tử **HTML** của Flatsome UX Builder (Add Elements › Content › HTML) hoặc khối **HTML tùy chỉnh** của WordPress.
+
+| Trang | File | Ai xem | Ghi chú |
+|---|---|---|---|
+| Bảng hàng cho khách, ví dụ `adongland.vn/bang-hang` | `wordpress/bang-hang-cong-khai.html` | Mọi người | Khối nhúng `docs/embed.js`, chạy trong Shadow DOM nên CSS Flatsome không làm vỡ bảng và ngược lại. Tự co theo bề rộng cột nội dung. Thêm `data-du-an="VHSGP"` để chỉ hiện một dự án. |
+| Quản lý giỏ hàng nội bộ, ví dụ `adongland.vn/quan-ly-gio-hang` | `wordpress/quan-ly-gio-hang-noi-bo.html` | Sale, CTV (mã xem), admin (PIN) | Khung nhúng app nội bộ. Trang WordPress phải để riêng tư hoặc có mật khẩu, đặt noindex, không đưa vào menu. Dùng mẫu trang Full Width. |
+
+**Điều kiện cho trang quản lý nội bộ**
+
+- App nội bộ triển khai với quyền **Bất kỳ ai, kể cả ẩn danh** (`apps-script/appsscript.json`), vì trong khung nhúng không đăng nhập Google được.
+- `requireViewPin: true` trong `Config.gs` (mặc định): chưa nhập mã xem thì không thấy gì. Chưa đặt mã xem thì chỉ admin vào được.
+- Link Google Sheet gốc chỉ hiện cho admin (`apiAdminInfo`).
+- Đặt mã xem bằng `setupAccess` (biến `viewPin`) trước khi gửi link trang cho sale/CTV.
+
+**Lưu ý cache và tối ưu JS trên WordPress**
+
+- Nếu dùng WP Rocket, LiteSpeed Cache hoặc Autoptimize: loại trừ `ductuanbk.github.io/92/embed.js` và `script.google.com` khỏi "Delay JavaScript execution" và "Combine/Minify JS". Không loại trừ thì bảng chỉ hiện khi khách cuộn hoặc chạm.
+- Không cần xóa cache trang khi bảng hàng đổi: dữ liệu tải trực tiếp trong trình duyệt, trễ tối đa khoảng 2 phút.
+- `embed.js` phục vụ từ GitHub Pages. Nếu Pages chưa bật, thay link bằng bản qua jsDelivr theo mã commit: `https://cdn.jsdelivr.net/gh/ductuanbk/92@<mã-commit>/docs/embed.js`.
 
 ## Bản đang chạy
 
