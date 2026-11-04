@@ -110,18 +110,29 @@ Trang riêng cho khách hàng, đặt trên GitHub Pages. Dữ liệu lấy tr�
 
 ## Đưa bảng hàng lên website adongland.vn (WordPress, theme Flatsome)
 
-Website chỉ có **một trang bảng hàng công khai cho khách**. App quản lý nội bộ vẫn dùng riêng qua link Apps Script (cần đăng nhập Google), không nhúng lên website.
+Website chỉ có **một trang bảng hàng công khai cho khách**, chạy trực tiếp trên adongland.vn, **không phụ thuộc GitHub**. App quản lý nội bộ vẫn dùng riêng qua link Apps Script (cần đăng nhập Google).
 
-- Đoạn mã: `wordpress/bang-hang-cong-khai.html`. Dán vào phần tử **HTML** của Flatsome UX Builder (Add Elements › Content › HTML) hoặc khối **HTML tùy chỉnh** của WordPress.
-- Khối nhúng `docs/embed.js` chạy trong Shadow DOM nên CSS Flatsome không làm vỡ bảng và ngược lại. Tự co theo bề rộng cột nội dung, trên điện thoại chuyển sang dạng thẻ.
-- Bấm một căn để xem chi tiết, có nút gọi hotline và hỏi qua Zalo. Không có nút "Nhận tư vấn" trên từng dòng.
-- Thêm `data-du-an="VHSGP"` (hoặc `VHCG`) vào thẻ div để chỉ hiện một dự án.
+**Cách dán (khoảng 3 phút)**
 
-**Lưu ý cache và tối ưu JS trên WordPress**
+1. Mở file `wordpress/bang-hang-cong-khai.html`, chọn tất cả và sao chép (3 dòng, khoảng 27 KB; dòng thứ ba rất dài, đó là toàn bộ mã bảng hàng đã nén).
+2. WordPress › Trang › Thêm mới (ví dụ "Bảng hàng", đường dẫn `bang-hang`) › mở bằng UX Builder.
+3. Add Elements › Content › **HTML**, dán toàn bộ, bấm Apply rồi Update. Trình soạn khối WordPress: dùng khối **HTML tùy chỉnh**.
+4. Mở trang ở chế độ xem (không phải trong UX Builder) để kiểm tra; trong khung soạn thảo, bảng có thể không chạy.
 
-- Nếu dùng WP Rocket, LiteSpeed Cache hoặc Autoptimize: loại trừ `ductuanbk.github.io/92/embed.js` và `script.google.com` khỏi "Delay JavaScript execution" và "Combine/Minify JS". Không loại trừ thì bảng chỉ hiện khi khách cuộn hoặc chạm.
-- Không cần xóa cache trang khi bảng hàng đổi: dữ liệu tải trực tiếp trong trình duyệt, trễ tối đa khoảng 2 phút.
-- `embed.js` phục vụ từ GitHub Pages. Nếu Pages chưa bật, thay link bằng bản qua jsDelivr theo mã commit: `https://cdn.jsdelivr.net/gh/ductuanbk/92@<mã-commit>/docs/embed.js`.
+**Cách hoạt động**
+
+- Toàn bộ mã bảng hàng nằm sẵn trong đoạn dán, chỉ lấy dữ liệu từ dự án Apps Script công khai (`script.google.com`) và font chữ từ Google Fonts.
+- Bảng chạy trong Shadow DOM nên CSS Flatsome không làm vỡ bảng và ngược lại. Tự co theo bề rộng cột nội dung, trên điện thoại chuyển sang dạng thẻ.
+- Bấm một căn để xem chi tiết, có nút gọi hotline và hỏi qua Zalo.
+- Thêm `data-du-an="VHSGP"` (hoặc `VHCG`) vào thẻ `<div data-adl-bang-hang>` để chỉ hiện một dự án.
+- Cần quyền Quản trị viên (Administrator) để lưu đoạn mã có `<script>`; tài khoản Biên tập viên sẽ bị WordPress xóa phần mã.
+
+**Lưu ý cache và tối ưu JS**
+
+- Nếu dùng WP Rocket, LiteSpeed Cache hoặc Autoptimize: loại trừ `adl-bang-hang` (từ khóa có trong đoạn mã) và `script.google.com` khỏi "Delay JavaScript execution", "Combine/Minify inline JS". Không loại trừ thì bảng chỉ hiện khi khách cuộn hoặc chạm.
+- Không cần xóa cache trang khi bảng hàng đổi: dữ liệu tải trong trình duyệt, trễ tối đa khoảng 2 phút.
+
+**Sửa giao diện bảng hàng về sau:** sửa `docs/embed.js`, chạy `npm i terser` một lần rồi `node tools/build-wordpress.mjs` để tạo lại `wordpress/bang-hang-cong-khai.html`, sau đó dán lại vào WordPress.
 
 ## Bản đang chạy
 

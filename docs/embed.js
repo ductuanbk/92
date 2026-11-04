@@ -1,9 +1,9 @@
 /*!
  * Bảng hàng Á Đông Land: khối nhúng cho website (WordPress/Flatsome hoặc trang bất kỳ).
  *
- * Cách dùng:
- *   <div data-adl-bang-hang></div>
- *   <script src="https://ductuanbk.github.io/92/embed.js" defer></script>
+ * Cách dùng trên WordPress: dán file wordpress/bang-hang-cong-khai.html (đã gồm sẵn mã này,
+ * nén một dòng) vào phần tử HTML của Flatsome hoặc khối HTML tùy chỉnh. Không cần tải file ngoài.
+ * Tạo lại file đó sau khi sửa mã này: node tools/build-wordpress.mjs
  *
  * Tùy chọn (thuộc tính trên thẻ div):
  *   data-du-an="VHSGP"   chỉ hiện một dự án (VHSGP hoặc VHCG), ẩn thanh chọn dự án
