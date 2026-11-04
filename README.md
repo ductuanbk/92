@@ -1,4 +1,4 @@
-# Giỏ hàng Á Đông Land — phiên bản 3
+# Giỏ hàng Á Đông Land — phiên bản 4
 
 Web app quản lý và cập nhật giỏ hàng hai dự án **Vinhomes Saigon Park (VHSGP)** và **Vinhomes Green Paradise (VHCG)**.
 
@@ -9,9 +9,22 @@ Google Sheet vẫn là nguồn dữ liệu gốc. App đọc thẳng từ sheet 
 | Vinhomes Saigon Park | `ADL_ GIỎ HÀNG VHSGP` | `GHĐQ ADL` (độc quyền, sửa được), `GIỎ HÀNG ĐỐI TÁC` (chỉ xem) |
 | Vinhomes Green Paradise | `ADL - BẢNG HÀNG VHCG` | `GHĐQ` (độc quyền), `GIỎ HÀNG ĐỐI TÁC` (đều sửa được) |
 
+## Có gì mới ở phiên bản 4: giao diện bảng hàng gọn, dễ lọc
+
+- Nền trắng, khung tiêu đề dự án ở đầu trang, menu ở giữa có gạch chân cho mục đang chọn.
+- **Bảng hàng** là màn hình mặc định, gồm các cột: Mã căn (ô đỏ) · Giá niêm yết · Giá chưa VAT · Đơn giá (triệu/m² đất) · Loại hình · Hướng · DT đất · DT xây dựng · TCBG · Phân khu · Giỏ · Tình trạng (chấm màu).
+  - Cột nào cả dự án đều trống (ví dụ Hướng) sẽ tự ẩn.
+  - Màn hình hẹp tự ẩn bớt cột phụ để không phải kéo ngang; xem đủ thông tin trong khung chi tiết căn.
+- **Sắp xếp** bằng ô "Sắp xếp" (Mặc định, Giá thấp → cao, Giá cao → thấp, Đơn giá, DT đất, Mã căn, Mới biến động trước) hoặc bấm tiêu đề cột.
+  - "Mặc định": căn còn hàng lên đầu, rẻ trước.
+- **Bộ lọc**: nút "Bộ lọc" mở bảng lọc theo giỏ, phân khu, loại hình, TCBG, hướng, khoảng giá, căn mới biến động. Nút hiện số bộ lọc đang bật.
+- **Lọc nhanh theo tình trạng** bằng hàng nút: Tất cả, Còn hàng, Check admin, Đang lock, Đã cọc, Đã bán (kèm số căn).
+- Ô tìm kiếm ngay cạnh tiêu đề "BẢNG HÀNG".
+- Nút "Bảng | Sơ đồ" chuyển sang sơ đồ ô màu của bản 3.
+
 ## Có gì mới ở phiên bản 3: sơ đồ bảng hàng
 
-- **Sơ đồ trực quan** (mặc định): mỗi căn là một ô màu theo trạng thái, xếp theo **phân khu → đường/dãy → số căn**. Ô ghi số căn, loại căn, diện tích đất, giá. Căn đã bán gạch ngang.
+- **Sơ đồ trực quan**: mỗi căn là một ô màu theo trạng thái, xếp theo **phân khu → đường/dãy → số căn**. Ô ghi số căn, loại căn, diện tích đất, giá. Căn đã bán gạch ngang.
 - Mỗi phân khu có thanh đầu ghi số căn theo trạng thái và tỷ lệ còn hàng; mỗi đường ghi "x/y còn".
 - Nhãn trên ô: **MỚI** (vừa biến động), **GIỮ** (đang giữ cho sale), **HẠN** (quá hạn giữ), **YC** (có yêu cầu chờ duyệt). Chấm xám là căn thuộc giỏ chỉ xem.
 - **Cập nhật nhanh (admin)**: bật "Cập nhật nhanh", bấm vào ô và chọn trạng thái mới; app lưu ngay vào Google Sheet và hiện nút **Hoàn tác** trong 7 giây.
