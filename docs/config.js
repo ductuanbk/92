@@ -3,7 +3,7 @@
  * API_URL: link /exec của dự án Apps Script "Bảng hàng công khai Á Đông Land".
  */
 window.ADL_SITE = {
-  API_URL: '',
+  API_URL: 'https://script.google.com/macros/s/AKfycbwwmEKbhm_tU2C0MtddBsS-3N2tqy5aAvzKPva8_XZUc_EPODnpUXyPnhk8Ia--4B59/exec',
   hotline: '0933772422',
   hotlineText: '0933 772 422',
   zalo: 'https://zalo.me/386470265573132310',

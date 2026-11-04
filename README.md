@@ -111,7 +111,8 @@ Trang riêng cho khách hàng, đặt trên GitHub Pages. Dữ liệu lấy tr�
 ## Bản đang chạy
 
 - Dự án Apps Script: **Giỏ hàng Á Đông Land**, tạo ngày 04/11/2026 trên tài khoản `tranductuan06@gmail.com`. Mở để sửa tại `https://script.google.com/d/1dQF-b0wb7FiatIk102i5If10gvQzCI4WYGik-AG23-wN_89Q0IamweX6/edit`.
-- Lần triển khai @1 "v4.0 - Bảng hàng": web app chạy dưới tài khoản trên, người dùng cần đăng nhập Google để mở.
+- Lần triển khai nội bộ hiện tại: @2 "v4.1 - Hotline mới, dữ liệu công khai" (cùng link với @1). Web app chạy dưới tài khoản trên, người dùng cần đăng nhập Google để mở.
+- Dự án công khai: **Bảng hàng công khai Á Đông Land**, script ID `112W2VPk53f-7NyYsZva1mFYMXcEnNESx7s-nMiRcp8NBqpP1bGMhCj2K`, triển khai @1 truy cập ẩn danh. Link `/exec` của dự án này nằm trong `docs/config.js` (chỉ trả dữ liệu đã lọc nên để công khai được).
 - Link web app (`.../exec`) xem trong dự án: **Triển khai → Quản lý các lần triển khai**. Không ghi link vào repo để tránh lộ giỏ hàng.
 - Cập nhật bản mới bằng clasp: tạo `apps-script/.clasp.json` với `{"scriptId": "1dQF-b0wb7FiatIk102i5If10gvQzCI4WYGik-AG23-wN_89Q0IamweX6", "rootDir": "."}`, chạy `clasp push`, rồi `clasp update-deployment <deploymentId>` để giữ nguyên link.
 
