@@ -181,8 +181,11 @@
       var s = document.createElement('script');
       var timer = setTimeout(function () { cleanup(); reject(new Error('timeout')); }, 25000);
       function cleanup() { clearTimeout(timer); try { delete window[cb]; } catch (e) { window[cb] = undefined; } s.remove(); }
-      window[cb] = function (d) { cleanup(); resolve(d); };
+      var done = false;
+      window[cb] = function (d) { done = true; cleanup(); resolve(d); };
       s.onerror = function () { cleanup(); reject(new Error('network')); };
+      // Tải xong mà không gọi lại: máy chủ trả trang đăng nhập/lỗi thay vì dữ liệu (chưa cấp quyền, sai link).
+      s.onload = function () { setTimeout(function () { if (!done) { cleanup(); reject(new Error('invalid')); } }, 50); };
       s.src = url + (url.indexOf('?') < 0 ? '?' : '&') + 'api=public&callback=' + cb + '&t=' + Date.now();
       document.head.appendChild(s);
     });
@@ -225,9 +228,13 @@
         var want = state.project ? state.project.id : hp.p;
         selectProject(projects.some(function (x) { return x.id === want; }) ? want : projects[0].id, silent);
         if (!silent && hp.u) { var u = findCode(hp.u); if (u) openUnit(u); }
-      }).catch(function () {
+      }).catch(function (err) {
         if (silent) return;
-        var msg = '<div class="empty">Bảng hàng đang được cập nhật. Vui lòng gọi ' + esc(C.hotlineText) + ' để nhận giỏ hàng mới nhất.</div>';
+        var code = (err && err.message) || 'unknown';
+        var why = { timeout: 'máy chủ dữ liệu phản hồi quá lâu', network: 'không kết nối được máy chủ dữ liệu', invalid: 'máy chủ dữ liệu chưa sẵn sàng (chưa cấp quyền hoặc sai link)', bad: 'máy chủ dữ liệu báo lỗi', noproject: 'không có dự án phù hợp' }[code] || code;
+        if (window.console) console.warn('[Bảng hàng ADL] Lỗi tải dữ liệu:', code, C.API_URL);
+        var msg = '<div class="empty">Bảng hàng đang được cập nhật. Vui lòng gọi ' + esc(C.hotlineText) + ' để nhận giỏ hàng mới nhất.' +
+          '<br><small style="opacity:.7">Mã lỗi: ' + esc(code) + ' (' + esc(why) + ')</small></div>';
         $('tbody').innerHTML = '<tr><td>' + msg + '</td></tr>'; $('cards').innerHTML = msg;
       });
     }
