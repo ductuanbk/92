@@ -252,7 +252,7 @@ tbody tr:hover .go { color: var(--brand); }
       </select></label>
       <button class="adv-btn" id="advBtn" aria-expanded="false">Lọc thêm <span class="badge" id="advCount" hidden></span></button>
     </div>
-    <div class="groups">
+    <div class="groups" id="groups" hidden>
       <div class="grp" id="gHandover"></div>
       <div class="grp" id="gPrice"></div>
       <div class="grp" id="gType"></div>
@@ -304,13 +304,19 @@ tbody tr:hover .go { color: var(--brand); }
 
   // ─── Chuẩn hóa cách ghi khác nhau giữa các sheet (LK / Liền kề, GIÃN XÂY / Giãn xây, "–"...) ───
   var EMPTY_MARKS = { '-': 1, '–': 1, '—': 1, '_': 1, '.': 1, 'n/a': 1, 'x': 1 };
-  function blankish(v) { var t = String(v == null ? '' : v).trim(); return EMPTY_MARKS[t.toLowerCase()] ? '' : t; }
+  // Chuẩn hóa Unicode (NFC) và khoảng trắng: chữ gõ bằng hai kiểu mã hóa dấu khác nhau sẽ thành một.
+  function blankish(v) { var t = String(v == null ? '' : v).normalize('NFC').replace(/[\s\u00a0\u200b]+/g, ' ').trim(); return EMPTY_MARKS[t.toLowerCase()] ? '' : t; }
+  function cleanHandover(v) {
+    var t = blankish(v); if (!t) return '';
+    t = sentence(t).replace(/^bàn giao\s+/i, '').replace(/\s*[-–—]\s*/g, ' ').replace(/\s+/g, ' ').trim();
+    return t ? t.charAt(0).toLocaleUpperCase('vi-VN') + t.slice(1) : '';
+  }
   function lowerVi(t) { return t.toLocaleLowerCase('vi-VN'); }
   function sentence(t) { t = lowerVi(t).replace(/\s+/g, ' '); return t.charAt(0).toLocaleUpperCase('vi-VN') + t.slice(1); }
   function titleCase(t) { return lowerVi(t).replace(/\s+/g, ' ').replace(/(^|\s)(\S)/g, function (m, a, b) { return a + b.toLocaleUpperCase('vi-VN'); }); }
   function cleanType(t) {
     t = blankish(t); if (!t) return '';
-    var x = lowerVi(t).replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+    var x = lowerVi(t).replace(/[(),;]/g, ' ').replace(/\s*[-–—]\s*/g, ' ').replace(/\s+/g, ' ').trim();
     x = x.replace(/^lk\b/, 'liền kề').replace(/^sl\b/, 'song lập').replace(/^(đl|dl)\b/, 'đơn lập').replace(/^bt\b/, 'biệt thự').replace(/^sh\b/, 'shophouse');
     x = x.replace(/\bgốc\b/g, 'góc');
     return x.charAt(0).toLocaleUpperCase('vi-VN') + x.slice(1);
@@ -319,7 +325,7 @@ tbody tr:hover .go { color: var(--brand); }
     return {
       code: String(u.code || '').trim(), zone: blankish(u.zone) ? titleCase(blankish(u.zone)) : '', street: blankish(u.street),
       type: cleanType(u.type), direction: blankish(u.direction) ? titleCase(blankish(u.direction)) : '',
-      handover: blankish(u.handover) ? sentence(blankish(u.handover)) : '',
+      handover: cleanHandover(u.handover),
       land: u.land, build: u.build != null ? Math.round(u.build * 10) / 10 : u.build, price: u.price, status: viewStatus(u.status),
       ptg: /^https:\/\//i.test(u.ptg || '') ? u.ptg : '', unitLink: /^https:\/\//i.test(u.unitLink || '') ? u.unitLink : '',
       priceExVat: u.priceExVat || null, priceLoan: u.priceLoan || null, dq: !!u.dq
@@ -478,12 +484,17 @@ tbody tr:hover .go { color: var(--brand); }
     Object.keys(FMAP).forEach(function (id) { $(id).onchange = function () { state.filter[FMAP[id]] = this.value; reset(); }; });
     ['fMin', 'fMax', 'fLand'].forEach(function (id) { $(id).oninput = function () { state.filter[{ fMin: 'min', fMax: 'max', fLand: 'land' }[id]] = this.value; reset(); }; });
     var qt; $('q').oninput = function () { var v = this.value; clearTimeout(qt); qt = setTimeout(function () { state.filter.q = v; reset(); }, 150); };
-    $('advBtn').onclick = function () { var p = $('adv'); p.hidden = !p.hidden; this.classList.toggle('on', !p.hidden); this.setAttribute('aria-expanded', String(!p.hidden)); };
+    // Toàn bộ phần lọc (nút Bàn giao, Khoảng giá, Loại hình và các ô lọc phụ) chỉ hiện khi bấm "Lọc thêm".
+    $('advBtn').onclick = function () {
+      var open = $('adv').hidden;
+      $('adv').hidden = !open; $('groups').hidden = !open;
+      this.classList.toggle('on', open); this.setAttribute('aria-expanded', String(open));
+    };
     $('sortSel').onchange = function () { var v = this.value; state.sort = v === 'default' ? { key: 'default', dir: 1 } : { key: v.split(':')[0], dir: Number(v.split(':')[1]) }; reset(); };
     $('clearAll').onclick = function () { state.filter = blank(); ['q', 'fMin', 'fMax', 'fLand'].forEach(function (x) { $(x).value = ''; }); buildOptions(); reset(); };
     $('moreBtn').onclick = function () { state.shown += C.pageSize; render(); };
     function reset() { state.shown = C.pageSize; render(); }
-    function advCount() { var f = state.filter; return ['zone', 'direction', 'status', 'land'].filter(function (k) { return f[k]; }).length; }
+    function advCount() { var f = state.filter; return ['zone', 'direction', 'status', 'land', 'handover', 'type'].filter(function (k) { return f[k]; }).length + (f.min || f.max ? 1 : 0); }
     function anyFilter() { var f = state.filter; return !!(f.q || f.handover || f.type || f.min || f.max || advCount()); }
 
     function matches(u, skip) {
