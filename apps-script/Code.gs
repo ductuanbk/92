@@ -70,6 +70,7 @@ function publicData_() {
     ok: true,
     updatedAt: new Date().toISOString(),
     company: { name: CONFIG.companyName, hotline: CONFIG.hotline, zalo: CONFIG.zalo || '' },
+    exclusiveTab: (ps.exclusiveTab && ps.exclusiveTab.enabled) ? ps.exclusiveTab : null,
     projects: []
   };
   CONFIG.projects.forEach(function (project) {
@@ -87,6 +88,7 @@ function publicData_() {
           handover: u.handover, land: u.land, build: u.build, price: u.priceTotal || null,
           status: labels[u.status] || 'Liên hệ'
         };
+        if (source.kind === 'exclusive') item.dq = 1;
         if (ps.showLinks) {
           if (/^https:\/\//i.test(u.ptg)) item.ptg = u.ptg;
           if (/^https:\/\//i.test(u.unitLink)) item.unitLink = u.unitLink;

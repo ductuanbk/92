@@ -9,6 +9,7 @@
  *   data-du-an="VHSGP"   chỉ hiện một dự án (VHSGP hoặc VHCG), ẩn nút chuyển dự án
  *   data-tieu-de="0"     ẩn khung tiêu đề dự án phía trên bảng
  *   data-lien-ket="0"    không ghi mã căn lên thanh địa chỉ
+ *   data-gio="dq"        mở sẵn tab ĐQ (giỏ hàng độc quyền Á Đông Land)
  *
  * Khối chạy trong Shadow DOM: CSS của theme không ảnh hưởng tới bảng và ngược lại.
  * Dữ liệu chỉ gồm trường công khai (xem Code.gs › publicData_).
@@ -68,6 +69,15 @@ a { color: var(--brand); }
 .stat .k { font-size: 12px; color: rgba(255,255,255,.7); }
 .stat .v { font-size: 20px; font-weight: 700; color: #fff; margin-top: 2px; white-space: nowrap; }
 .stat .v small { font-size: 13px; font-weight: 500; color: rgba(255,255,255,.7); }
+
+/* Tab giỏ hàng (Tất cả / ĐQ) */
+.gtabs { display: flex; gap: 4px; margin: 0 0 12px; border-bottom: 1px solid var(--line); }
+.gtabs button { white-space: nowrap; border: 0; background: none; padding: 10px 16px 11px; font-size: 15px; font-weight: 600; color: var(--ink-2); border-bottom: 3px solid transparent; margin-bottom: -1px; display: inline-flex; align-items: center; gap: 8px; }
+.gtabs button b { font-weight: 700; font-size: 12px; background: var(--other-bg); color: var(--other); border-radius: 999px; padding: 1px 8px; }
+.gtabs button.on { color: var(--navy); border-bottom-color: var(--brand); }
+.gtabs button.on b { background: var(--brand); color: #fff; }
+.gtabs .dqmark { background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .5px; padding: 2px 7px; border-radius: 5px; }
+.dq { display: inline-block; vertical-align: 1px; margin-left: 6px; background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 10.5px; font-weight: 800; letter-spacing: .5px; padding: 2px 6px; border-radius: 4px; }
 
 /* Thanh tìm kiếm và lọc */
 .tools { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(16,24,40,.04); }
@@ -191,6 +201,7 @@ tbody tr:hover .go { color: var(--brand); }
   .hero h2 { font-size: 23px; }
   .stat .v { font-size: 17px; }
   .hero-top { gap: 12px; }
+  .gtabs button { flex: 1 1 0; justify-content: center; padding: 10px 4px 11px; font-size: 14px; gap: 6px; min-width: 0; }
   .switch { width: 100%; flex-wrap: nowrap; } .switch button { flex: 1 1 0; min-width: 0; padding: 8px 6px; font-size: 12.5px; white-space: normal; line-height: 1.25; }
   .search { flex: 1 1 100%; }
   .sort { flex: 1 1 0; min-width: 0; } .sort span { display: none; } .sort select { min-width: 0; width: 100%; }
@@ -220,6 +231,7 @@ tbody tr:hover .go { color: var(--brand); }
     <div class="stats" id="stats"></div>
   </section>
 
+  <div class="gtabs" id="gtabs" role="tablist" aria-label="Chọn giỏ hàng" hidden></div>
   <div class="tools">
     <div class="row1">
       <input class="search" id="q" type="search" placeholder="Tìm mã căn, ví dụ AS71-18" aria-label="Tìm mã căn">
@@ -279,7 +291,7 @@ tbody tr:hover .go { color: var(--brand); }
     var d = new Date(iso);
     return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ngày ' + d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
-  function hashParams() { var h = new URLSearchParams(location.hash.replace(/^#/, '')); var q = new URLSearchParams(location.search); return { p: h.get('du-an') || q.get('p'), u: h.get('can') || q.get('u') }; }
+  function hashParams() { var h = new URLSearchParams(location.hash.replace(/^#/, '')); var q = new URLSearchParams(location.search); return { p: h.get('du-an') || q.get('p'), u: h.get('can') || q.get('u'), g: h.get('gio') }; }
 
   // ─── Chuẩn hóa cách ghi khác nhau giữa các sheet (LK / Liền kề, GIÃN XÂY / Giãn xây, "–"...) ───
   var EMPTY_MARKS = { '-': 1, '–': 1, '—': 1, '_': 1, '.': 1, 'n/a': 1, 'x': 1 };
@@ -301,7 +313,7 @@ tbody tr:hover .go { color: var(--brand); }
       handover: blankish(u.handover) ? sentence(blankish(u.handover)) : '',
       land: u.land, build: u.build != null ? Math.round(u.build * 10) / 10 : u.build, price: u.price, status: u.status,
       ptg: /^https:\/\//i.test(u.ptg || '') ? u.ptg : '', unitLink: /^https:\/\//i.test(u.unitLink || '') ? u.unitLink : '',
-      priceExVat: u.priceExVat || null, priceLoan: u.priceLoan || null
+      priceExVat: u.priceExVat || null, priceLoan: u.priceLoan || null, dq: !!u.dq
     };
   }
   function stCls(s) { return s === 'Còn hàng' ? 's-ok' : s === 'Đang giữ chỗ' ? 's-hold' : s === 'Đã bán' ? 's-sold' : 's-other'; }
@@ -345,8 +357,9 @@ tbody tr:hover .go { color: var(--brand); }
     var lockProject = host.getAttribute('data-du-an') || '';
     var useHash = host.getAttribute('data-lien-ket') !== '0';
     if (host.getAttribute('data-tieu-de') === '0') $('hero').hidden = true;
-    var state = { data: null, projects: [], project: null, units: [], filter: blank(), sort: { key: 'default', dir: 1 }, current: null, shown: C.pageSize };
-    function blank() { return { q: '', zone: '', type: '', direction: '', handover: '', land: '', min: '', max: '', status: '' }; }
+    var state = null;
+    state = { data: null, projects: [], project: null, units: [], filter: blank(), sort: { key: 'default', dir: 1 }, current: null, shown: C.pageSize };
+    function blank() { return { q: '', zone: '', type: '', direction: '', handover: '', land: '', min: '', max: '', status: '', dq: state && state.filter ? state.filter.dq : (host.getAttribute('data-gio') === 'dq' ? '1' : '') }; }
     function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('show'); }, 2600); }
 
     // Khung chờ khi đang tải
@@ -363,6 +376,7 @@ tbody tr:hover .go { color: var(--brand); }
         $('projects').hidden = projects.length < 2;
         $('projects').innerHTML = projects.map(function (p) { return '<button role="tab" data-p="' + esc(p.id) + '">' + esc(p.name) + '</button>'; }).join('');
         var hp = hashParams();
+        if (!silent && hp.g === 'dq') state.filter.dq = '1';
         var want = state.project ? state.project.id : hp.p;
         selectProject(projects.some(function (x) { return x.id === want; }) ? want : projects[0].id, silent);
         if (!silent && hp.u) { var u = findCode(hp.u); if (u) openUnit(u); }
@@ -439,6 +453,7 @@ tbody tr:hover .go { color: var(--brand); }
     function matches(u, skip) {
       var f = state.filter, q = norm(f.q).trim();
       var min = f.min !== '' ? Number(f.min) * 1e9 : null, max = f.max !== '' ? Number(f.max) * 1e9 : null, land = f.land !== '' ? Number(f.land) : null;
+      if (skip !== 'dq' && f.dq && !u.dq) return false;
       if (skip !== 'zone' && f.zone && u.zone !== f.zone) return false;
       if (skip !== 'type' && f.type && u.type !== f.type) return false;
       if (skip !== 'direction' && f.direction && u.direction !== f.direction) return false;
@@ -455,7 +470,22 @@ tbody tr:hover .go { color: var(--brand); }
       return '<button class="chip' + (on ? ' on' : '') + (cls ? ' ' + cls : '') + '" data-g="' + group + '" data-v="' + esc(val) + '"' + (count === 0 && !on ? ' disabled style="opacity:.45"' : '') + '>' +
         (cls ? '<span class="dot"></span>' : '') + esc(label) + (count != null ? ' <b>' + count + '</b>' : '') + '</button>';
     }
+    function dqCfg() { return state.data && state.data.exclusiveTab; }
+    function renderTabs() {
+      var cfg = dqCfg(), n = state.units.filter(function (u) { return u.dq; }).length;
+      var show = !!cfg && n > 0;
+      $('gtabs').hidden = !show;
+      if (!show) { state.filter.dq = ''; return; }
+      var all = state.units.filter(function (u) { return matches(u, 'dq'); }).length;
+      var dq = state.units.filter(function (u) { return u.dq && matches(u, 'dq'); }).length;
+      $('gtabs').innerHTML = '<button role="tab" data-dq=""' + (state.filter.dq ? '' : ' class="on"') + ' aria-selected="' + !state.filter.dq + '">Tất cả căn <b>' + all + '</b></button>' +
+        '<button role="tab" data-dq="1"' + (state.filter.dq ? ' class="on"' : '') + ' aria-selected="' + !!state.filter.dq + '" title="' + esc(cfg.title || '') + '"><span class="dqmark">' + esc(cfg.short || 'ĐQ') + '</span>' +
+        esc((cfg.label || '').replace(new RegExp('^' + (cfg.short || 'ĐQ') + '\\s*'), '')) + ' <b>' + dq + '</b></button>';
+    }
+    $('gtabs').onclick = function (e) { var b = e.target.closest('button[data-dq]'); if (!b) return; state.filter.dq = b.dataset.dq; updateHash(); reset(); };
+    function dqTag(u) { var c = dqCfg(); return u.dq && c ? '<span class="dq" title="' + esc(c.title || '') + '">' + esc(c.short || 'ĐQ') + '</span>' : ''; }
     function renderChips() {
+      renderTabs();
       var f = state.filter;
       var bs = state.units.filter(function (u) { return matches(u, 'status'); });
       var sc = {}; bs.forEach(function (u) { sc[u.status] = (sc[u.status] || 0) + 1; });
@@ -495,7 +525,7 @@ tbody tr:hover .go { color: var(--brand); }
 
     // ─── Bảng ───
     var COLS = [
-      { k: 'code', l: 'Mã căn', cell: function (u) { return '<span class="code">' + esc(u.code) + '</span>'; } },
+      { k: 'code', l: 'Mã căn', cell: function (u) { return '<span class="code">' + esc(u.code) + '</span>' + dqTag(u); } },
       { k: 'price', l: 'Giá niêm yết', title: 'Đã gồm VAT và kinh phí bảo trì', cell: function (u) { return '<span class="price">' + ty(u.price) + '</span>' + (perM2(u) ? '<span class="unitp">' + trieu(perM2(u)) + '</span>' : ''); } },
       { k: 'type', l: 'Loại hình', cell: function (u) { return esc(u.type) || '<span class="dim">-</span>'; } },
       { k: 'land', l: 'DT đất', num: 1, cell: function (u) { return u.land != null ? m2(u.land) + '<span class="m2">m²</span>' : '<span class="dim">-</span>'; } },
@@ -551,7 +581,7 @@ tbody tr:hover .go { color: var(--brand); }
       $('cards').innerHTML = shown.map(function (u) {
         var facts = [['Loại hình', u.type], ['Hướng', u.direction], ['Diện tích đất', u.land != null ? m2(u.land) + ' m²' : ''], ['Xây dựng', u.build != null ? m2(u.build) + ' m²' : ''],
           ['Bàn giao', u.handover], ['Phân khu', u.zone]].filter(function (x) { return x[1]; });
-        return '<div class="card" data-code="' + esc(u.code) + '"><div class="r1"><span class="code">' + esc(u.code) + '</span><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div>' +
+        return '<div class="card" data-code="' + esc(u.code) + '"><div class="r1"><span><span class="code">' + esc(u.code) + '</span>' + dqTag(u) + '</span><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div>' +
           '<div class="r2"><span class="price">' + ty(u.price) + '</span>' + (perM2(u) ? '<span class="unitp">' + trieu(perM2(u)) + '</span>' : '') + '</div>' +
           '<div class="facts">' + facts.map(function (x) { return '<div><span>' + x[0] + '</span>' + esc(x[1]) + '</div>'; }).join('') + '</div></div>';
       }).join('');
@@ -573,7 +603,7 @@ tbody tr:hover .go { color: var(--brand); }
     function openUnit(u) {
       state.current = u; updateHash();
       var upd = when(state.data.updatedAt);
-      $('mTitle').textContent = u.code;
+      $('mTitle').innerHTML = esc(u.code) + dqTag(u);
       $('mSub').textContent = state.project.name + (u.zone ? ' · ' + u.zone : '') + (u.type ? ' · ' + u.type : '');
       $('mPrice').innerHTML = '<div class="k">Giá niêm yết</div><div class="v">' + ty(u.price) + '</div><div class="k2">Gồm VAT và kinh phí bảo trì</div>';
       function row(k, v, hl) { return v ? '<div class="k">' + k + '</div><div class="v' + (hl ? ' hl' : '') + '">' + v + '</div>' : ''; }
@@ -626,6 +656,7 @@ tbody tr:hover .go { color: var(--brand); }
       if (!useHash) return;
       var p = new URLSearchParams();
       if (state.project && !lockProject) p.set('du-an', state.project.id);
+      if (state.filter.dq) p.set('gio', 'dq');
       if (state.current) p.set('can', state.current.code);
       var h = p.toString();
       try { history.replaceState(null, '', location.pathname + location.search + (h ? '#' + h : '')); } catch (e) { /* bỏ qua */ }
@@ -645,13 +676,13 @@ tbody tr:hover .go { color: var(--brand); }
           var land = d[3] + (i % 3) * 5;
           out.push({ code: d[1] + '-' + ('0' + i * 2).slice(-2), zone: d[0], street: d[1], type: d[2], direction: dirs[(i + d[1].length) % 6], handover: i % 2 ? 'GIÃN XÂY' : 'Thô',
             land: land, build: Math.round(land * 2.7 * 10) / 10, price: Math.round((d[5] + (i % 5) * 0.21e9) / 1e7) * 1e7, status: st[(i * 5 + d[1].length) % 6],
-            ptg: i % 4 ? 'https://drive.google.com/drive/folders/minh-hoa' : '', priceExVat: Math.round((d[5] + (i % 5) * 0.21e9) / 1.1 / 1e6) * 1e6, priceLoan: Math.round((d[5] + (i % 5) * 0.21e9) * 1.03 / 1e7) * 1e7 });
+            ptg: i % 4 ? 'https://drive.google.com/drive/folders/minh-hoa' : '', dq: d[6] ? 1 : 0, priceExVat: Math.round((d[5] + (i % 5) * 0.21e9) / 1.1 / 1e6) * 1e6, priceLoan: Math.round((d[5] + (i % 5) * 0.21e9) * 1.03 / 1e7) * 1e7 });
         }
       });
       return out;
     }
-    return { ok: true, updatedAt: new Date().toISOString(), projects: [
-      { id: 'VHSGP', name: 'Vinhomes Saigon Park', units: gen([['', 'AS76', 'LK', 50, 14, 5.8e9], ['', 'TL12A', 'Liền kề', 50, 12, 5.9e9], ['', 'AS85', 'LK (GÓC)', 60, 8, 6.5e9], ['', 'ĐLCV2', 'SL', 112, 6, 17.2e9], ['', 'AS60', 'Liền kề xẻ khe', 70, 10, 9.6e9]]) },
+    return { ok: true, updatedAt: new Date().toISOString(), exclusiveTab: { enabled: true, short: 'ĐQ', label: 'ĐQ Á Đông Land', title: 'Giỏ hàng độc quyền Á Đông Land' }, projects: [
+      { id: 'VHSGP', name: 'Vinhomes Saigon Park', units: gen([['', 'AS76', 'LK', 50, 14, 5.8e9, 1], ['', 'TL12A', 'Liền kề', 50, 12, 5.9e9], ['', 'AS85', 'LK (GÓC)', 60, 8, 6.5e9], ['', 'ĐLCV2', 'SL', 112, 6, 17.2e9, 1], ['', 'AS60', 'Liền kề xẻ khe', 70, 10, 9.6e9]]) },
       { id: 'VHCG', name: 'Vinhomes Green Paradise', units: gen([['VỊNH NGỌC', 'AS24', 'SL', 280, 6, 31.2e9], ['VỊNH NGỌC', 'TĐX', 'SL', 180, 6, 45.1e9], ['VỊNH TIÊN', 'VT44', 'LK', 80, 8, 14.9e9]]) }
     ] };
   }

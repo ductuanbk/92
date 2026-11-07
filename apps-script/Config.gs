@@ -25,6 +25,8 @@ var CONFIG = {
     cacheSeconds: 120,
     showLinks: true,          // gửi link phiếu tính giá (Link PTG) và link chỉ căn của từng căn
     showExtraPrices: true,    // gửi thêm giá chưa VAT và giá vay (nếu sheet có cột)
+    // Tab riêng cho căn thuộc giỏ có kind: 'exclusive' (GHĐQ). Đổi tên ở đây nếu cần.
+    exclusiveTab: { enabled: true, short: 'ĐQ', label: 'ĐQ Á Đông Land', title: 'Giỏ hàng độc quyền Á Đông Land' },
     // Trạng thái nội bộ → chữ hiển thị cho khách. Trạng thái khác hiện "Liên hệ".
     statusLabels: { 'Còn hàng': 'Còn hàng', 'Check admin': 'Đang giữ chỗ', 'Đang lock': 'Đang giữ chỗ', 'Đã cọc': 'Đang giữ chỗ', 'Đã bán': 'Đã bán' }
   },

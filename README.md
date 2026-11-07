@@ -132,6 +132,8 @@ Website chỉ có **một trang bảng hàng công khai cho khách**, chạy tr�
 - Nếu dùng WP Rocket, LiteSpeed Cache hoặc Autoptimize: loại trừ `adl-bang-hang` (từ khóa có trong đoạn mã) và `script.google.com` khỏi "Delay JavaScript execution", "Combine/Minify inline JS". Không loại trừ thì bảng chỉ hiện khi khách cuộn hoặc chạm.
 - Không cần xóa cache trang khi bảng hàng đổi: dữ liệu tải trong trình duyệt, trễ tối đa khoảng 2 phút.
 
+**Tab ĐQ:** phía trên bảng có hai tab "Tất cả căn" và "ĐQ Á Đông Land" (căn thuộc tab giỏ có `kind: 'exclusive'`, ví dụ `GHĐQ ADL`, `GHĐQ`), kèm số căn. Căn ĐQ có nhãn "ĐQ" cạnh mã căn. Đổi tên hoặc tắt tab trong `publicSite.exclusiveTab` (`Config.gs`). Mở sẵn tab ĐQ: thêm `data-gio="dq"` vào thẻ div, hoặc dùng link có `#gio=dq`.
+
 **Khung chi tiết căn:** bấm vào một căn để xem các mục Giá (kèm nút **Phiếu tính giá** mở link PTG của đúng căn đó), Diện tích (kèm nút **Chỉ căn** nếu sheet có link), Thông tin căn, Trạng thái và liên hệ. Có nút chuyển sang căn trước/sau (hoặc phím mũi tên trái/phải). Link lấy từ cột `Link PTG` / `PTG + Chỉ căn` trong sheet; bật tắt bằng `publicSite.showLinks` trong `Config.gs`.
 
 **Vì sao mã trong đoạn dán được mã hóa:** WordPress/Flatsome đổi ký tự `&` thành `&#038;` ngay cả bên trong thẻ `<script>`, làm mã hỏng và bảng không hiện (lỗi gặp thật trên adongland.vn ngày 07/11/2026). Mã bảng hàng vì vậy được mã hóa base64 và tự giải mã khi chạy; đoạn dán không chứa ký tự nào WordPress có thể đổi.
