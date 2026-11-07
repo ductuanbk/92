@@ -25,6 +25,11 @@
     hotlineText: '0901 30 30 92',
     zalo: 'https://zalo.me/386470265573132310',
     projectOrder: ['VHSGP', 'VHCG'],
+    // Trang thông tin từng dự án trên adongland.vn (nút "Thông tin dự án")
+    projectLinks: {
+      VHSGP: 'https://adongland.vn/vinhomes-saigon-park/',
+      VHCG: 'https://adongland.vn/vinhomes-green-paradise/'
+    },
     refreshSeconds: 120,
     pageSize: 50
   };
@@ -78,6 +83,10 @@ a { color: var(--brand); }
 .gtabs button.on b { background: var(--brand); color: #fff; }
 .gtabs .dqmark { background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .5px; padding: 2px 7px; border-radius: 5px; }
 .dq { display: inline-block; vertical-align: 1px; margin-left: 6px; background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: .5px; padding: 2px 6px; border-radius: 4px; }
+
+.plink { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28); color: #fff; font-weight: 600; font-size: 13px; text-decoration: none; }
+.plink:hover { background: #fff; color: var(--navy); }
+.plink span { font-size: 12px; opacity: .85; }
 
 /* Thanh tìm kiếm và lọc */
 .tools { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(16,24,40,.04); }
@@ -225,7 +234,7 @@ tbody tr:hover .go { color: var(--brand); }
 <div class="w">
   <section class="hero" id="hero">
     <div class="hero-top">
-      <div><p class="eyebrow">Bảng hàng</p><h2 id="hName">Đang tải bảng hàng</h2><p id="hSub">Bảng giá tham khảo do Á Đông Land tư vấn.</p></div>
+      <div><p class="eyebrow">Bảng hàng</p><h2 id="hName">Đang tải bảng hàng</h2><p id="hSub">Bảng giá tham khảo do Á Đông Land tư vấn.</p><a class="plink" id="hLink" target="_blank" rel="noopener" hidden>Thông tin dự án <span>↗</span></a></div>
       <div class="switch" id="projects" role="tablist" aria-label="Chọn dự án"></div>
     </div>
     <div class="stats" id="stats"></div>
@@ -423,6 +432,7 @@ tbody tr:hover .go { color: var(--brand); }
       Array.prototype.forEach.call($('projects').children, function (b) { b.classList.toggle('on', b.dataset.p === id); b.setAttribute('aria-selected', String(b.dataset.p === id)); });
       var upd = when(state.data.updatedAt);
       $('hName').textContent = state.project.name;
+      var pl = projectLink(); $('hLink').hidden = !pl; if (pl) { $('hLink').href = pl; $('hLink').title = 'Xem thông tin dự án ' + state.project.name; }
       $('hSub').textContent = (state.data.demo ? 'Dữ liệu minh họa. ' : '') + 'Bảng giá tham khảo do Á Đông Land tư vấn, cập nhật lúc ' + upd + '.';
       $('legal').textContent = 'Giá niêm yết đã gồm VAT và kinh phí bảo trì, theo bảng hàng cập nhật lúc ' + upd +
         '. Đơn giá tính bằng giá niêm yết chia diện tích đất. Giá và chính sách có thể thay đổi theo sản phẩm, thời điểm và xác nhận của chủ đầu tư.' +
@@ -432,6 +442,7 @@ tbody tr:hover .go { color: var(--brand); }
       buildOptions(); render();
     }
 
+    function projectLink() { var l = (C.projectLinks || {})[state.project && state.project.id]; return /^https:\/\//i.test(l || '') ? l : ''; }
     function renderStats() {
       var u = state.units, av = u.filter(function (x) { return x.status === 'Còn hàng'; });
       var prices = av.map(function (x) { return x.price; }).filter(Boolean);
@@ -648,13 +659,14 @@ tbody tr:hover .go { color: var(--brand); }
         row('Dãy / đường', esc(u.street)) + '</div></div>';
       var statusSec = '<div class="sec"><div class="sh"><h4>Trạng thái</h4><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div><div class="kv">' +
         row('Cập nhật lúc', esc(upd)) + '</div><div class="contact" style="margin-top:12px"><div class="who"><b>Á Đông Land</b><span>Tư vấn dự án ' + esc(state.project.name) + '</span></div>' +
-        '<a class="btn primary sm" href="tel:' + esc(C.hotline) + '">Gọi ' + esc(C.hotlineText) + '</a><button class="btn navy sm" id="mZalo">Zalo</button></div></div>';
+        '<a class="btn primary sm" href="tel:' + esc(C.hotline) + '">Gọi ' + esc(C.hotlineText) + '</a><button class="btn navy sm" id="mZalo">Zalo</button></div>' +
+        (projectLink() ? '<a class="lk" style="margin-top:10px" href="' + esc(projectLink()) + '" target="_blank" rel="noopener">Thông tin dự án ' + esc(state.project.name) + ' <span class="ar">↗</span></a>' : '') + '</div>';
       $('mBody').innerHTML = '<div class="msec">' + priceSec + areaSec + infoSec + statusSec + '</div>';
       $('mFoot').innerHTML = '<button class="btn sm" id="mLink">Chia sẻ link căn</button><button class="btn sm" id="mCopy">Sao chép thông tin</button>' +
         '<p class="legal">Giá tham khảo theo bảng hàng cập nhật lúc ' + esc(upd) + '. Giá và chính sách có thể thay đổi theo xác nhận của chủ đầu tư.</p>';
       var info = 'Căn ' + u.code + ', ' + state.project.name + '\nGiá niêm yết: ' + ty(u.price) + ' (gồm VAT và KPBT)' +
         (u.land != null ? '\nDiện tích đất: ' + m2(u.land) + ' m²' : '') + (u.build != null ? ', xây dựng: ' + m2(u.build) + ' m²' : '') +
-        (u.type ? '\nLoại hình: ' + u.type : '') + (u.handover ? ', bàn giao: ' + u.handover : '') + (u.direction ? '\nHướng: ' + u.direction : '') + (u.ptg ? '\nPhiếu tính giá: ' + u.ptg : '') + '\nTình trạng: ' + u.status;
+        (u.type ? '\nLoại hình: ' + u.type : '') + (u.handover ? ', bàn giao: ' + u.handover : '') + (u.direction ? '\nHướng: ' + u.direction : '') + (u.ptg ? '\nPhiếu tính giá: ' + u.ptg : '') + '\nTình trạng: ' + u.status + (projectLink() ? '\nThông tin dự án: ' + projectLink() : '');
       $('mZalo').onclick = function () { copy('Tôi muốn tìm hiểu căn ' + u.code + ' dự án ' + state.project.name + ' (giá niêm yết ' + ty(u.price) + ').', 'Đã sao chép tin nhắn, dán vào Zalo để gửi'); window.open(C.zalo, '_blank', 'noopener'); };
       $('mLink').onclick = function () { copy(location.href, 'Đã sao chép link căn'); };
       $('mCopy').onclick = function () { copy(info, 'Đã sao chép thông tin căn'); };
