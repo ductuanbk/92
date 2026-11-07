@@ -244,14 +244,14 @@ tbody tr:hover .go { color: var(--brand); }
       <button class="adv-btn" id="advBtn" aria-expanded="false">Lọc thêm <span class="badge" id="advCount" hidden></span></button>
     </div>
     <div class="groups">
-      <div class="grp" id="gStatus"></div>
+      <div class="grp" id="gHandover"></div>
       <div class="grp" id="gPrice"></div>
       <div class="grp" id="gType"></div>
     </div>
     <div class="adv" id="adv" hidden>
       <label>Phân khu<select id="fZone"></select></label>
       <label>Hướng<select id="fDirection"></select></label>
-      <label>Bàn giao<select id="fHandover"></select></label>
+      <label>Tình trạng<select id="fStatus"></select></label>
       <label>Diện tích đất từ (m²)<input id="fLand" type="number" min="0" step="5" placeholder="Ví dụ 80"></label>
       <label>Giá từ, đến (tỷ)<span class="range"><input id="fMin" type="number" min="0" step="0.5" placeholder="Từ"><input id="fMax" type="number" min="0" step="0.5" placeholder="Đến"></span></label>
     </div>
@@ -429,16 +429,19 @@ tbody tr:hover .go { color: var(--brand); }
     function opts(id, values, cur) {
       var u = values.filter(function (v, i, a) { return v && a.indexOf(v) === i; }).sort(natural);
       $(id).innerHTML = '<option value="">Tất cả</option>' + u.map(function (v) { return '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('');
-      $(id).closest('label').hidden = u.length < 2 || coverage(id === 'fZone' ? 'zone' : id === 'fDirection' ? 'direction' : 'handover') < 0.3;
+      $(id).closest('label').hidden = u.length < 2 || coverage(id === 'fZone' ? 'zone' : id === 'fDirection' ? 'direction' : 'status') < 0.3;
     }
     function coverage(k) { return state.units.length ? state.units.filter(function (u) { return u[k]; }).length / state.units.length : 0; }
     function buildOptions() {
       var u = state.units, f = state.filter;
       opts('fZone', u.map(function (x) { return x.zone; }), f.zone);
       opts('fDirection', u.map(function (x) { return x.direction; }), f.direction);
-      opts('fHandover', u.map(function (x) { return x.handover; }), f.handover);
+      // Tình trạng: giữ thứ tự Còn hàng, Đang giữ chỗ, Liên hệ, Đã bán
+      var sts = ['Còn hàng', 'Đang giữ chỗ', 'Liên hệ', 'Đã bán'].filter(function (x) { return u.some(function (y) { return y.status === x; }); });
+      $('fStatus').innerHTML = '<option value="">Tất cả</option>' + sts.map(function (v) { return '<option value="' + esc(v) + '"' + (v === f.status ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('');
+      $('fStatus').closest('label').hidden = sts.length < 2;
     }
-    var FMAP = { fZone: 'zone', fDirection: 'direction', fHandover: 'handover' };
+    var FMAP = { fZone: 'zone', fDirection: 'direction', fStatus: 'status' };
     Object.keys(FMAP).forEach(function (id) { $(id).onchange = function () { state.filter[FMAP[id]] = this.value; reset(); }; });
     ['fMin', 'fMax', 'fLand'].forEach(function (id) { $(id).oninput = function () { state.filter[{ fMin: 'min', fMax: 'max', fLand: 'land' }[id]] = this.value; reset(); }; });
     var qt; $('q').oninput = function () { var v = this.value; clearTimeout(qt); qt = setTimeout(function () { state.filter.q = v; reset(); }, 150); };
@@ -447,8 +450,8 @@ tbody tr:hover .go { color: var(--brand); }
     $('clearAll').onclick = function () { state.filter = blank(); ['q', 'fMin', 'fMax', 'fLand'].forEach(function (x) { $(x).value = ''; }); buildOptions(); reset(); };
     $('moreBtn').onclick = function () { state.shown += C.pageSize; render(); };
     function reset() { state.shown = C.pageSize; render(); }
-    function advCount() { var f = state.filter; return ['zone', 'direction', 'handover', 'land'].filter(function (k) { return f[k]; }).length; }
-    function anyFilter() { var f = state.filter; return !!(f.q || f.status || f.type || f.min || f.max || advCount()); }
+    function advCount() { var f = state.filter; return ['zone', 'direction', 'status', 'land'].filter(function (k) { return f[k]; }).length; }
+    function anyFilter() { var f = state.filter; return !!(f.q || f.handover || f.type || f.min || f.max || advCount()); }
 
     function matches(u, skip) {
       var f = state.filter, q = norm(f.q).trim();
@@ -487,12 +490,14 @@ tbody tr:hover .go { color: var(--brand); }
     function renderChips() {
       renderTabs();
       var f = state.filter;
-      var bs = state.units.filter(function (u) { return matches(u, 'status'); });
-      var sc = {}; bs.forEach(function (u) { sc[u.status] = (sc[u.status] || 0) + 1; });
-      $('gStatus').innerHTML = '<span class="lb">Tình trạng</span>' + chip('status', '', 'Tất cả', bs.length, !f.status) +
-        ['Còn hàng', 'Đang giữ chỗ', 'Liên hệ', 'Đã bán'].filter(function (s) { return sc[s] || f.status === s; }).map(function (s) {
-          return chip('status', s, s, sc[s] || 0, f.status === s, stCls(s));
-        }).join('');
+      // Hàng nút Bàn giao (Thô, Giãn xây, Hoàn thiện...), kèm số căn theo các lọc khác
+      var bh = state.units.filter(function (u) { return matches(u, 'handover'); });
+      var hc = {}; bh.forEach(function (u) { if (u.handover) hc[u.handover] = (hc[u.handover] || 0) + 1; });
+      var hs = Object.keys(hc).sort(function (a, b) { return hc[b] - hc[a] || natural(a, b); });
+      if (f.handover && hs.indexOf(f.handover) < 0) hs.push(f.handover);
+      $('gHandover').hidden = hs.length < 2 && !f.handover;
+      $('gHandover').innerHTML = '<span class="lb">Bàn giao</span>' + chip('handover', '', 'Tất cả', bh.length, !f.handover) +
+        hs.map(function (h) { return chip('handover', h, h, hc[h] || 0, f.handover === h); }).join('');
       var bp = state.units.filter(function (u) { return matches(u, 'price'); });
       var pc = PRICE_BUCKETS.map(function (b) { return bp.filter(function (u) { return u.price >= b[0] * 1e9 && u.price <= b[1] * 1e9; }).length; });
       var anyPrice = pc.filter(Boolean).length > 1;
@@ -512,7 +517,7 @@ tbody tr:hover .go { color: var(--brand); }
     root.addEventListener('click', function (e) {
       var c = e.target.closest && e.target.closest('.chip'); if (!c || c.disabled) return;
       var g = c.dataset.g, v = c.dataset.v, f = state.filter;
-      if (g === 'status') f.status = f.status === v ? '' : v;
+      if (g === 'handover') f.handover = f.handover === v ? '' : v;
       else if (g === 'type') f.type = f.type === v ? '' : v;
       else if (g === 'price') {
         var p = v.split(':'), lo = p[0] === '0' ? '' : p[0], hi = p[1];
