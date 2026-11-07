@@ -4,8 +4,8 @@
  */
 window.ADL_SITE = {
   API_URL: 'https://script.google.com/macros/s/AKfycbwwmEKbhm_tU2C0MtddBsS-3N2tqy5aAvzKPva8_XZUc_EPODnpUXyPnhk8Ia--4B59/exec',
-  hotline: '0933772422',
-  hotlineText: '0933 772 422',
+  hotline: '0901303092',
+  hotlineText: '0901 30 30 92',
   zalo: 'https://zalo.me/386470265573132310',
   company: {
     name: 'CÔNG TY CỔ PHẦN ĐẦU TƯ Á ĐÔNG LAND',

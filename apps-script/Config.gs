@@ -14,7 +14,7 @@
 var CONFIG = {
   version: '4.2',
   companyName: 'CÔNG TY CỔ PHẦN ĐẦU TƯ Á ĐÔNG LAND',
-  hotline: '0933 772 422',
+  hotline: '0901 30 30 92',
   zalo: 'https://zalo.me/386470265573132310',
 
   // Trang bảng hàng công khai cho khách (website riêng, đọc qua ?api=public).

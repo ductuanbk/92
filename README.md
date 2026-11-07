@@ -97,7 +97,7 @@ Trang riêng cho khách hàng, đặt trên GitHub Pages. Dữ liệu lấy tr�
 - **Không bao giờ lộ:** STK, ghi chú nội bộ, đối tác, tên giỏ, người giữ căn, link phiếu tính giá. Căn đã bán bị ẩn (`publicSite.showSold` trong `Config.gs`).
 - Có tìm kiếm, sắp xếp, bộ lọc (phân khu, loại hình, hướng, bàn giao, diện tích, khoảng giá), lọc nhanh theo tình trạng.
 - Bấm một căn để xem chi tiết. Nút **Gọi hotline**, **Hỏi căn này qua Zalo** (tự sao chép tin nhắn có mã căn), **Sao chép link căn**.
-- Tự làm mới mỗi 2 phút. Chữ trên trang theo quy chuẩn thương hiệu: hotline 0933 772 422, giá ghi rõ là giá tham khảo có ngày cập nhật.
+- Tự làm mới mỗi 2 phút. Chữ trên trang theo quy chuẩn thương hiệu: hotline 0901 30 30 92, giá ghi rõ là giá tham khảo có ngày cập nhật.
 - Xem thử bằng dữ liệu minh họa: mở `docs/index.html?demo=1`.
 
 **Cách dựng**
