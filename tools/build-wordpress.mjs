@@ -5,9 +5,13 @@ import { minify } from 'terser';
 
 const src = readFileSync(new URL('../docs/embed.js', import.meta.url), 'utf8');
 const { code } = await minify(src, { compress: true, mangle: true, format: { comments: false, ascii_only: false } });
-// Chặn chuỗi có thể làm trình duyệt hoặc WordPress cắt sai thẻ script.
-const safe = code.replace(/<\/(script)/gi, '<\\/$1').replace(/<!--/g, '<\\!--');
-if (/\n/.test(safe)) throw new Error('Mã nén còn xuống dòng');
+// WordPress/Flatsome đổi ký tự & thành &#038; (và có thể đổi dấu nháy, gạch ngang) ngay cả trong <script>,
+// làm hỏng mã. Vì vậy mã được mã hóa base64 (chỉ gồm A-Z a-z 0-9 + / =) và giải mã khi chạy.
+// Đoạn giải mã cố ý không dùng các ký tự & < > ' " -- để WordPress không có gì để đổi.
+const b64 = Buffer.from(code, 'utf8').toString('base64');
+const safe = '(function(){var b=atob(`' + b64 + '`),u=new Uint8Array(b.length);for(var i=0;i!==b.length;i++)u[i]=b.charCodeAt(i);' +
+  '(new Function(new TextDecoder(`utf-8`).decode(u)))()})()';
+if (/[&<>'"\n]/.test(safe)) throw new Error('Đoạn mã còn ký tự WordPress có thể đổi: ' + safe.match(/[&<>'"\n]/)[0]);
 // Thuộc tính trên thẻ script báo cho plugin tối ưu không trì hoãn/gộp mã:
 // Cloudflare Rocket Loader (data-cfasync), LiteSpeed Cache (data-no-optimize, data-no-defer),
 // WP Rocket (nowprocket), Autoptimize/SG Optimizer (data-no-minify, data-noptimize).

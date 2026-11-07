@@ -132,6 +132,8 @@ Website chỉ có **một trang bảng hàng công khai cho khách**, chạy tr�
 - Nếu dùng WP Rocket, LiteSpeed Cache hoặc Autoptimize: loại trừ `adl-bang-hang` (từ khóa có trong đoạn mã) và `script.google.com` khỏi "Delay JavaScript execution", "Combine/Minify inline JS". Không loại trừ thì bảng chỉ hiện khi khách cuộn hoặc chạm.
 - Không cần xóa cache trang khi bảng hàng đổi: dữ liệu tải trong trình duyệt, trễ tối đa khoảng 2 phút.
 
+**Vì sao mã trong đoạn dán được mã hóa:** WordPress/Flatsome đổi ký tự `&` thành `&#038;` ngay cả bên trong thẻ `<script>`, làm mã hỏng và bảng không hiện (lỗi gặp thật trên adongland.vn ngày 07/11/2026). Mã bảng hàng vì vậy được mã hóa base64 và tự giải mã khi chạy; đoạn dán không chứa ký tự nào WordPress có thể đổi.
+
 **Sửa giao diện bảng hàng về sau:** sửa `docs/embed.js`, chạy `npm i terser` một lần rồi `node tools/build-wordpress.mjs` để tạo lại `wordpress/bang-hang-cong-khai.html`, sau đó dán lại vào WordPress.
 
 ## Bản đang chạy
