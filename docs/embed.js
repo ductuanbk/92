@@ -34,7 +34,7 @@
   if (!document.querySelector('link[data-adl-font]')) {
     var lf = document.createElement('link');
     lf.rel = 'stylesheet'; lf.setAttribute('data-adl-font', '');
-    lf.href = 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap';
+    lf.href = 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap';
     document.head.appendChild(lf);
   }
 
@@ -59,7 +59,7 @@ a { color: var(--brand); }
 .hero::after { content: ""; position: absolute; right: -80px; top: -80px; width: 280px; height: 280px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.10), rgba(255,255,255,0) 70%); }
 .hero-top { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; position: relative; z-index: 1; }
 .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; color: var(--gold); margin: 0 0 6px; }
-.hero h2 { margin: 0; font-size: 30px; line-height: 1.2; font-weight: 800; color: #fff; letter-spacing: -.3px; }
+.hero h2 { margin: 0; font-size: 30px; line-height: 1.2; font-weight: 700; color: #fff; letter-spacing: -.3px; }
 .hero p { margin: 8px 0 0; color: rgba(255,255,255,.78); font-size: 13.5px; }
 .switch { display: inline-flex; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 4px; gap: 2px; flex-wrap: wrap; }
 .switch button { border: 0; background: transparent; color: rgba(255,255,255,.85); padding: 7px 16px; border-radius: 999px; font-weight: 600; font-size: 13px; white-space: nowrap; }
@@ -68,7 +68,7 @@ a { color: var(--brand); }
 .stat { background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 12px 14px; }
 .stat .k { font-size: 12px; color: rgba(255,255,255,.7); }
 .stat .v { font-size: 20px; font-weight: 700; color: #fff; margin-top: 2px; white-space: nowrap; }
-.stat .v small { font-size: 13px; font-weight: 500; color: rgba(255,255,255,.7); }
+.stat .v small { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.7); }
 
 /* Tab giỏ hàng (Tất cả / ĐQ) */
 .gtabs { display: flex; gap: 4px; margin: 0 0 12px; border-bottom: 1px solid var(--line); }
@@ -76,8 +76,8 @@ a { color: var(--brand); }
 .gtabs button b { font-weight: 700; font-size: 12px; background: var(--other-bg); color: var(--other); border-radius: 999px; padding: 1px 8px; }
 .gtabs button.on { color: var(--navy); border-bottom-color: var(--brand); }
 .gtabs button.on b { background: var(--brand); color: #fff; }
-.gtabs .dqmark { background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .5px; padding: 2px 7px; border-radius: 5px; }
-.dq { display: inline-block; vertical-align: 1px; margin-left: 6px; background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 10.5px; font-weight: 800; letter-spacing: .5px; padding: 2px 6px; border-radius: 4px; }
+.gtabs .dqmark { background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .5px; padding: 2px 7px; border-radius: 5px; }
+.dq { display: inline-block; vertical-align: 1px; margin-left: 6px; background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: .5px; padding: 2px 6px; border-radius: 4px; }
 
 /* Thanh tìm kiếm và lọc */
 .tools { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(16,24,40,.04); }
@@ -156,11 +156,11 @@ tbody tr:hover .go { color: var(--brand); }
 .mbg.open { display: flex; }
 .modal { background: #fff; border-radius: 18px; width: min(920px, 100%); max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(0,0,0,.25); overflow: hidden; }
 .mh { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
-.mh h3 { margin: 0; font-size: 24px; font-weight: 800; color: var(--navy); line-height: 1.2; letter-spacing: .2px; }
+.mh h3 { margin: 0; font-size: 24px; font-weight: 700; color: var(--navy); line-height: 1.2; letter-spacing: .2px; }
 .mh .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
 .mh .np { margin-left: auto; text-align: right; }
 .mh .np .k { color: var(--muted); font-size: 12px; }
-.mh .np .v { color: var(--brand); font-size: 26px; font-weight: 800; line-height: 1.1; }
+.mh .np .v { color: var(--brand); font-size: 26px; font-weight: 700; line-height: 1.1; }
 .mh .np .k2 { color: var(--muted); font-size: 11.5px; }
 .close { background: var(--bg); border: 0; width: 36px; height: 36px; border-radius: 50%; color: var(--ink-2); font-size: 20px; line-height: 36px; padding: 0; flex: none; }
 .close:hover { background: var(--line); }
@@ -178,7 +178,7 @@ tbody tr:hover .go { color: var(--brand); }
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 7px 12px; font-size: 14px; }
 .kv dt, .kv .k { color: var(--muted); }
 .kv .v { text-align: right; font-weight: 600; color: var(--ink); white-space: nowrap; }
-.kv .v.hl { color: var(--brand); font-weight: 800; }
+.kv .v.hl { color: var(--brand); font-weight: 700; }
 .contact { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .contact .who { flex: 1; min-width: 180px; }
 .contact .who b { display: block; color: var(--navy); font-size: 15px; }
@@ -341,12 +341,24 @@ tbody tr:hover .go { color: var(--brand); }
       document.head.appendChild(s);
     });
   }
+  // Nhớ dữ liệu lần xem trước trong trình duyệt: khách quay lại thấy bảng ngay, rồi mới cập nhật bản mới.
+  var LOCAL_KEY = 'adl_bang_hang_v1';
+  function readLocal() {
+    try {
+      var d = JSON.parse(localStorage.getItem(LOCAL_KEY) || 'null');
+      if (!d || !d.ok || d.api !== C.API_URL) return null;
+      if (Date.now() - new Date(d.updatedAt).getTime() > 24 * 3600 * 1000) return null; // quá 1 ngày thì bỏ
+      return d;
+    } catch (e) { return null; }
+  }
+  function writeLocal(d) { try { d.api = C.API_URL; localStorage.setItem(LOCAL_KEY, JSON.stringify(d)); } catch (e) { /* hết chỗ hoặc bị chặn: bỏ qua */ } }
   function fetchData(force) {
     if (shared && !force) return shared;
     var demo = new URLSearchParams(location.search).get('demo') === '1';
     shared = (demo ? Promise.resolve(demoData()) : jsonp(C.API_URL)).then(function (d) {
       if (!d || !d.ok) throw new Error((d && d.error) ? 'bad' : 'bad');
       d.demo = demo;
+      if (!demo) writeLocal(d);
       return d;
     });
     shared.catch(function () { shared = null; });
@@ -370,7 +382,10 @@ tbody tr:hover .go { color: var(--brand); }
     $('tbody').innerHTML = new Array(6).join('<tr class="skel">' + new Array(8).join('<td><span></span></td>') + '</tr>');
 
     function load(silent, force) {
-      return fetchData(force).then(function (d) {
+      return fetchData(force).then(function (d) { apply(d, silent); }).catch(function (err) { fail(err, silent); });
+    }
+    function apply(d, silent) {
+      (function () {
         state.data = d;
         var order = C.projectOrder || [];
         var projects = d.projects.slice().sort(function (a, b) { return (order.indexOf(a.id) + 99) % 99 - (order.indexOf(b.id) + 99) % 99; });
@@ -384,7 +399,10 @@ tbody tr:hover .go { color: var(--brand); }
         var want = state.project ? state.project.id : hp.p;
         selectProject(projects.some(function (x) { return x.id === want; }) ? want : projects[0].id, silent);
         if (!silent && hp.u) { var u = findCode(hp.u); if (u) openUnit(u); }
-      }).catch(function (err) {
+      })();
+    }
+    function fail(err, silent) {
+      (function () {
         if (silent) return;
         var code = (err && err.message) || 'unknown';
         var why = { timeout: 'máy chủ dữ liệu phản hồi quá lâu', network: 'không kết nối được máy chủ dữ liệu', invalid: 'máy chủ dữ liệu chưa sẵn sàng', bad: 'máy chủ dữ liệu báo lỗi', noproject: 'không có dự án phù hợp' }[code] || code;
@@ -393,7 +411,7 @@ tbody tr:hover .go { color: var(--brand); }
           '<br><small style="opacity:.7">Mã lỗi: ' + esc(code) + ' (' + esc(why) + ')</small></div>';
         $('tbody').innerHTML = '<tr><td colspan="9">' + msg + '</td></tr>'; $('cards').innerHTML = msg;
         $('resText').textContent = ''; $('hName').textContent = 'Bảng hàng dự án';
-      });
+      })();
     }
     $('projects').onclick = function (e) { var b = e.target.closest('button'); if (b) { selectProject(b.dataset.p); updateHash(); } };
 
@@ -671,7 +689,12 @@ tbody tr:hover .go { color: var(--brand); }
       try { history.replaceState(null, '', location.pathname + location.search + (h ? '#' + h : '')); } catch (e) { /* bỏ qua */ }
     }
 
-    load(false);
+    var isDemo = new URLSearchParams(location.search).get('demo') === '1';
+    var local = isDemo ? null : readLocal();
+    if (local) {
+      try { apply(local, false); } catch (e) { local = null; }
+      load(!!local, true); // hiện bảng đã nhớ ngay, đồng thời lấy bản mới và cập nhật lặng lẽ
+    } else load(false);
     if (C.refreshSeconds) setInterval(function () { if (!document.hidden && !$('modal').classList.contains('open')) load(true, true); }, C.refreshSeconds * 1000);
   }
 

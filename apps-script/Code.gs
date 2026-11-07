@@ -104,11 +104,37 @@ function publicData_() {
     out.projects.push({ id: project.id, name: project.name, units: units, incomplete: failed > 0 });
     unmappedLog_[project.name] = unmapped;
   });
-  cachePut_('pub_v1', out, ps.cacheSeconds || 120);
+  // Có bật tự làm mới (batTuDongLamMoi) thì giữ cache lâu hơn chu kỳ làm mới để khách không bao giờ phải chờ Google đọc Sheet.
+  var ttl = getProp_('PUBLIC_AUTO_REFRESH') === '1' ? (ps.autoRefreshCacheSeconds || 900) : (ps.cacheSeconds || 120);
+  cachePut_('pub_v1', out, ttl);
   return out;
 }
 
 /** Chạy một lần trong trình soạn thảo của dự án công khai để cấp quyền đọc Google Sheet và xem thử số căn. */
+/** Dựng lại dữ liệu công khai và lưu cache (trình kích hoạt theo thời gian gọi hàm này). */
+function lamMoiBangHangCongKhai() {
+  CacheService.getScriptCache().remove('pub_v1_n');
+  publicData_();
+}
+
+/** Chạy MỘT LẦN trong dự án công khai: tự dựng sẵn dữ liệu mỗi N phút để trang bảng hàng tải nhanh. */
+function batTuDongLamMoi() {
+  tatTuDongLamMoi();
+  var minutes = (CONFIG.publicSite && CONFIG.publicSite.autoRefreshMinutes) || 5;
+  ScriptApp.newTrigger('lamMoiBangHangCongKhai').timeBased().everyMinutes(minutes).create();
+  PropertiesService.getScriptProperties().setProperty('PUBLIC_AUTO_REFRESH', '1');
+  lamMoiBangHangCongKhai();
+  Logger.log('Đã bật tự làm mới mỗi ' + minutes + ' phút.');
+}
+
+/** Tắt tự làm mới (quay về cache 2 phút). */
+function tatTuDongLamMoi() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'lamMoiBangHangCongKhai') ScriptApp.deleteTrigger(t);
+  });
+  PropertiesService.getScriptProperties().deleteProperty('PUBLIC_AUTO_REFRESH');
+}
+
 function kiemTraBangHangCongKhai() {
   CacheService.getScriptCache().remove('pub_v1_n');
   var d = publicData_();

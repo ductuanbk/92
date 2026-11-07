@@ -23,6 +23,8 @@ var CONFIG = {
     enabled: true,
     showSold: false,          // ẩn căn đã bán
     cacheSeconds: 120,
+    autoRefreshMinutes: 5,          // khi đã chạy batTuDongLamMoi: dựng sẵn dữ liệu mỗi 5 phút (chỉ chọn 1, 5, 10, 15 hoặc 30)
+    autoRefreshCacheSeconds: 900,   // và giữ cache 15 phút, dài hơn chu kỳ làm mới
     showLinks: true,          // gửi link phiếu tính giá (Link PTG) và link chỉ căn của từng căn
     showExtraPrices: true,    // gửi thêm giá chưa VAT và giá vay (nếu sheet có cột)
     // Tab riêng cho căn thuộc giỏ có kind: 'exclusive' (GHĐQ). Đổi tên ở đây nếu cần.
