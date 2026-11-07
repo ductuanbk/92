@@ -144,25 +144,41 @@ tbody tr:hover .go { color: var(--brand); }
 /* Chi tiết căn */
 .mbg { position: fixed; inset: 0; background: rgba(11,31,75,.45); display: none; align-items: center; justify-content: center; z-index: 2147483000; padding: 16px; }
 .mbg.open { display: flex; }
-.modal { background: #fff; border-radius: 18px; width: min(560px, 100%); max-height: 92vh; overflow: auto; box-shadow: 0 24px 60px rgba(0,0,0,.25); }
-.mh { background: linear-gradient(135deg, var(--navy), var(--navy-2)); color: #fff; padding: 20px 22px; display: flex; gap: 12px; align-items: flex-start; }
-.mh h3 { margin: 0; font-size: 24px; font-weight: 800; color: #fff; line-height: 1.2; }
-.mh .sub { color: rgba(255,255,255,.75); font-size: 13px; margin-top: 4px; }
-.close { margin-left: auto; background: rgba(255,255,255,.14); border: 0; width: 34px; height: 34px; border-radius: 50%; color: #fff; font-size: 20px; line-height: 34px; padding: 0; }
-.mb { padding: 18px 22px 22px; }
-.pbox { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid var(--line-2); }
-.pbox .k { color: var(--muted); font-size: 12px; }
-.pbox .big { font-size: 28px; font-weight: 800; color: var(--navy); line-height: 1.15; }
-.pbox .vnd { color: var(--ink-2); font-size: 13px; }
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 16px; }
-.tile { background: var(--bg); border-radius: 10px; padding: 10px 12px; }
-.tile span { display: block; font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; }
-.tile b { font-weight: 600; color: var(--ink); font-size: 14.5px; }
-.ctas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.btn { display: inline-flex; align-items: center; justify-content: center; text-align: center; border-radius: 10px; padding: 12px; font-weight: 600; text-decoration: none; border: 1px solid #dfe4ec; background: #fff; color: var(--navy); }
+.modal { background: #fff; border-radius: 18px; width: min(920px, 100%); max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(0,0,0,.25); overflow: hidden; }
+.mh { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.mh h3 { margin: 0; font-size: 24px; font-weight: 800; color: var(--navy); line-height: 1.2; letter-spacing: .2px; }
+.mh .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.mh .np { margin-left: auto; text-align: right; }
+.mh .np .k { color: var(--muted); font-size: 12px; }
+.mh .np .v { color: var(--brand); font-size: 26px; font-weight: 800; line-height: 1.1; }
+.mh .np .k2 { color: var(--muted); font-size: 11.5px; }
+.close { background: var(--bg); border: 0; width: 36px; height: 36px; border-radius: 50%; color: var(--ink-2); font-size: 20px; line-height: 36px; padding: 0; flex: none; }
+.close:hover { background: var(--line); }
+.mb { padding: 16px 20px 18px; overflow: auto; }
+.msec { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.sec { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.sec.wide { grid-column: 1 / -1; }
+.sh { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.sh h4 { margin: 0; font-size: 16px; font-weight: 700; color: var(--navy); }
+.lk { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #dfe4ec; background: #fff; border-radius: 8px; padding: 6px 11px; font-size: 13px; font-weight: 600; color: var(--navy); text-decoration: none; }
+.lk:hover { border-color: var(--navy); }
+.lk.main { background: var(--brand); border-color: var(--brand); color: #fff; }
+.lk .ar { font-size: 12px; opacity: .8; }
+.lk.off { color: #a8b0bd; border-style: dashed; cursor: default; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 7px 12px; font-size: 14px; }
+.kv dt, .kv .k { color: var(--muted); }
+.kv .v { text-align: right; font-weight: 600; color: var(--ink); white-space: nowrap; }
+.kv .v.hl { color: var(--brand); font-weight: 800; }
+.contact { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.contact .who { flex: 1; min-width: 180px; }
+.contact .who b { display: block; color: var(--navy); font-size: 15px; }
+.contact .who span { color: var(--muted); font-size: 13px; }
+.mf { display: flex; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--line); background: #fbfcfe; align-items: center; flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; justify-content: center; text-align: center; border-radius: 10px; padding: 11px 16px; font-weight: 600; text-decoration: none; border: 1px solid #dfe4ec; background: #fff; color: var(--navy); }
 .btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
 .btn.navy { background: var(--navy); border-color: var(--navy); color: #fff; }
-.btn.full { width: 100%; margin-top: 8px; }
+.btn.sm { padding: 8px 12px; font-size: 13px; }
+.mf .legal { margin: 0; flex: 1 1 260px; }
 .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: #1f2a3d; color: #fff; padding: 10px 16px; border-radius: 10px; z-index: 2147483001; display: none; font-size: 13.5px; }
 .toast.show { display: block; }
 
@@ -184,8 +200,13 @@ tbody tr:hover .go { color: var(--brand); }
   .chip { white-space: nowrap; flex: none; }
   .adv { grid-template-columns: 1fr 1fr; }
   .tw { display: none; } .cards { display: block; }
-  .grid2 { grid-template-columns: 1fr 1fr; }
-  .pbox .big { font-size: 24px; }
+  .msec { grid-template-columns: 1fr; }
+  .mh { flex-wrap: wrap; padding: 14px 16px; }
+  .mh .np { order: 5; width: 100%; text-align: left; margin-left: 0; display: flex; align-items: baseline; gap: 8px; }
+  .mh .np .v { font-size: 22px; }
+  #mPrev, #mNext { display: none; }
+  .mh #mClose { margin-left: auto; }
+  .mb { padding: 14px 16px; } .mf { padding: 12px 16px; } .mf .btn { flex: 1 1 140px; }
 }
 `;
 
@@ -231,8 +252,15 @@ tbody tr:hover .go { color: var(--brand); }
   <p class="legal" id="legal"></p>
 
   <div class="mbg" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="modal">
-    <div class="mh"><div><h3 id="mTitle"></h3><div class="sub" id="mSub"></div></div><button class="close" id="mClose" aria-label="Đóng">×</button></div>
+    <div class="mh">
+      <button class="close" id="mPrev" aria-label="Căn trước">‹</button>
+      <div><h3 id="mTitle"></h3><div class="sub" id="mSub"></div></div>
+      <div class="np" id="mPrice"></div>
+      <button class="close" id="mNext" aria-label="Căn sau">›</button>
+      <button class="close" id="mClose" aria-label="Đóng">×</button>
+    </div>
     <div class="mb" id="mBody"></div>
+    <div class="mf" id="mFoot"></div>
   </div></div>
   <div class="toast" id="toast" role="status"></div>
 </div>`;
@@ -271,7 +299,9 @@ tbody tr:hover .go { color: var(--brand); }
       code: String(u.code || '').trim(), zone: blankish(u.zone) ? titleCase(blankish(u.zone)) : '', street: blankish(u.street),
       type: cleanType(u.type), direction: blankish(u.direction) ? titleCase(blankish(u.direction)) : '',
       handover: blankish(u.handover) ? sentence(blankish(u.handover)) : '',
-      land: u.land, build: u.build != null ? Math.round(u.build * 10) / 10 : u.build, price: u.price, status: u.status
+      land: u.land, build: u.build != null ? Math.round(u.build * 10) / 10 : u.build, price: u.price, status: u.status,
+      ptg: /^https:\/\//i.test(u.ptg || '') ? u.ptg : '', unitLink: /^https:\/\//i.test(u.unitLink || '') ? u.unitLink : '',
+      priceExVat: u.priceExVat || null, priceLoan: u.priceLoan || null
     };
   }
   function stCls(s) { return s === 'Còn hàng' ? 's-ok' : s === 'Đang giữ chỗ' ? 's-hold' : s === 'Đã bán' ? 's-sold' : 's-other'; }
@@ -500,6 +530,7 @@ tbody tr:hover .go { color: var(--brand); }
       var sv = state.sort.key === 'default' ? 'default' : state.sort.key + ':' + state.sort.dir;
       $('sortSel').value = Array.prototype.some.call($('sortSel').options, function (o) { return o.value === sv && !o.hidden; }) ? sv : 'custom';
       var shown = rows.slice(0, state.shown);
+      state.visible = rows;
       $('resText').innerHTML = rows.length
         ? 'Hiển thị <b>' + shown.length + '</b> / <b>' + rows.length + '</b> căn' + (rows.length !== state.units.length ? ' phù hợp' : '')
         : 'Không có căn phù hợp';
@@ -541,28 +572,51 @@ tbody tr:hover .go { color: var(--brand); }
     // ─── Chi tiết căn ───
     function openUnit(u) {
       state.current = u; updateHash();
-      $('mTitle').textContent = 'Căn ' + u.code;
-      $('mSub').textContent = state.project.name + (u.zone ? ' · ' + u.zone : '');
-      var tiles = [['Loại hình', u.type], ['Hướng', u.direction], ['Diện tích đất', u.land != null ? m2(u.land) + ' m²' : ''],
-        ['Diện tích xây dựng', u.build != null ? m2(u.build) + ' m²' : ''], ['Bàn giao', u.handover], ['Phân khu', u.zone], ['Đơn giá', trieu(perM2(u))]].filter(function (r) { return r[1]; });
-      $('mBody').innerHTML = '<div class="pbox"><div><div class="k">Giá niêm yết, đã gồm VAT và kinh phí bảo trì</div><div class="big">' + ty(u.price) + '</div>' +
-        (u.price ? '<div class="vnd">' + vnd(u.price) + '</div>' : '') + '</div><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div>' +
-        '<div class="grid2">' + tiles.map(function (r) { return '<div class="tile"><span>' + r[0] + '</span><b>' + esc(r[1]) + '</b></div>'; }).join('') + '</div>' +
-        '<div class="ctas"><a class="btn primary" href="tel:' + esc(C.hotline) + '">Gọi ' + esc(C.hotlineText) + '</a>' +
-        '<button class="btn navy" id="mZalo">Hỏi căn này qua Zalo</button></div>' +
-        '<button class="btn full" id="mLink">Sao chép link căn</button>' +
-        '<p class="legal">Giá tham khảo theo bảng hàng cập nhật lúc ' + when(state.data.updatedAt) + '. Giá và chính sách có thể thay đổi theo xác nhận của chủ đầu tư.</p>';
-      $('mZalo').onclick = function () {
-        copy('Tôi muốn tìm hiểu căn ' + u.code + ' dự án ' + state.project.name + ' (giá niêm yết ' + ty(u.price) + ').', 'Đã sao chép tin nhắn, dán vào Zalo để gửi');
-        window.open(C.zalo, '_blank', 'noopener');
-      };
+      var upd = when(state.data.updatedAt);
+      $('mTitle').textContent = u.code;
+      $('mSub').textContent = state.project.name + (u.zone ? ' · ' + u.zone : '') + (u.type ? ' · ' + u.type : '');
+      $('mPrice').innerHTML = '<div class="k">Giá niêm yết</div><div class="v">' + ty(u.price) + '</div><div class="k2">Gồm VAT và kinh phí bảo trì</div>';
+      function row(k, v, hl) { return v ? '<div class="k">' + k + '</div><div class="v' + (hl ? ' hl' : '') + '">' + v + '</div>' : ''; }
+      function link(url, label, main) {
+        return url ? '<a class="lk' + (main ? ' main' : '') + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + label + ' <span class="ar">↗</span></a>'
+          : '<span class="lk off" title="Chưa có trên bảng hàng, vui lòng gọi hotline">' + label + '</span>';
+      }
+      var priceSec = '<div class="sec"><div class="sh"><h4>Giá</h4>' + link(u.ptg, 'Phiếu tính giá', true) + '</div><div class="kv">' +
+        row('Giá niêm yết', u.price ? vnd(u.price) : 'Liên hệ', true) + row('Giá chưa VAT', u.priceExVat ? vnd(u.priceExVat) : '') +
+        row('Giá vay (theo chính sách)', u.priceLoan ? ty(u.priceLoan) : '') + row('Đơn giá', trieu(perM2(u))) + '</div></div>';
+      var areaSec = '<div class="sec"><div class="sh"><h4>Diện tích</h4>' + (u.unitLink ? link(u.unitLink, 'Chỉ căn') : '') + '</div><div class="kv">' +
+        row('Diện tích đất', u.land != null ? m2(u.land) + ' m²' : '') + row('Diện tích xây dựng', u.build != null ? m2(u.build) + ' m²' : '') + '</div></div>';
+      var infoSec = '<div class="sec"><div class="sh"><h4>Thông tin căn</h4></div><div class="kv">' +
+        row('Loại hình', esc(u.type)) + row('Hướng', esc(u.direction)) + row('Tiêu chuẩn bàn giao', esc(u.handover)) + row('Phân khu', esc(u.zone)) +
+        row('Dãy / đường', esc(u.street)) + '</div></div>';
+      var statusSec = '<div class="sec"><div class="sh"><h4>Trạng thái</h4><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div><div class="kv">' +
+        row('Cập nhật lúc', esc(upd)) + '</div><div class="contact" style="margin-top:12px"><div class="who"><b>Á Đông Land</b><span>Tư vấn dự án ' + esc(state.project.name) + '</span></div>' +
+        '<a class="btn primary sm" href="tel:' + esc(C.hotline) + '">Gọi ' + esc(C.hotlineText) + '</a><button class="btn navy sm" id="mZalo">Zalo</button></div></div>';
+      $('mBody').innerHTML = '<div class="msec">' + priceSec + areaSec + infoSec + statusSec + '</div>';
+      $('mFoot').innerHTML = '<button class="btn sm" id="mLink">Chia sẻ link căn</button><button class="btn sm" id="mCopy">Sao chép thông tin</button>' +
+        '<p class="legal">Giá tham khảo theo bảng hàng cập nhật lúc ' + esc(upd) + '. Giá và chính sách có thể thay đổi theo xác nhận của chủ đầu tư.</p>';
+      var info = 'Căn ' + u.code + ', ' + state.project.name + '\nGiá niêm yết: ' + ty(u.price) + ' (gồm VAT và KPBT)' +
+        (u.land != null ? '\nDiện tích đất: ' + m2(u.land) + ' m²' : '') + (u.build != null ? ', xây dựng: ' + m2(u.build) + ' m²' : '') +
+        (u.type ? '\nLoại hình: ' + u.type : '') + (u.handover ? ', bàn giao: ' + u.handover : '') + (u.ptg ? '\nPhiếu tính giá: ' + u.ptg : '') + '\nTình trạng: ' + u.status;
+      $('mZalo').onclick = function () { copy('Tôi muốn tìm hiểu căn ' + u.code + ' dự án ' + state.project.name + ' (giá niêm yết ' + ty(u.price) + ').', 'Đã sao chép tin nhắn, dán vào Zalo để gửi'); window.open(C.zalo, '_blank', 'noopener'); };
       $('mLink').onclick = function () { copy(location.href, 'Đã sao chép link căn'); };
+      $('mCopy').onclick = function () { copy(info, 'Đã sao chép thông tin căn'); };
+      var list = state.visible || [], i = list.indexOf(u);
+      $('mPrev').disabled = i <= 0; $('mNext').disabled = i < 0 || i >= list.length - 1;
+      $('mPrev').style.opacity = $('mPrev').disabled ? .35 : 1; $('mNext').style.opacity = $('mNext').disabled ? .35 : 1;
       $('modal').classList.add('open'); $('mClose').focus();
     }
+    $('mPrev').onclick = function () { var l = state.visible || [], i = l.indexOf(state.current); if (i > 0) openUnit(l[i - 1]); };
+    $('mNext').onclick = function () { var l = state.visible || [], i = l.indexOf(state.current); if (i >= 0 && i < l.length - 1) openUnit(l[i + 1]); };
     function closeModal() { $('modal').classList.remove('open'); state.current = null; updateHash(); }
     $('mClose').onclick = closeModal;
     $('modal').onclick = function (e) { if (e.target === $('modal')) closeModal(); };
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && $('modal').classList.contains('open')) closeModal(); });
+    document.addEventListener('keydown', function (e) {
+      if (!$('modal').classList.contains('open')) return;
+      if (e.key === 'Escape') closeModal();
+      else if (e.key === 'ArrowLeft') $('mPrev').click();
+      else if (e.key === 'ArrowRight') $('mNext').click();
+    });
     function copy(t, msg) {
       var ok = function () { toast(msg); };
       var fb = function () { var a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); ok(); } catch (e) { /* bỏ qua */ } a.remove(); };
@@ -590,7 +644,8 @@ tbody tr:hover .go { color: var(--brand); }
         for (var i = 1; i <= d[4]; i++) {
           var land = d[3] + (i % 3) * 5;
           out.push({ code: d[1] + '-' + ('0' + i * 2).slice(-2), zone: d[0], street: d[1], type: d[2], direction: dirs[(i + d[1].length) % 6], handover: i % 2 ? 'GIÃN XÂY' : 'Thô',
-            land: land, build: Math.round(land * 2.7 * 10) / 10, price: Math.round((d[5] + (i % 5) * 0.21e9) / 1e7) * 1e7, status: st[(i * 5 + d[1].length) % 6] });
+            land: land, build: Math.round(land * 2.7 * 10) / 10, price: Math.round((d[5] + (i % 5) * 0.21e9) / 1e7) * 1e7, status: st[(i * 5 + d[1].length) % 6],
+            ptg: i % 4 ? 'https://drive.google.com/drive/folders/minh-hoa' : '', priceExVat: Math.round((d[5] + (i % 5) * 0.21e9) / 1.1 / 1e6) * 1e6, priceLoan: Math.round((d[5] + (i % 5) * 0.21e9) * 1.03 / 1e7) * 1e7 });
         }
       });
       return out;

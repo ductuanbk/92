@@ -58,6 +58,8 @@ function publicResponse_(p) {
   return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
 }
 
+var unmappedLog_ = {}; // trạng thái chưa nhận ra, chỉ ghi vào nhật ký khi chạy kiemTraBangHangCongKhai
+
 function publicData_() {
   var ps = CONFIG.publicSite || {};
   if (!ps.enabled) return { ok: false, error: 'Trang công khai đang tắt.' };
@@ -71,7 +73,7 @@ function publicData_() {
     projects: []
   };
   CONFIG.projects.forEach(function (project) {
-    var seen = {}, units = [], failed = 0;
+    var seen = {}, units = [], failed = 0, unmapped = {};
     project.sources.filter(isEnabled_).filter(function (s) { return s.public !== false; }).forEach(function (source) {
       var res = readSource_(project, source);
       if (res.error) { failed++; return; }
@@ -80,14 +82,25 @@ function publicData_() {
         if (seen[k]) return; // trùng mã giữa các giỏ: lấy giỏ khai báo trước
         seen[k] = true;
         if (u.status === STATUS.SOLD && !ps.showSold) return;
-        units.push({
+        var item = {
           code: u.code, zone: u.zone, street: u.street, type: u.type, direction: u.direction,
           handover: u.handover, land: u.land, build: u.build, price: u.priceTotal || null,
           status: labels[u.status] || 'Liên hệ'
-        });
+        };
+        if (ps.showLinks) {
+          if (/^https:\/\//i.test(u.ptg)) item.ptg = u.ptg;
+          if (/^https:\/\//i.test(u.unitLink)) item.unitLink = u.unitLink;
+        }
+        if (ps.showExtraPrices) {
+          if (u.priceExVat) item.priceExVat = u.priceExVat;
+          if (u.priceLoan) item.priceLoan = u.priceLoan;
+        }
+        if (!labels[u.status]) unmapped[u.statusRaw || u.status || '(trống)'] = (unmapped[u.statusRaw || u.status || '(trống)'] || 0) + 1;
+        units.push(item);
       });
     });
     out.projects.push({ id: project.id, name: project.name, units: units, incomplete: failed > 0 });
+    unmappedLog_[project.name] = unmapped;
   });
   cachePut_('pub_v1', out, ps.cacheSeconds || 120);
   return out;
@@ -97,7 +110,12 @@ function publicData_() {
 function kiemTraBangHangCongKhai() {
   CacheService.getScriptCache().remove('pub_v1_n');
   var d = publicData_();
-  d.projects.forEach(function (p) { Logger.log(p.name + ': ' + p.units.length + ' căn' + (p.incomplete ? ' (có tab đọc lỗi)' : '')); });
+  d.projects.forEach(function (p) {
+    Logger.log(p.name + ': ' + p.units.length + ' căn' + (p.incomplete ? ' (có tab đọc lỗi)' : '') +
+      ', có link phiếu tính giá: ' + p.units.filter(function (u) { return u.ptg; }).length);
+    var um = unmappedLog_[p.name] || {};
+    Object.keys(um).forEach(function (k) { Logger.log('   Tình trạng chưa nhận ra (hiện "Liên hệ"): "' + k + '" × ' + um[k]); });
+  });
 }
 
 // ═════════════════════════════ Đăng nhập ═════════════════════════════
@@ -771,11 +789,11 @@ function codePrefix_(code) { var m = String(code).match(/^([^-]+)-/); return m ?
 function canonStatus_(raw) {
   var n = normalize_(raw);
   if (!n) return '';
-  if (/\b(da ban|sold)\b/.test(n)) return STATUS.SOLD;
+  if (/\b(da ban|sold|het hang|da ky|ky hdmb)\b/.test(n)) return STATUS.SOLD;
   if (/\b(da coc|dat coc|coc)\b/.test(n)) return STATUS.DEPOSITED;
-  if (/\b(lock|locked|giu cho|dang giu)\b/.test(n)) return STATUS.LOCKED;
+  if (/\b(lock|locked|giu cho|dang giu|da giu|book|booking|booked)\b/.test(n)) return STATUS.LOCKED;
   if (/\bcheck\b/.test(n)) return STATUS.CHECK;
-  if (/^(con hang|con|ton|trong|available|mo ban)$/.test(n)) return STATUS.AVAILABLE;
+  if (/^(con hang|con|ton|trong|available|mo ban|dang ban|san|san hang)\b/.test(n)) return STATUS.AVAILABLE;
   return String(raw).trim();
 }
 

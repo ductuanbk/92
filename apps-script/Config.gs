@@ -23,6 +23,8 @@ var CONFIG = {
     enabled: true,
     showSold: false,          // ẩn căn đã bán
     cacheSeconds: 120,
+    showLinks: true,          // gửi link phiếu tính giá (Link PTG) và link chỉ căn của từng căn
+    showExtraPrices: true,    // gửi thêm giá chưa VAT và giá vay (nếu sheet có cột)
     // Trạng thái nội bộ → chữ hiển thị cho khách. Trạng thái khác hiện "Liên hệ".
     statusLabels: { 'Còn hàng': 'Còn hàng', 'Check admin': 'Đang giữ chỗ', 'Đang lock': 'Đang giữ chỗ', 'Đã cọc': 'Đang giữ chỗ', 'Đã bán': 'Đã bán' }
   },
