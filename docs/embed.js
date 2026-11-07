@@ -98,19 +98,16 @@ a { color: var(--brand); }
 .adv-btn { height: 42px; padding: 0 16px; border-radius: 10px; border: 1px solid #dfe4ec; background: #fff; font-weight: 600; color: var(--navy); display: inline-flex; align-items: center; gap: 8px; }
 .adv-btn.on { background: var(--navy); border-color: var(--navy); color: #fff; }
 .badge { display: inline-block; min-width: 18px; padding: 0 6px; border-radius: 999px; background: var(--brand); color: #fff; font-size: 11px; line-height: 18px; text-align: center; }
-.groups { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-.grp { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.grp .lb { width: 86px; flex: none; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-.chip { border: 1px solid #dfe4ec; background: #fff; color: var(--ink-2); border-radius: 999px; padding: 5px 12px; font-size: 13px; line-height: 1.4; display: inline-flex; align-items: center; gap: 6px; }
-.chip:hover { border-color: var(--navy-2); color: var(--navy); }
-.chip.on { background: var(--navy); border-color: var(--navy); color: #fff; }
-.chip b { font-weight: 700; }
-.chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--c, var(--muted)); }
-.chip.on .dot { background: #fff; }
-.adv { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
-.adv label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; }
-.adv select, .adv input { height: 38px; padding: 0 10px; border: 1px solid #dfe4ec; border-radius: 8px; background: #fff; font-size: 14px; font-weight: 400; color: var(--ink); text-transform: none; letter-spacing: 0; width: 100%; min-width: 0; }
-.range { display: flex; gap: 6px; }
+.adv { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: 12px 14px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line-2); }
+.fld { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.fld > span { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.fld select { appearance: none; -webkit-appearance: none; width: 100%; min-width: 0; height: 42px; padding: 0 36px 0 12px; border: 1px solid #dfe4ec; border-radius: 10px;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%238a94a6' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 13px center;
+  font-size: 14px; color: var(--ink); cursor: pointer; text-overflow: ellipsis; }
+.fld select:hover { border-color: #c3cbd8; }
+.fld select:focus { outline: 2px solid rgba(22,58,122,.2); border-color: var(--navy-2); }
+.fld.set select { border-color: var(--navy-2); background-color: #f2f6fd; color: var(--navy); font-weight: 600; }
+.adv-foot { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 2px; color: var(--muted); font-size: 13px; }
 
 /* Dòng kết quả */
 .resbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 4px 2px 10px; color: var(--ink-2); font-size: 13.5px; }
@@ -203,6 +200,7 @@ tbody tr:hover .go { color: var(--brand); }
 
 /* Co theo bề rộng khung chứa của theme */
 @container (max-width: 1100px) { .col-build { display: none; } }
+@container (max-width: 980px) { .adv { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @container (max-width: 980px) { .col-zone, .col-direction { display: none; } .stats { grid-template-columns: repeat(2, 1fr); } }
 @container (max-width: 760px) {
   .w { padding: 4px 12px 32px; }
@@ -215,10 +213,7 @@ tbody tr:hover .go { color: var(--brand); }
   .search { flex: 1 1 100%; }
   .sort { flex: 1 1 0; min-width: 0; } .sort span { display: none; } .sort select { min-width: 0; width: 100%; }
   .stat .k { font-size: 11.5px; }
-  .grp { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; }
-  .grp .lb { width: auto; margin-right: 4px; }
-  .chip { white-space: nowrap; flex: none; }
-  .adv { grid-template-columns: 1fr 1fr; }
+  .adv { grid-template-columns: 1fr 1fr; gap: 10px; }
   .tw { display: none; } .cards { display: block; }
   .msec { grid-template-columns: 1fr; }
   .mh { flex-wrap: wrap; padding: 14px 16px; }
@@ -252,17 +247,14 @@ tbody tr:hover .go { color: var(--brand); }
       </select></label>
       <button class="adv-btn" id="advBtn" aria-expanded="false">Lọc thêm <span class="badge" id="advCount" hidden></span></button>
     </div>
-    <div class="groups" id="groups" hidden>
-      <div class="grp" id="gHandover"></div>
-      <div class="grp" id="gPrice"></div>
-      <div class="grp" id="gType"></div>
-    </div>
     <div class="adv" id="adv" hidden>
-      <label>Phân khu<select id="fZone"></select></label>
-      <label>Hướng<select id="fDirection"></select></label>
-      <label>Tình trạng<select id="fStatus"></select></label>
-      <label>Diện tích đất từ (m²)<input id="fLand" type="number" min="0" step="5" placeholder="Ví dụ 80"></label>
-      <label>Giá từ, đến (tỷ)<span class="range"><input id="fMin" type="number" min="0" step="0.5" placeholder="Từ"><input id="fMax" type="number" min="0" step="0.5" placeholder="Đến"></span></label>
+      <label class="fld"><span>Bàn giao</span><select id="fHandover"></select></label>
+      <label class="fld"><span>Loại hình</span><select id="fType"></select></label>
+      <label class="fld"><span>Khoảng giá</span><select id="fPrice"></select></label>
+      <label class="fld"><span>Diện tích đất</span><select id="fLand"></select></label>
+      <label class="fld"><span>Tình trạng</span><select id="fStatus"></select></label>
+      <label class="fld"><span>Phân khu</span><select id="fZone"></select></label>
+      <label class="fld"><span>Hướng</span><select id="fDirection"></select></label>
     </div>
   </div>
 
@@ -337,7 +329,9 @@ tbody tr:hover .go { color: var(--brand); }
   function viewStatus(s) { s = String(s || '').trim(); return STATUS_MERGE[s] || (s === 'Còn hàng' || s === 'Đã bán' ? s : CHECK); }
   function stCls(s) { return s === 'Còn hàng' ? 's-ok' : s === CHECK ? 's-hold' : s === 'Đã bán' ? 's-sold' : 's-other'; }
   function rank(s) { var r = { 'Còn hàng': 0, 'Check admin': 1, 'Đã bán': 3 }[s]; return r == null ? 2 : r; }
-  var PRICE_BUCKETS = [[0, 7, 'Dưới 7 tỷ'], [7, 10, '7 – 10 tỷ'], [10, 15, '10 – 15 tỷ'], [15, 25, '15 – 25 tỷ'], [25, 40, '25 – 40 tỷ'], [40, 1e4, 'Trên 40 tỷ']];
+  // Khoảng chọn sẵn: [từ, dưới, nhãn]. Giá tính bằng tỷ, diện tích bằng m².
+  var PRICE_BUCKETS = [[0, 7, 'Dưới 7 tỷ'], [7, 10, '7 – 10 tỷ'], [10, 15, '10 – 15 tỷ'], [15, 25, '15 – 25 tỷ'], [25, 40, '25 – 40 tỷ'], [40, 1e4, 'Từ 40 tỷ']];
+  var LAND_BUCKETS = [[0, 60, 'Dưới 60 m²'], [60, 80, '60 – 80 m²'], [80, 100, '80 – 100 m²'], [100, 150, '100 – 150 m²'], [150, 250, '150 – 250 m²'], [250, 1e6, 'Từ 250 m²']];
 
   // ─── Tải dữ liệu: một lần dùng chung cho mọi khối trên trang ───
   var shared = null;
@@ -390,7 +384,7 @@ tbody tr:hover .go { color: var(--brand); }
     if (host.getAttribute('data-tieu-de') === '0') $('hero').hidden = true;
     var state = null;
     state = { data: null, projects: [], project: null, units: [], filter: blank(), sort: { key: 'default', dir: 1 }, current: null, shown: C.pageSize };
-    function blank() { return { q: '', zone: '', type: '', direction: '', handover: '', land: '', min: '', max: '', status: '', dq: state && state.filter ? state.filter.dq : (host.getAttribute('data-gio') === 'dq' ? '1' : '') }; }
+    function blank() { return { q: '', zone: '', type: '', direction: '', handover: '', land: '', price: '', status: '', dq: state && state.filter ? state.filter.dq : (host.getAttribute('data-gio') === 'dq' ? '1' : '') }; }
     function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('show'); }, 2600); }
 
     // Khung chờ khi đang tải
@@ -434,7 +428,7 @@ tbody tr:hover .go { color: var(--brand); }
       var changed = !state.project || state.project.id !== id;
       state.project = state.projects.filter(function (p) { return p.id === id; })[0];
       state.units = state.project.units.map(cleanUnit);
-      if (changed && !keep) { state.filter = blank(); state.shown = C.pageSize; ['q', 'fMin', 'fMax', 'fLand'].forEach(function (x) { $(x).value = ''; }); }
+      if (changed && !keep) { state.filter = blank(); state.shown = C.pageSize; $('q').value = ''; }
       Array.prototype.forEach.call($('projects').children, function (b) { b.classList.toggle('on', b.dataset.p === id); b.setAttribute('aria-selected', String(b.dataset.p === id)); });
       var upd = when(state.data.updatedAt);
       $('hName').textContent = state.project.name;
@@ -464,59 +458,71 @@ tbody tr:hover .go { color: var(--brand); }
       $('stats').innerHTML = items.map(function (it) { return '<div class="stat"><div class="k">' + it[0] + '</div><div class="v">' + it[1] + '</div></div>'; }).join('');
     }
 
-    // ─── Bộ lọc ───
-    function opts(id, values, cur) {
-      var u = values.filter(function (v, i, a) { return v && a.indexOf(v) === i; }).sort(natural);
-      $(id).innerHTML = '<option value="">Tất cả</option>' + u.map(function (v) { return '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('');
-      $(id).closest('label').hidden = u.length < 2 || coverage(id === 'fZone' ? 'zone' : id === 'fDirection' ? 'direction' : 'status') < 0.3;
-    }
+    // ─── Bộ lọc: các ô chọn thả xuống, mỗi lựa chọn kèm số căn theo các lọc còn lại ───
     function coverage(k) { return state.units.length ? state.units.filter(function (u) { return u[k]; }).length / state.units.length : 0; }
-    function buildOptions() {
-      var u = state.units, f = state.filter;
-      opts('fZone', u.map(function (x) { return x.zone; }), f.zone);
-      opts('fDirection', u.map(function (x) { return x.direction; }), f.direction);
-      // Tình trạng: giữ thứ tự Còn hàng, Check admin, Đã bán
-      var sts = ['Còn hàng', CHECK, 'Đã bán'].filter(function (x) { return u.some(function (y) { return y.status === x; }); });
-      $('fStatus').innerHTML = '<option value="">Tất cả</option>' + sts.map(function (v) { return '<option value="' + esc(v) + '"' + (v === f.status ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('');
-      $('fStatus').closest('label').hidden = sts.length < 2;
+    function inBucket(v, b, mul) { return v != null && v >= b[0] * mul && v < b[1] * mul; }
+    var FIELDS = {
+      fHandover: { k: 'handover' }, fType: { k: 'type' }, fZone: { k: 'zone' }, fDirection: { k: 'direction' },
+      fStatus: { k: 'status', order: ['Còn hàng', CHECK, 'Đã bán'] },
+      fPrice: { k: 'price', buckets: PRICE_BUCKETS, mul: 1e9 }, fLand: { k: 'land', buckets: LAND_BUCKETS, mul: 1 }
+    };
+    function buildOptions() { renderFilters(); }
+    function renderFilters() {
+      var f = state.filter;
+      Object.keys(FIELDS).forEach(function (id) {
+        var d = FIELDS[id], cur = f[d.k], pool = state.units.filter(function (u) { return matches(u, d.k); }), items = [];
+        if (d.buckets) {
+          items = d.buckets.map(function (b, i) { return { v: String(i), l: b[2], n: pool.filter(function (u) { return inBucket(u[d.k], b, d.mul); }).length }; });
+        } else {
+          var c = {}; pool.forEach(function (u) { if (u[d.k]) c[u[d.k]] = (c[u[d.k]] || 0) + 1; });
+          var keys = d.order ? d.order.filter(function (x) { return c[x]; }) : Object.keys(c).sort(function (a, b) { return c[b] - c[a] || natural(a, b); });
+          items = keys.map(function (x) { return { v: x, l: x, n: c[x] }; });
+        }
+        var shown = items.filter(function (it) { return it.n > 0 || it.v === cur; });
+        var el = $(id), lab = el.closest('label');
+        el.innerHTML = '<option value="">Tất cả (' + pool.length + ')</option>' + shown.map(function (it) {
+          return '<option value="' + esc(it.v) + '"' + (it.v === cur ? ' selected' : '') + '>' + esc(it.l) + ' (' + it.n + ')</option>';
+        }).join('');
+        el.value = cur || '';
+        // Ô có hiện hay không tính theo toàn bộ dự án, để các ô không nhảy vị trí khi đang lọc.
+        var all = d.buckets ? d.buckets.filter(function (b) { return state.units.some(function (u) { return inBucket(u[d.k], b, d.mul); }); }).length
+          : state.units.map(function (u) { return u[d.k]; }).filter(function (v, i, a) { return v && a.indexOf(v) === i; }).length;
+        lab.hidden = !cur && (all < 2 || (!d.buckets && coverage(d.k) < 0.3));
+        lab.classList.toggle('set', !!cur);
+      });
+      // Số cột theo số ô đang hiện: 5–6 ô xếp 3 cột, 7–8 ô xếp 4 cột (máy tính); điện thoại luôn 2 cột.
+      var nv = Array.prototype.filter.call($('adv').querySelectorAll('.fld'), function (l) { return !l.hidden; }).length;
+      $('adv').style.setProperty('--cols', nv <= 4 ? Math.max(nv, 1) : (nv <= 6 ? 3 : 4));
     }
-    var FMAP = { fZone: 'zone', fDirection: 'direction', fStatus: 'status' };
-    Object.keys(FMAP).forEach(function (id) { $(id).onchange = function () { state.filter[FMAP[id]] = this.value; reset(); }; });
-    ['fMin', 'fMax', 'fLand'].forEach(function (id) { $(id).oninput = function () { state.filter[{ fMin: 'min', fMax: 'max', fLand: 'land' }[id]] = this.value; reset(); }; });
+    Object.keys(FIELDS).forEach(function (id) { $(id).onchange = function () { state.filter[FIELDS[id].k] = this.value; reset(); }; });
     var qt; $('q').oninput = function () { var v = this.value; clearTimeout(qt); qt = setTimeout(function () { state.filter.q = v; reset(); }, 150); };
-    // Toàn bộ phần lọc (nút Bàn giao, Khoảng giá, Loại hình và các ô lọc phụ) chỉ hiện khi bấm "Lọc thêm".
+    // Phần lọc chỉ hiện khi bấm "Lọc thêm".
     $('advBtn').onclick = function () {
       var open = $('adv').hidden;
-      $('adv').hidden = !open; $('groups').hidden = !open;
+      $('adv').hidden = !open;
       this.classList.toggle('on', open); this.setAttribute('aria-expanded', String(open));
     };
     $('sortSel').onchange = function () { var v = this.value; state.sort = v === 'default' ? { key: 'default', dir: 1 } : { key: v.split(':')[0], dir: Number(v.split(':')[1]) }; reset(); };
-    $('clearAll').onclick = function () { state.filter = blank(); ['q', 'fMin', 'fMax', 'fLand'].forEach(function (x) { $(x).value = ''; }); buildOptions(); reset(); };
+    function clearFilters() { state.filter = blank(); $('q').value = ''; reset(); }
+    $('clearAll').onclick = clearFilters;
     $('moreBtn').onclick = function () { state.shown += C.pageSize; render(); };
     function reset() { state.shown = C.pageSize; render(); }
-    function advCount() { var f = state.filter; return ['zone', 'direction', 'status', 'land', 'handover', 'type'].filter(function (k) { return f[k]; }).length + (f.min || f.max ? 1 : 0); }
-    function anyFilter() { var f = state.filter; return !!(f.q || f.handover || f.type || f.min || f.max || advCount()); }
+    function advCount() { var f = state.filter; return ['handover', 'type', 'price', 'land', 'status', 'zone', 'direction'].filter(function (k) { return f[k]; }).length; }
+    function anyFilter() { return !!(state.filter.q || advCount()); }
 
     function matches(u, skip) {
       var f = state.filter, q = norm(f.q).trim();
-      var min = f.min !== '' ? Number(f.min) * 1e9 : null, max = f.max !== '' ? Number(f.max) * 1e9 : null, land = f.land !== '' ? Number(f.land) : null;
       if (skip !== 'dq' && f.dq && !u.dq) return false;
-      if (skip !== 'zone' && f.zone && u.zone !== f.zone) return false;
-      if (skip !== 'type' && f.type && u.type !== f.type) return false;
-      if (skip !== 'direction' && f.direction && u.direction !== f.direction) return false;
-      if (skip !== 'handover' && f.handover && u.handover !== f.handover) return false;
-      if (skip !== 'status' && f.status && u.status !== f.status) return false;
-      if (land != null && !(u.land >= land)) return false;
-      if (skip !== 'price' && min != null && !(u.price >= min)) return false;
-      if (skip !== 'price' && max != null && !(u.price <= max)) return false;
+      for (var id in FIELDS) {
+        var d = FIELDS[id], v = f[d.k];
+        if (!v || skip === d.k) continue;
+        if (d.buckets) { if (!inBucket(u[d.k], d.buckets[+v], d.mul)) return false; }
+        else if (u[d.k] !== v) return false;
+      }
       if (q && q.split(/\s+/).some(function (w) { return norm([u.code, u.zone, u.street, u.type, u.direction, u.handover].join(' ')).indexOf(w) < 0; })) return false;
       return true;
     }
 
-    function chip(group, val, label, count, on, cls) {
-      return '<button class="chip' + (on ? ' on' : '') + (cls ? ' ' + cls : '') + '" data-g="' + group + '" data-v="' + esc(val) + '"' + (count === 0 && !on ? ' disabled style="opacity:.45"' : '') + '>' +
-        (cls ? '<span class="dot"></span>' : '') + esc(label) + (count != null ? ' <b>' + count + '</b>' : '') + '</button>';
-    }
     function dqCfg() { return state.data && state.data.exclusiveTab; }
     function renderTabs() {
       var cfg = dqCfg(), n = state.units.filter(function (u) { return u.dq; }).length;
@@ -531,46 +537,7 @@ tbody tr:hover .go { color: var(--brand); }
     }
     $('gtabs').onclick = function (e) { var b = e.target.closest('button[data-dq]'); if (!b) return; state.filter.dq = b.dataset.dq; updateHash(); reset(); };
     function dqTag(u) { var c = dqCfg(); return u.dq && c ? '<span class="dq" title="' + esc(c.title || '') + '">' + esc(c.short || 'ĐQ') + '</span>' : ''; }
-    function renderChips() {
-      renderTabs();
-      var f = state.filter;
-      // Hàng nút Bàn giao (Thô, Giãn xây, Hoàn thiện...), kèm số căn theo các lọc khác
-      var bh = state.units.filter(function (u) { return matches(u, 'handover'); });
-      var hc = {}; bh.forEach(function (u) { if (u.handover) hc[u.handover] = (hc[u.handover] || 0) + 1; });
-      var hs = Object.keys(hc).sort(function (a, b) { return hc[b] - hc[a] || natural(a, b); });
-      if (f.handover && hs.indexOf(f.handover) < 0) hs.push(f.handover);
-      $('gHandover').hidden = hs.length < 2 && !f.handover;
-      $('gHandover').innerHTML = '<span class="lb">Bàn giao</span>' + chip('handover', '', 'Tất cả', bh.length, !f.handover) +
-        hs.map(function (h) { return chip('handover', h, h, hc[h] || 0, f.handover === h); }).join('');
-      var bp = state.units.filter(function (u) { return matches(u, 'price'); });
-      var pc = PRICE_BUCKETS.map(function (b) { return bp.filter(function (u) { return u.price >= b[0] * 1e9 && u.price <= b[1] * 1e9; }).length; });
-      var anyPrice = pc.filter(Boolean).length > 1;
-      $('gPrice').hidden = !anyPrice;
-      $('gPrice').innerHTML = '<span class="lb">Khoảng giá</span>' + PRICE_BUCKETS.map(function (b, i) {
-        var on = f.min === String(b[0] || '') && f.max === String(b[1] >= 1e4 ? '' : b[1]);
-        if (!pc[i] && !on) return '';
-        return chip('price', b[0] + ':' + (b[1] >= 1e4 ? '' : b[1]), b[2], pc[i], on);
-      }).join('');
-      var bt = state.units.filter(function (u) { return matches(u, 'type'); });
-      var tc = {}; bt.forEach(function (u) { if (u.type) tc[u.type] = (tc[u.type] || 0) + 1; });
-      var types = Object.keys(tc).sort(function (a, b) { return tc[b] - tc[a]; }).slice(0, 7);
-      if (f.type && types.indexOf(f.type) < 0) types.push(f.type);
-      $('gType').hidden = types.length < 2;
-      $('gType').innerHTML = '<span class="lb">Loại hình</span>' + chip('type', '', 'Tất cả', null, !f.type) + types.map(function (t) { return chip('type', t, t, tc[t] || 0, f.type === t); }).join('');
-    }
-    root.addEventListener('click', function (e) {
-      var c = e.target.closest && e.target.closest('.chip'); if (!c || c.disabled) return;
-      var g = c.dataset.g, v = c.dataset.v, f = state.filter;
-      if (g === 'handover') f.handover = f.handover === v ? '' : v;
-      else if (g === 'type') f.type = f.type === v ? '' : v;
-      else if (g === 'price') {
-        var p = v.split(':'), lo = p[0] === '0' ? '' : p[0], hi = p[1];
-        var on = f.min === lo && f.max === hi;
-        f.min = on ? '' : lo; f.max = on ? '' : hi;
-        $('fMin').value = f.min; $('fMax').value = f.max;
-      }
-      reset();
-    });
+    function renderChips() { renderTabs(); renderFilters(); }
 
     // ─── Bảng ───
     var COLS = [
