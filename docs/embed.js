@@ -311,13 +311,17 @@ tbody tr:hover .go { color: var(--brand); }
       code: String(u.code || '').trim(), zone: blankish(u.zone) ? titleCase(blankish(u.zone)) : '', street: blankish(u.street),
       type: cleanType(u.type), direction: blankish(u.direction) ? titleCase(blankish(u.direction)) : '',
       handover: blankish(u.handover) ? sentence(blankish(u.handover)) : '',
-      land: u.land, build: u.build != null ? Math.round(u.build * 10) / 10 : u.build, price: u.price, status: u.status,
+      land: u.land, build: u.build != null ? Math.round(u.build * 10) / 10 : u.build, price: u.price, status: viewStatus(u.status),
       ptg: /^https:\/\//i.test(u.ptg || '') ? u.ptg : '', unitLink: /^https:\/\//i.test(u.unitLink || '') ? u.unitLink : '',
       priceExVat: u.priceExVat || null, priceLoan: u.priceLoan || null, dq: !!u.dq
     };
   }
-  function stCls(s) { return s === 'Còn hàng' ? 's-ok' : s === 'Đang giữ chỗ' ? 's-hold' : s === 'Đã bán' ? 's-sold' : 's-other'; }
-  function rank(s) { var r = { 'Còn hàng': 0, 'Đang giữ chỗ': 1, 'Liên hệ': 2, 'Đã bán': 3 }[s]; return r == null ? 2 : r; }
+  // Trạng thái hiển thị: gộp "Đang giữ chỗ" và "Liên hệ" thành "Check admin".
+  var CHECK = 'Check admin';
+  var STATUS_MERGE = { 'Đang giữ chỗ': CHECK, 'Liên hệ': CHECK };
+  function viewStatus(s) { s = String(s || '').trim(); return STATUS_MERGE[s] || (s === 'Còn hàng' || s === 'Đã bán' ? s : CHECK); }
+  function stCls(s) { return s === 'Còn hàng' ? 's-ok' : s === CHECK ? 's-hold' : s === 'Đã bán' ? 's-sold' : 's-other'; }
+  function rank(s) { var r = { 'Còn hàng': 0, 'Check admin': 1, 'Đã bán': 3 }[s]; return r == null ? 2 : r; }
   var PRICE_BUCKETS = [[0, 7, 'Dưới 7 tỷ'], [7, 10, '7 – 10 tỷ'], [10, 15, '10 – 15 tỷ'], [15, 25, '15 – 25 tỷ'], [25, 40, '25 – 40 tỷ'], [40, 1e4, 'Trên 40 tỷ']];
 
   // ─── Tải dữ liệu: một lần dùng chung cho mọi khối trên trang ───
@@ -436,8 +440,8 @@ tbody tr:hover .go { color: var(--brand); }
       var u = state.units, f = state.filter;
       opts('fZone', u.map(function (x) { return x.zone; }), f.zone);
       opts('fDirection', u.map(function (x) { return x.direction; }), f.direction);
-      // Tình trạng: giữ thứ tự Còn hàng, Đang giữ chỗ, Liên hệ, Đã bán
-      var sts = ['Còn hàng', 'Đang giữ chỗ', 'Liên hệ', 'Đã bán'].filter(function (x) { return u.some(function (y) { return y.status === x; }); });
+      // Tình trạng: giữ thứ tự Còn hàng, Check admin, Đã bán
+      var sts = ['Còn hàng', CHECK, 'Đã bán'].filter(function (x) { return u.some(function (y) { return y.status === x; }); });
       $('fStatus').innerHTML = '<option value="">Tất cả</option>' + sts.map(function (v) { return '<option value="' + esc(v) + '"' + (v === f.status ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('');
       $('fStatus').closest('label').hidden = sts.length < 2;
     }
