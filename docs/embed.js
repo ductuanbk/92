@@ -164,7 +164,29 @@
   function perM2(u) { return u.price && u.land ? u.price / u.land : null; }
   function trieu(n) { return n ? (n / 1e6).toLocaleString('vi-VN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' triệu/m²' : ''; }
   var TYPE_FULL = { lk: 'Liền kề', sl: 'Song lập', dl: 'Đơn lập', sh: 'Shophouse', bt: 'Biệt thự' };
-  function fullType(t) { return TYPE_FULL[norm(t).trim()] || t || ''; }
+  function fullType(t) { return t || ''; } // loại căn đã được chuẩn hóa trong cleanUnit
+
+  // ─── Chuẩn hóa cách ghi khác nhau giữa các sheet (LK / Liền kề, GIÃN XÂY / Giãn xây, "–"...) ───
+  var EMPTY_MARKS = { '-': 1, '–': 1, '—': 1, '_': 1, '.': 1, 'n/a': 1, 'x': 1 };
+  function blankish(v) { var t = String(v == null ? '' : v).trim(); return EMPTY_MARKS[t.toLowerCase()] ? '' : t; }
+  function lowerVi(t) { return t.toLocaleLowerCase('vi-VN'); }
+  function sentence(t) { t = lowerVi(t).replace(/\s+/g, ' '); return t.charAt(0).toLocaleUpperCase('vi-VN') + t.slice(1); }
+  function titleCase(t) { return lowerVi(t).replace(/\s+/g, ' ').replace(/(^|\s)(\S)/g, function (m, a, b) { return a + b.toLocaleUpperCase('vi-VN'); }); }
+  function cleanType(t) {
+    t = blankish(t); if (!t) return '';
+    var x = lowerVi(t).replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+    x = x.replace(/^lk\b/, 'liền kề').replace(/^sl\b/, 'song lập').replace(/^(đl|dl)\b/, 'đơn lập').replace(/^bt\b/, 'biệt thự').replace(/^sh\b/, 'shophouse');
+    x = x.replace(/\bgốc\b/g, 'góc');
+    return x.charAt(0).toLocaleUpperCase('vi-VN') + x.slice(1);
+  }
+  function cleanUnit(u) {
+    return {
+      code: String(u.code || '').trim(), zone: blankish(u.zone) ? titleCase(blankish(u.zone)) : '', street: blankish(u.street),
+      type: cleanType(u.type), direction: blankish(u.direction) ? titleCase(blankish(u.direction)) : '',
+      handover: blankish(u.handover) ? sentence(blankish(u.handover)) : '',
+      land: u.land, build: u.build != null ? Math.round(u.build * 10) / 10 : u.build, price: u.price, status: u.status
+    };
+  }
   function stCls(s) { return s === 'Còn hàng' ? 's-ok' : s === 'Đang giữ chỗ' ? 's-hold' : s === 'Đã bán' ? 's-sold' : 's-other'; }
   function rank(s) { var r = { 'Còn hàng': 0, 'Đang giữ chỗ': 1, 'Liên hệ': 2, 'Đã bán': 3 }[s]; return r == null ? 2 : r; }
   function when(iso) {
@@ -243,7 +265,7 @@
     function selectProject(id, keep) {
       var changed = !state.project || state.project.id !== id;
       state.project = state.projects.filter(function (p) { return p.id === id; })[0];
-      state.units = state.project.units;
+      state.units = state.project.units.map(cleanUnit);
       if (changed && !keep) { state.filter = blank(); ['q', 'fMin', 'fMax', 'fLand'].forEach(function (x) { $(x).value = ''; }); }
       Array.prototype.forEach.call($('projects').children, function (b) { b.classList.toggle('on', b.dataset.p === id); });
       var upd = when(state.data.updatedAt);
@@ -264,8 +286,10 @@
     function buildOptions() {
       var u = state.units, f = state.filter;
       opts('fZone', u.map(function (x) { return x.zone; }), f.zone);
+      if (coverage('zone') < 0.3) $('fZone').closest('label').hidden = true;
       opts('fType', u.map(function (x) { return x.type; }), f.type, fullType);
       opts('fDirection', u.map(function (x) { return x.direction; }), f.direction);
+      if (coverage('direction') < 0.3) $('fDirection').closest('label').hidden = true;
       opts('fHandover', u.map(function (x) { return x.handover; }), f.handover);
     }
     var FMAP = { fZone: 'zone', fType: 'type', fDirection: 'direction', fHandover: 'handover' };
@@ -308,9 +332,12 @@
     function cols() {
       return COLS.filter(function (c) {
         if (['code', 'price', 'status'].indexOf(c.k) >= 0) return true;
-        return state.units.some(function (u) { var v = c.k === 'perM2' ? perM2(u) : u[c.k]; return v != null && v !== ''; });
+        // Cột chỉ hiện khi ít nhất 30% số căn có dữ liệu, tránh cột gần như trống.
+        var n = state.units.filter(function (u) { var v = c.k === 'perM2' ? perM2(u) : u[c.k]; return v != null && v !== ''; }).length;
+        return n > 0 && n >= state.units.length * 0.3;
       });
     }
+    function coverage(k) { return state.units.length ? state.units.filter(function (u) { return u[k]; }).length / state.units.length : 0; }
     function sortRows(rows) {
       var s = state.sort;
       return rows.slice().sort(function (a, b) {
