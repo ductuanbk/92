@@ -224,6 +224,16 @@ tbody tr:hover .go { color: var(--brand); }
 .g2 .r .v { font-weight: 600; color: var(--ink); text-align: right; white-space: nowrap; }
 .g2 .r .v.hl { color: #e3262d; font-weight: 700; }
 .g2 .full { grid-column: 1 / -1; }
+.tiles { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 8px; }
+.tile { background: #f8fafc; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+.tile span { display: block; font-size: 12px; color: var(--muted); }
+.tile b { display: block; margin-top: 3px; font-size: 16px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile b small { font-size: 12px; font-weight: 600; color: var(--muted); }
+.tile.hl { background: var(--brand-soft); border-color: #f5d3d5; } .tile.hl span { color: #b5474d; } .tile.hl b { color: #e3262d; }
+.fund { display: inline-block; font-style: normal; font-size: 13px; padding: 1px 10px; border-radius: 999px; }
+.fund.so { background: #e7f6ee; color: #11804a; } .fund.thu { background: #eaf1fd; color: #2f5fb8; }
+.tnote { margin: 8px 0 0; font-size: 12px; color: var(--muted); }
+.upd { margin: 0; font-size: 13.5px; color: var(--ink-2); } .upd b { color: var(--ink); }
 .loan { margin-top: 12px; background: #f6f8fb; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
 .loan .in { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
 .loan label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-2); font-weight: 600; }
@@ -281,6 +291,7 @@ tbody tr:hover .go { color: var(--brand); }
   .quick b { font-size: 12.5px; } .quick span { font-size: 12.5px; }
   .mright { padding: 2px 14px 16px; }
   .g2 { grid-template-columns: 1fr; gap: 8px; }
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } .tiles .tile:last-child:nth-child(odd) { grid-column: 1 / -1; } .tile b { font-size: 15px; }
   .loan .in, .loan .out { grid-template-columns: 1fr 1fr; }
 }
 `;
@@ -749,20 +760,21 @@ tbody tr:hover .go { color: var(--brand); }
         $('mMedia').onclick = function (e) { if (!e.target.closest('a')) showZoom(); };
       }
       // Cột phải: các mục thông tin
-      function r(k, v, hl, full) { return v ? '<div class="r' + (full ? ' full' : '') + '"><span class="k">' + k + ':</span><span class="v' + (hl ? ' hl' : '') + '">' + v + '</span></div>' : ''; }
       function lk(url, label, id) { return url ? '<a class="lk" href="' + esc(url) + '" target="_blank" rel="noopener">' + label + '<span class="ar">↗</span></a>' : (id ? '<button class="lk" id="' + id + '">' + label + '</button>' : ''); }
-      var dqc = dqCfg();
+      function tile(k, v, cls) { return v ? '<div class="tile' + (cls ? ' ' + cls : '') + '"><span>' + k + '</span><b>' + v + '</b></div>' : ''; }
+      function tiles(html, max) { var n = (html.match(/class="tile/g) || []).length, c = n <= max ? n : (n === 4 ? 2 : max); return '<div class="tiles" style="--n:' + Math.max(c, 1) + '">' + html + '</div>'; }
+      var fundCls = /^s/i.test(norm(u.fund)) ? 'so' : 'thu';
       $('mRight').innerHTML =
         '<div class="blk"><div class="bh"><h4>Giá</h4><div class="tools2">' + lk(u.ptg, 'Phiếu tính giá') + '<button class="lk" id="mLoanBtn">Tính lãi vay</button></div></div>' +
-          '<div class="g2">' + r('Giá niêm yết', u.price ? ty(u.price) : 'Liên hệ', true) + r('Giá chưa VAT', u.priceExVat ? ty(u.priceExVat) : '') +
-          r('Giá vay', u.priceLoan ? ty(u.priceLoan) : '') + r('Giá TTTĐ', u.priceProgress ? ty(u.priceProgress) : '') +
-          r('Giá TTS', u.priceEarly ? ty(u.priceEarly) : '') + r('Đơn giá', trieu(perM2(u))) + '</div>' + loanCalc(u) + '</div>' +
-        '<div class="blk"><div class="bh"><h4>Diện tích</h4><div class="tools2">' + lk(u.unitLink, 'Chỉ căn') + '</div></div>' +
-          '<div class="g2">' + r('DT đất', u.land != null ? m2(u.land) + ' m²' : '') + r('DT xây dựng', u.build != null ? m2(u.build) + ' m²' : '') + '</div></div>' +
-        '<div class="blk"><div class="bh"><h4>Thông tin bàn giao</h4></div><div class="g2">' + r('Tiêu chuẩn bàn giao', esc(u.handover), false, true) +
-          r('Quỹ căn', esc(u.fund || ''), false, true) + r('Giỏ hàng', u.dq && dqc ? esc(dqc.label || 'ĐQ') : '', false, true) + r('Phân khu', esc(u.zone), false, true) + r('Dãy / đường', esc(u.street), false, true) + '</div></div>' +
+          tiles(tile('Giá niêm yết', u.price ? ty(u.price) : 'Liên hệ', 'hl') + tile('Giá TTTĐ', u.priceProgress ? ty(u.priceProgress) : '') +
+          tile('Giá TTS', u.priceEarly ? ty(u.priceEarly) : '') + tile('Giá vay', u.priceLoan ? ty(u.priceLoan) : '') +
+          tile('Giá chưa VAT', u.priceExVat ? ty(u.priceExVat) : '') + tile('Đơn giá', perM2(u) ? num(perM2(u) / 1e6, 1) + ' <small>triệu/m²</small>' : ''), 3) +
+          '<p class="tnote">Giá niêm yết gồm VAT và kinh phí bảo trì.</p>' + loanCalc(u) + '</div>' +
+        '<div class="blk"><div class="bh"><h4>Thông tin căn</h4><div class="tools2">' + lk(u.unitLink, 'Chỉ căn') + '</div></div>' +
+          tiles(tile('DT đất', u.land != null ? m2(u.land) + ' <small>m²</small>' : '') + tile('DT xây dựng', u.build != null ? m2(u.build) + ' <small>m²</small>' : '') +
+          tile('Bàn giao', esc(u.handover)) + tile('Quỹ căn', u.fund ? '<i class="fund ' + fundCls + '">' + esc(u.fund) + '</i>' : '') + tile('Phân khu', esc(u.zone)), 5) + '</div>' +
         '<div class="blk"><div class="bh"><h4>Trạng thái</h4><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div>' +
-          '<div class="g2">' + r('Cập nhật gần nhất', esc(upd), false, true) + '</div><div class="people">' + contacts() + '</div>' +
+          '<p class="upd">Cập nhật lúc <b>' + esc(upd) + '</b></p><div class="people">' + contacts() + '</div>' +
           '<div class="mfoot">' + (projectLink() ? lk(projectLink(), 'Thông tin dự án') : '') +
           '<p class="legal">Giá tham khảo theo bảng hàng cập nhật lúc ' + esc(upd) + '. Giá và chính sách có thể thay đổi theo xác nhận của chủ đầu tư.</p></div></div>';
       var info = 'Căn ' + u.code + ', ' + state.project.name + '\n' + 'Giá niêm yết: ' + ty(u.price) + ' (gồm VAT và KPBT)' +
