@@ -174,10 +174,20 @@ tbody tr:hover .go { color: var(--brand); }
 .close:disabled { opacity: .3; cursor: default; }
 .mb { display: grid; grid-template-columns: minmax(0, 46fr) minmax(0, 54fr); overflow: auto; }
 .mleft { background: #f6f8fb; border-right: 1px solid var(--line); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-.media { position: relative; border-radius: 14px; overflow: hidden; background: #0b1f4b; aspect-ratio: 4 / 5; max-height: 62vh; display: flex; align-items: center; justify-content: center; }
-.media img { width: 100%; height: 100%; object-fit: contain; display: block; background: #0b1f4b; }
-.media .open { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,.92); color: var(--navy); border-radius: 999px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; text-decoration: none; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
-.media .tagq { position: absolute; top: 10px; left: 10px; }
+.media { position: relative; border-radius: 14px; overflow: hidden; background: #eef2f7; border: 1px solid var(--line); aspect-ratio: 4 / 5; max-height: 64vh; display: flex; align-items: center; justify-content: center; }
+.media.has-img { cursor: zoom-in; }
+.media img { width: 100%; height: 100%; object-fit: contain; display: block; opacity: 0; transition: opacity .25s; }
+.media img.ok { opacity: 1; }
+.media.loading::before { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, #eef2f7 30%, #f8fafc 50%, #eef2f7 70%); background-size: 200% 100%; animation: sh 1.2s infinite; }
+.media .mtools { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 1; }
+.media .mtools a, .media .mtools button { background: rgba(255,255,255,.95); color: var(--navy); border: 0; border-radius: 999px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; text-decoration: none; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.media .hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); background: rgba(11,31,75,.72); color: #fff; font-size: 12px; padding: 5px 12px; border-radius: 999px; white-space: nowrap; pointer-events: none; }
+.media .poster { border-radius: 0; }
+.zoom { position: fixed; inset: 0; z-index: 2147483002; background: #050c1e; display: none; overflow: auto; -webkit-overflow-scrolling: touch; }
+.zoom.open { display: flex; flex-direction: column; justify-content: center; }
+.zoom img { display: block; width: 100%; max-width: 1100px; height: auto; margin: auto; padding: 58px 0 20px; touch-action: pinch-zoom; }
+.zoom .zbar { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; background: linear-gradient(rgba(5,12,30,.9), rgba(5,12,30,0)); color: #fff; font-weight: 600; }
+.zoom .zbar a, .zoom .zbar button { color: #fff; background: rgba(255,255,255,.14); border: 0; border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 600; text-decoration: none; }
 .poster { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 22px; color: #fff;
   background: radial-gradient(120% 80% at 100% 0%, rgba(240,180,41,.18), rgba(240,180,41,0) 55%), linear-gradient(160deg, #0b1f4b 0%, #123a6b 55%, #0f5b63 100%); }
 .poster .brand { display: flex; justify-content: space-between; align-items: center; font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; color: rgba(255,255,255,.75); }
@@ -196,12 +206,12 @@ tbody tr:hover .go { color: var(--brand); }
 .quick span { display: inline-flex; align-items: center; gap: 5px; color: #2f6fd6; font-size: 13.5px; }
 .quick svg { width: 15px; height: 15px; }
 .quick b { display: block; margin-top: 2px; font-size: 13.5px; font-weight: 700; color: var(--ink); text-transform: uppercase; }
-.acts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .act { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 44px; border-radius: 10px; border: 1px solid #dfe4ec; background: #fff; color: var(--ink); font-weight: 600; font-size: 14px; text-decoration: none; }
 .act:hover { border-color: var(--navy-2); }
 .act svg { width: 17px; height: 17px; }
-.act.on { color: var(--brand); border-color: #f3c4c6; background: var(--brand-soft); }
-.act.ask { color: #2f6fd6; border-color: #2f6fd6; }
+.act.send { background: var(--navy); border-color: var(--navy); color: #fff; }
+.act.send:hover { background: var(--navy-2); }
 .mright { padding: 6px 22px 18px; }
 .blk { padding: 14px 0; border-bottom: 1px solid var(--line-2); }
 .blk:last-child { border-bottom: 0; }
@@ -269,8 +279,10 @@ tbody tr:hover .go { color: var(--brand); }
   .mh #mClose { margin-left: auto; }
   .mb { grid-template-columns: 1fr; }
   .mleft { border-right: 0; border-bottom: 1px solid var(--line); padding: 12px; }
-  .media { aspect-ratio: 4 / 3; max-height: 46vh; }
+  .media { aspect-ratio: auto; height: min(118vw, 68vh); max-height: none; border-radius: 12px; }
+  .media.no-img { height: auto; aspect-ratio: 4 / 3; }
   .poster .code2 { font-size: 36px; } .poster { padding: 16px; }
+  .quick b { font-size: 12.5px; } .quick span { font-size: 12.5px; }
   .mright { padding: 2px 14px 16px; }
   .g2 { grid-template-columns: 1fr; gap: 8px; }
   .loan .in, .loan .out { grid-template-columns: 1fr 1fr; }
@@ -329,6 +341,7 @@ tbody tr:hover .go { color: var(--brand); }
       <div class="mright" id="mRight"></div>
     </div>
   </div></div>
+  <div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Ảnh chỉ căn"><div class="zbar"><span id="zTitle"></span><span><a id="zOrig" target="_blank" rel="noopener">Ảnh gốc ↗</a> <button id="zClose" aria-label="Đóng">Đóng ×</button></span></div><img id="zImg" alt=""></div>
   <div class="toast" id="toast" role="status"></div>
 </div>`;
 
@@ -581,7 +594,7 @@ tbody tr:hover .go { color: var(--brand); }
     function dqCfg() { return state.data && state.data.exclusiveTab; }
     function renderTabs() {
       var cfg = dqCfg(), ndq = state.units.filter(function (u) { return u.dq; }).length;
-      var nsaved = state.units.filter(isSaved).length;
+      var nsaved = 0; // đã bỏ nút Quan tâm
       var showDq = !!cfg && ndq > 0;
       if (!showDq) state.filter.dq = '';
       if (!nsaved) state.filter.saved = '';
@@ -742,13 +755,18 @@ tbody tr:hover .go { color: var(--brand); }
       $('mPrice').innerHTML = '<div class="row"><span class="k">Giá NY:</span><span class="v">' + ty(u.price) + '</span></div><div class="k2">(Gồm VAT và kinh phí bảo trì)</div>';
       // Cột trái: ảnh, thông tin nhanh, thao tác
       var img = unitImage(u);
-      $('mLeft').innerHTML = '<div class="media" id="mMedia">' + (img ? '<img id="mImg" src="' + esc(img) + '" alt="Ảnh chỉ căn ' + esc(u.code) + '" loading="lazy">' +
-          '<a class="open" href="' + esc(u.unitLink) + '" target="_blank" rel="noopener">Mở ảnh ↗</a>' : posterHtml(u)) + '</div>' +
+      $('mLeft').innerHTML = '<div class="media' + (img ? ' has-img loading' : ' no-img') + '" id="mMedia">' + (img ? '<img id="mImg" src="' + esc(img) + '" alt="Ảnh chỉ căn ' + esc(u.code) + '">' +
+          '<div class="mtools"><button id="mZoom" type="button">Phóng to</button></div><span class="hint">Chạm vào ảnh để xem toàn màn hình</span>' : posterHtml(u)) + '</div>' +
         '<div class="quick"><div><span>' + ICON.home + 'Loại hình</span><b>' + esc(u.type || '-') + '</b></div><div><span>' + ICON.compass + 'Hướng</span><b>' + esc(u.direction || '-') + '</b></div>' +
         '<div><span>' + ICON.area + 'Diện tích</span><b>' + (u.land != null ? m2(u.land) + 'm²' : '-') + '</b></div></div>' +
-        '<div class="acts"><button class="act' + (isSaved(u) ? ' on' : '') + '" id="mSave">' + ICON.heart + '<span>' + (isSaved(u) ? 'Đã lưu' : 'Quan tâm') + '</span></button>' +
-        '<button class="act" id="mShare">' + ICON.share + 'Chia sẻ</button><button class="act ask" id="mAsk">' + ICON.chat + 'Hỏi đáp</button></div>';
-      var im = $('mImg'); if (im) im.onerror = function () { $('mMedia').innerHTML = posterHtml(u); };
+        '<div class="acts"><button class="act" id="mShare">' + ICON.share + 'Chia sẻ</button><button class="act send" id="mSend">' + ICON.chat + 'Gửi thông tin</button></div>';
+      var im = $('mImg');
+      if (im) {
+        var showZoom = function () { openZoom(img, u); };
+        im.onload = function () { im.classList.add('ok'); $('mMedia').classList.remove('loading'); };
+        im.onerror = function () { var m = $('mMedia'); m.className = 'media no-img'; m.innerHTML = posterHtml(u); };
+        $('mMedia').onclick = function (e) { if (!e.target.closest('a')) showZoom(); };
+      }
       // Cột phải: các mục thông tin
       function r(k, v, hl, full) { return v ? '<div class="r' + (full ? ' full' : '') + '"><span class="k">' + k + ':</span><span class="v' + (hl ? ' hl' : '') + '">' + v + '</span></div>' : ''; }
       function lk(url, label, id) { return url ? '<a class="lk" href="' + esc(url) + '" target="_blank" rel="noopener">' + label + '<span class="ar">↗</span></a>' : (id ? '<button class="lk" id="' + id + '">' + label + '</button>' : ''); }
@@ -763,24 +781,23 @@ tbody tr:hover .go { color: var(--brand); }
           r('Quỹ căn', u.dq && dqc ? esc(dqc.label || 'ĐQ') : '', false, true) + r('Phân khu', esc(u.zone)) + r('Dãy / đường', esc(u.street)) + '</div></div>' +
         '<div class="blk"><div class="bh"><h4>Trạng thái</h4><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div>' +
           '<div class="g2">' + r('Cập nhật gần nhất', esc(upd), false, true) + '</div><div class="people">' + contacts() + '</div>' +
-          '<div class="mfoot">' + (projectLink() ? lk(projectLink(), 'Thông tin dự án') : '') + '<button class="lk" id="mCopy">Sao chép thông tin</button>' +
+          '<div class="mfoot">' + (projectLink() ? lk(projectLink(), 'Thông tin dự án') : '') +
           '<p class="legal">Giá tham khảo theo bảng hàng cập nhật lúc ' + esc(upd) + '. Giá và chính sách có thể thay đổi theo xác nhận của chủ đầu tư.</p></div></div>';
       var info = 'Căn ' + u.code + ', ' + state.project.name + '\n' + 'Giá niêm yết: ' + ty(u.price) + ' (gồm VAT và KPBT)' +
         (u.land != null ? '\nDiện tích đất: ' + m2(u.land) + ' m²' : '') + (u.build != null ? ', xây dựng: ' + m2(u.build) + ' m²' : '') +
         (u.type ? '\nLoại hình: ' + u.type : '') + (u.handover ? ', bàn giao: ' + u.handover : '') + (u.direction ? '\nHướng: ' + u.direction : '') +
         (u.ptg ? '\nPhiếu tính giá: ' + u.ptg : '') + '\nTình trạng: ' + u.status + (projectLink() ? '\nThông tin dự án: ' + projectLink() : '');
       var ask = function () { copy('Tôi muốn tìm hiểu căn ' + u.code + ' dự án ' + state.project.name + ' (giá niêm yết ' + ty(u.price) + ').', 'Đã sao chép tin nhắn, dán vào Zalo để gửi'); window.open(C.zalo, '_blank', 'noopener'); };
-      $('mAsk').onclick = ask;
       Array.prototype.forEach.call($('mRight').querySelectorAll('a[data-zalo]'), function (a) { a.onclick = function (e) { e.preventDefault(); ask(); }; });
-      $('mCopy').onclick = function () { copy(info, 'Đã sao chép thông tin căn'); };
+      // Chia sẻ: gửi link căn. Gửi thông tin: gửi đầy đủ thông tin căn (kèm link).
       $('mShare').onclick = function () {
-        if (navigator.share) navigator.share({ title: 'Căn ' + u.code + ' ' + state.project.name, text: info, url: location.href }).catch(function () {});
+        if (navigator.share) navigator.share({ title: 'Căn ' + u.code + ' ' + state.project.name, url: location.href }).catch(function () {});
         else copy(location.href, 'Đã sao chép link căn');
       };
-      $('mSave').onclick = function () {
-        var on = toggleSaved(u); this.classList.toggle('on', on); this.querySelector('span').textContent = on ? 'Đã lưu' : 'Quan tâm';
-        toast(on ? 'Đã lưu căn ' + u.code + ' vào danh sách quan tâm' : 'Đã bỏ căn ' + u.code + ' khỏi danh sách quan tâm');
-        renderTabs(); if (state.filter.saved) render();
+      $('mSend').onclick = function () {
+        var text = info + '\nXem căn: ' + location.href;
+        if (navigator.share) navigator.share({ title: 'Căn ' + u.code + ' ' + state.project.name, text: text }).catch(function () {});
+        else copy(text, 'Đã sao chép thông tin căn, dán vào Zalo hoặc Messenger để gửi');
       };
       $('mLoanBtn').onclick = function () { var b = $('mLoan'); b.hidden = !b.hidden; this.classList.toggle('on', !b.hidden); if (!b.hidden) updateLoan(u); };
       ['lPct', 'lYears', 'lRate'].forEach(function (id) { $(id).oninput = $(id).onchange = function () { updateLoan(u); }; });
@@ -788,12 +805,20 @@ tbody tr:hover .go { color: var(--brand); }
       $('mPrev').disabled = i <= 0; $('mNext').disabled = i < 0 || i >= list.length - 1;
       $('modal').classList.add('open'); $('mClose').focus();
     }
+    function openZoom(src, u) {
+      $('zImg').src = src; $('zImg').alt = 'Ảnh chỉ căn ' + u.code; $('zTitle').textContent = u.code;
+      $('zOrig').href = u.unitLink || src; $('zoom').classList.add('open'); $('zoom').scrollTop = 0;
+    }
+    function closeZoom() { $('zoom').classList.remove('open'); }
+    $('zClose').onclick = closeZoom;
+    $('zoom').onclick = function (e) { if (e.target === $('zoom')) closeZoom(); };
     $('mPrev').onclick = function () { var l = state.visible || [], i = l.indexOf(state.current); if (i > 0) openUnit(l[i - 1]); };
     $('mNext').onclick = function () { var l = state.visible || [], i = l.indexOf(state.current); if (i >= 0 && i < l.length - 1) openUnit(l[i + 1]); };
     function closeModal() { $('modal').classList.remove('open'); state.current = null; updateHash(); }
     $('mClose').onclick = closeModal;
     $('modal').onclick = function (e) { if (e.target === $('modal')) closeModal(); };
     document.addEventListener('keydown', function (e) {
+      if ($('zoom').classList.contains('open')) { if (e.key === 'Escape') closeZoom(); return; }
       if (!$('modal').classList.contains('open')) return;
       if (e.key === 'Escape') closeModal();
       else if (e.key === 'ArrowLeft') $('mPrev').click();
