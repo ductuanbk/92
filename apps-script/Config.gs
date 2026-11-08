@@ -26,7 +26,10 @@ var CONFIG = {
     autoRefreshMinutes: 5,          // khi đã chạy batTuDongLamMoi: dựng sẵn dữ liệu mỗi 5 phút (chỉ chọn 1, 5, 10, 15 hoặc 30)
     autoRefreshCacheSeconds: 900,   // và giữ cache 15 phút, dài hơn chu kỳ làm mới
     showLinks: true,          // gửi link phiếu tính giá (Link PTG) và link chỉ căn của từng căn
-    showExtraPrices: true,    // gửi thêm giá chưa VAT và giá vay (nếu sheet có cột)
+    showExtraPrices: true,    // gửi thêm giá chưa VAT, giá vay, giá TTS, giá TTTĐ (nếu sheet có cột)
+    // Quỹ căn: STK hoặc ghi chú chứa một trong các từ này → Sơ cấp, còn lại → Thứ cấp (khi sheet không có cột "Quỹ căn").
+    // Berjaya: CTCP Đô thị Đại học Quốc tế Berjaya là chủ đầu tư Vinhomes Saigon Park.
+    primaryKeywords: ['cdt', 'chu dau tu', 'so cap', 'berjaya'],
     // Tab riêng cho căn thuộc giỏ có kind: 'exclusive' (GHĐQ). Đổi tên ở đây nếu cần.
     exclusiveTab: { enabled: true, short: 'ĐQ', label: 'ĐQ Á Đông Land', title: 'Giỏ hàng độc quyền Á Đông Land' },
     // Trạng thái nội bộ → chữ hiển thị cho khách. Trạng thái khác hiện "Liên hệ".
@@ -110,12 +113,18 @@ var FIELD_ALIASES = {
   priceExVat: ['gia chua gom vat'],
   priceTotal: ['gia gom vat va kpbt', 'gia gom vat + kpbt'],
   priceLoan: ['gia vay 18t'],
+  priceEarly: ['gia tts', 'gia thanh toan som'],        // chưa có trong sheet: thêm cột "Giá TTS" là app tự đọc
+  priceProgress: ['gia tttd', 'gia thanh toan tien do'], // chưa có trong sheet: thêm cột "Giá TTTĐ" là app tự đọc
+  fund: ['quy can', 'so cap / thu cap'],                  // nếu không có cột này, app tự suy Sơ cấp/Thứ cấp từ STK và ghi chú
   status: ['tinh trang'],
-  note: ['ghi chu', 'noted'],
+  note: ['ghi chu', 'noted', 'ghi chu / gio bank'],
   date: ['ngay chia gio', 'ngay coc'],
   ptg: ['link ptg', 'ptg + chi can', 'ptg'],
   unitLink: ['chi can', 'link chi can']
 };
+
+/** Các trường khớp theo đầu tiêu đề cột (ví dụ "Giá TTS (gồm VAT)" vẫn nhận là Giá TTS). */
+var PREFIX_FIELDS = ['priceEarly', 'priceProgress', 'fund'];
 
 /** Trường admin được sửa trên app (giá không sửa vì thường là công thức). */
 var EDITABLE_FIELDS = ['status', 'note', 'date'];

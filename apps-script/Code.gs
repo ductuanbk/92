@@ -63,7 +63,7 @@ var unmappedLog_ = {}; // trạng thái chưa nhận ra, chỉ ghi vào nhật k
 function publicData_() {
   var ps = CONFIG.publicSite || {};
   if (!ps.enabled) return { ok: false, error: 'Trang công khai đang tắt.' };
-  var cached = cacheGet_('pub_v1');
+  var cached = cacheGet_('pub_v2');
   if (cached) return cached;
   var labels = ps.statusLabels || {};
   var out = {
@@ -96,7 +96,11 @@ function publicData_() {
         if (ps.showExtraPrices) {
           if (u.priceExVat) item.priceExVat = u.priceExVat;
           if (u.priceLoan) item.priceLoan = u.priceLoan;
+          if (u.priceEarly) item.priceEarly = u.priceEarly;
+          if (u.priceProgress) item.priceProgress = u.priceProgress;
         }
+        var fund = fundOf_(u);
+        if (fund) item.fund = fund;
         if (!labels[u.status]) unmapped[u.statusRaw || u.status || '(trống)'] = (unmapped[u.statusRaw || u.status || '(trống)'] || 0) + 1;
         units.push(item);
       });
@@ -106,14 +110,30 @@ function publicData_() {
   });
   // Có bật tự làm mới (batTuDongLamMoi) thì giữ cache lâu hơn chu kỳ làm mới để khách không bao giờ phải chờ Google đọc Sheet.
   var ttl = getProp_('PUBLIC_AUTO_REFRESH') === '1' ? (ps.autoRefreshCacheSeconds || 900) : (ps.cacheSeconds || 120);
-  cachePut_('pub_v1', out, ttl);
+  cachePut_('pub_v2', out, ttl);
   return out;
+}
+
+/**
+ * Quỹ căn Sơ cấp / Thứ cấp. Ưu tiên cột "Quỹ căn" nếu sheet có;
+ * nếu không: STK hoặc ghi chú là CĐT / chủ đầu tư → Sơ cấp, còn lại (quỹ đại lý, HĐMB...) → Thứ cấp.
+ */
+function fundOf_(u) {
+  var f = normalize_(u.fund);
+  if (f.indexOf('thu cap') >= 0) return 'Thứ cấp';
+  if (f.indexOf('so cap') >= 0) return 'Sơ cấp';
+  var t = normalize_((u.stk || '') + ' ' + (u.note || ''));
+  if (t.indexOf('thu cap') >= 0) return 'Thứ cấp';
+  var words = (CONFIG.publicSite && CONFIG.publicSite.primaryKeywords) || ['cdt', 'chu dau tu', 'so cap'];
+  var padded = ' ' + t.replace(/[^a-z0-9]+/g, ' ') + ' ';
+  for (var i = 0; i < words.length; i++) if (padded.indexOf(' ' + normalize_(words[i]) + ' ') >= 0) return 'Sơ cấp';
+  return t.trim() ? 'Thứ cấp' : '';
 }
 
 /** Chạy một lần trong trình soạn thảo của dự án công khai để cấp quyền đọc Google Sheet và xem thử số căn. */
 /** Dựng lại dữ liệu công khai và lưu cache (trình kích hoạt theo thời gian gọi hàm này). */
 function lamMoiBangHangCongKhai() {
-  CacheService.getScriptCache().remove('pub_v1_n');
+  CacheService.getScriptCache().remove('pub_v2_n');
   publicData_();
 }
 
@@ -136,7 +156,7 @@ function tatTuDongLamMoi() {
 }
 
 function kiemTraBangHangCongKhai() {
-  CacheService.getScriptCache().remove('pub_v1_n');
+  CacheService.getScriptCache().remove('pub_v2_n');
   var d = publicData_();
   d.projects.forEach(function (p) {
     Logger.log(p.name + ': ' + p.units.length + ' căn' + (p.incomplete ? ' (có tab đọc lỗi)' : '') +
@@ -642,6 +662,9 @@ function readSource_(project, source, sheetOpt) {
       priceExVat: toNumber_(raw('priceExVat'), 'money'),
       priceTotal: toNumber_(raw('priceTotal'), 'money'),
       priceLoan: toNumber_(raw('priceLoan'), 'money'),
+      priceEarly: toNumber_(raw('priceEarly'), 'money'),
+      priceProgress: toNumber_(raw('priceProgress'), 'money'),
+      fund: get('fund'),
       status: status,
       statusRaw: statusRaw,
       statusSource: statusSource,
@@ -673,6 +696,11 @@ function mapColumns_(headers) {
     for (var a = 0; a < aliases.length && map[field] === undefined; a++) {
       var idx = norm.indexOf(aliases[a]);
       if (idx >= 0) map[field] = idx;
+    }
+    if (map[field] === undefined && PREFIX_FIELDS.indexOf(field) >= 0) {
+      for (var b = 0; b < aliases.length && map[field] === undefined; b++) {
+        for (var c = 0; c < norm.length; c++) if (norm[c].indexOf(aliases[b]) === 0) { map[field] = c; break; }
+      }
     }
   });
   return map;

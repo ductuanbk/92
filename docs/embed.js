@@ -382,7 +382,7 @@ tbody tr:hover .go { color: var(--brand); }
       handover: cleanHandover(u.handover),
       land: u.land, build: u.build != null ? Math.round(u.build * 10) / 10 : u.build, price: u.price, status: viewStatus(u.status),
       ptg: /^https:\/\//i.test(u.ptg || '') ? u.ptg : '', unitLink: /^https:\/\//i.test(u.unitLink || '') ? u.unitLink : '',
-      priceExVat: u.priceExVat || null, priceLoan: u.priceLoan || null, dq: !!u.dq
+      priceExVat: u.priceExVat || null, priceLoan: u.priceLoan || null, priceEarly: u.priceEarly || null, priceProgress: u.priceProgress || null, fund: u.fund ? String(u.fund) : '', dq: !!u.dq
     };
   }
   // Trạng thái hiển thị: gộp "Đang giữ chỗ" và "Liên hệ" thành "Check admin".
@@ -755,11 +755,12 @@ tbody tr:hover .go { color: var(--brand); }
       $('mRight').innerHTML =
         '<div class="blk"><div class="bh"><h4>Giá</h4><div class="tools2">' + lk(u.ptg, 'Phiếu tính giá') + '<button class="lk" id="mLoanBtn">Tính lãi vay</button></div></div>' +
           '<div class="g2">' + r('Giá niêm yết', u.price ? ty(u.price) : 'Liên hệ', true) + r('Giá chưa VAT', u.priceExVat ? ty(u.priceExVat) : '') +
-          r('Giá vay', u.priceLoan ? ty(u.priceLoan) : '') + r('Đơn giá', trieu(perM2(u))) + '</div>' + loanCalc(u) + '</div>' +
+          r('Giá vay', u.priceLoan ? ty(u.priceLoan) : '') + r('Giá TTTĐ', u.priceProgress ? ty(u.priceProgress) : '') +
+          r('Giá TTS', u.priceEarly ? ty(u.priceEarly) : '') + r('Đơn giá', trieu(perM2(u))) + '</div>' + loanCalc(u) + '</div>' +
         '<div class="blk"><div class="bh"><h4>Diện tích</h4><div class="tools2">' + lk(u.unitLink, 'Chỉ căn') + '</div></div>' +
           '<div class="g2">' + r('DT đất', u.land != null ? m2(u.land) + ' m²' : '') + r('DT xây dựng', u.build != null ? m2(u.build) + ' m²' : '') + '</div></div>' +
         '<div class="blk"><div class="bh"><h4>Thông tin bàn giao</h4></div><div class="g2">' + r('Tiêu chuẩn bàn giao', esc(u.handover), false, true) +
-          r('Quỹ căn', u.dq && dqc ? esc(dqc.label || 'ĐQ') : '', false, true) + r('Phân khu', esc(u.zone), false, true) + r('Dãy / đường', esc(u.street), false, true) + '</div></div>' +
+          r('Quỹ căn', esc(u.fund || ''), false, true) + r('Giỏ hàng', u.dq && dqc ? esc(dqc.label || 'ĐQ') : '', false, true) + r('Phân khu', esc(u.zone), false, true) + r('Dãy / đường', esc(u.street), false, true) + '</div></div>' +
         '<div class="blk"><div class="bh"><h4>Trạng thái</h4><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div>' +
           '<div class="g2">' + r('Cập nhật gần nhất', esc(upd), false, true) + '</div><div class="people">' + contacts() + '</div>' +
           '<div class="mfoot">' + (projectLink() ? lk(projectLink(), 'Thông tin dự án') : '') +
@@ -767,7 +768,8 @@ tbody tr:hover .go { color: var(--brand); }
       var info = 'Căn ' + u.code + ', ' + state.project.name + '\n' + 'Giá niêm yết: ' + ty(u.price) + ' (gồm VAT và KPBT)' +
         (u.land != null ? '\nDiện tích đất: ' + m2(u.land) + ' m²' : '') + (u.build != null ? ', xây dựng: ' + m2(u.build) + ' m²' : '') +
         (u.type ? '\nLoại hình: ' + u.type : '') + (u.handover ? ', bàn giao: ' + u.handover : '') + (u.direction ? '\nHướng: ' + u.direction : '') +
-        (u.ptg ? '\nPhiếu tính giá: ' + u.ptg : '') + '\nTình trạng: ' + u.status + (projectLink() ? '\nThông tin dự án: ' + projectLink() : '');
+        (u.priceLoan ? '\nGiá vay: ' + ty(u.priceLoan) : '') + (u.priceProgress ? '\nGiá TTTĐ: ' + ty(u.priceProgress) : '') + (u.priceEarly ? '\nGiá TTS: ' + ty(u.priceEarly) : '') +
+        (u.fund ? '\nQuỹ căn: ' + u.fund : '') + (u.ptg ? '\nPhiếu tính giá: ' + u.ptg : '') + '\nTình trạng: ' + u.status + (projectLink() ? '\nThông tin dự án: ' + projectLink() : '');
       var ask = function () { copy('Tôi muốn tìm hiểu căn ' + u.code + ' dự án ' + state.project.name + ' (giá niêm yết ' + ty(u.price) + ').', 'Đã sao chép tin nhắn, dán vào Zalo để gửi'); window.open(C.zalo, '_blank', 'noopener'); };
       Array.prototype.forEach.call($('mRight').querySelectorAll('a[data-zalo]'), function (a) { a.onclick = function (e) { e.preventDefault(); track('zalo', u); ask(); }; });
       // Chia sẻ: gửi link căn. Gửi thông tin: gửi đầy đủ thông tin căn (kèm link).
@@ -851,7 +853,7 @@ tbody tr:hover .go { color: var(--brand); }
           var land = d[3] + (i % 3) * 5;
           out.push({ code: d[1] + '-' + ('0' + i * 2).slice(-2), zone: d[0], street: d[1], type: d[2], direction: dirs[(i + d[1].length) % 6], handover: i % 2 ? 'GIÃN XÂY' : 'Thô',
             land: land, build: Math.round(land * 2.7 * 10) / 10, price: Math.round((d[5] + (i % 5) * 0.21e9) / 1e7) * 1e7, status: st[(i * 5 + d[1].length) % 6],
-            ptg: i % 4 ? 'https://drive.google.com/drive/folders/minh-hoa' : '', dq: d[6] ? 1 : 0, priceExVat: Math.round((d[5] + (i % 5) * 0.21e9) / 1.1 / 1e6) * 1e6, priceLoan: Math.round((d[5] + (i % 5) * 0.21e9) * 1.03 / 1e7) * 1e7 });
+            ptg: i % 4 ? 'https://drive.google.com/drive/folders/minh-hoa' : '', dq: d[6] ? 1 : 0, priceExVat: Math.round((d[5] + (i % 5) * 0.21e9) / 1.1 / 1e6) * 1e6, priceLoan: Math.round((d[5] + (i % 5) * 0.21e9) * 1.03 / 1e7) * 1e7, priceProgress: d[5] + (i % 5) * 0.21e9, priceEarly: Math.round((d[5] + (i % 5) * 0.21e9) * 0.965 / 1e7) * 1e7, fund: i % 3 ? 'Thứ cấp' : 'Sơ cấp' });
         }
       });
       return out;
