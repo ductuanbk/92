@@ -140,6 +140,11 @@ Website chỉ có **một trang bảng hàng công khai cho khách**, chạy tr�
 
 **Sửa giao diện bảng hàng về sau:** sửa `docs/embed.js`, chạy `npm i terser` một lần rồi `node tools/build-wordpress.mjs` để tạo lại `wordpress/bang-hang-cong-khai.html`, sau đó dán lại vào WordPress.
 
+### Giá TTS, Giá TTTĐ, Quỹ căn
+
+- Thêm cột tiêu đề bắt đầu bằng **"Giá TTS"** hoặc **"Giá TTTĐ"** vào tab giỏ hàng là bảng hàng tự hiện các giá này, không cần sửa mã.
+- **Quỹ căn Sơ cấp / Thứ cấp**: nếu tab có cột "Quỹ căn" thì lấy theo cột đó; nếu không, STK hoặc ghi chú chứa từ trong `publicSite.primaryKeywords` (CĐT, chủ đầu tư, sơ cấp, Berjaya) là Sơ cấp, còn lại là Thứ cấp. Thêm tên quỹ chủ đầu tư vào danh sách này trong `Config.gs` khi cần.
+
 ### Đo lường (Google Tag Manager / GA4)
 
 Bảng hàng đẩy sự kiện `adl_bang_hang` vào `dataLayer` nếu website có cài Google Tag Manager. Biến `adl_action` cho biết khách làm gì: `xem_can`, `goi`, `zalo`, `phieu_tinh_gia`, `chi_can`, `thong_tin_du_an`, `chia_se`, `gui_thong_tin`; kèm `adl_project`, `adl_unit` (mã căn), `adl_price`. Trong GTM: tạo trigger Custom Event tên `adl_bang_hang`, tạo các biến Data Layer tương ứng, rồi gửi sự kiện GA4. Website chưa cài GTM thì bảng hàng vẫn chạy bình thường.
@@ -147,8 +152,8 @@ Bảng hàng đẩy sự kiện `adl_bang_hang` vào `dataLayer` nếu website c
 ## Bản đang chạy
 
 - Dự án Apps Script: **Giỏ hàng Á Đông Land**, tạo ngày 04/11/2026 trên tài khoản `tranductuan06@gmail.com`. Mở để sửa tại `https://script.google.com/d/1dQF-b0wb7FiatIk102i5If10gvQzCI4WYGik-AG23-wN_89Q0IamweX6/edit`.
-- Lần triển khai nội bộ hiện tại: @2 "v4.1 - Hotline mới, dữ liệu công khai" (cùng link với @1). Web app chạy dưới tài khoản trên, người dùng cần đăng nhập Google để mở.
-- Dự án công khai: **Bảng hàng công khai Á Đông Land**, script ID `112W2VPk53f-7NyYsZva1mFYMXcEnNESx7s-nMiRcp8NBqpP1bGMhCj2K`, triển khai @1 truy cập ẩn danh. Link `/exec` của dự án này nằm trong `docs/config.js` (chỉ trả dữ liệu đã lọc nên để công khai được).
+- Lần triển khai nội bộ hiện tại: @6 "Giá TTS, TTTĐ, Quỹ căn, hotline mới" (cùng link với @1). Web app chạy dưới tài khoản trên, người dùng cần đăng nhập Google để mở.
+- Dự án công khai: **Bảng hàng công khai Á Đông Land**, script ID `112W2VPk53f-7NyYsZva1mFYMXcEnNESx7s-nMiRcp8NBqpP1bGMhCj2K`, triển khai @5 truy cập ẩn danh. Link `/exec` của dự án này nằm trong `docs/config.js` (chỉ trả dữ liệu đã lọc nên để công khai được).
 - Link web app (`.../exec`) xem trong dự án: **Triển khai → Quản lý các lần triển khai**. Không ghi link vào repo để tránh lộ giỏ hàng.
 - Cập nhật bản mới bằng clasp: tạo `apps-script/.clasp.json` với `{"scriptId": "1dQF-b0wb7FiatIk102i5If10gvQzCI4WYGik-AG23-wN_89Q0IamweX6", "rootDir": "."}`, chạy `clasp push`, rồi `clasp update-deployment <deploymentId>` để giữ nguyên link.
 
