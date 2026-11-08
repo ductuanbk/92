@@ -209,7 +209,6 @@ tbody tr:hover .go { color: var(--brand); }
 .act.send { background: var(--navy); border-color: var(--navy); color: #fff; }
 .act.send:hover { background: var(--navy-2); }
 .mright { padding: 6px 22px 18px; }
-.mbar { display: none; }
 .blk { padding: 14px 0; border-bottom: 1px solid var(--line-2); }
 .blk:last-child { border-bottom: 0; }
 .bh { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -283,12 +282,6 @@ tbody tr:hover .go { color: var(--brand); }
   .mright { padding: 2px 14px 16px; }
   .g2 { grid-template-columns: 1fr; gap: 8px; }
   .loan .in, .loan .out { grid-template-columns: 1fr 1fr; }
-  .mbar { display: grid; grid-template-columns: 44px 1fr 1fr 44px; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: #fff; box-shadow: 0 -6px 18px rgba(16,24,40,.06); }
-  .mbar a, .mbar button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 44px; border-radius: 10px; font-weight: 700; font-size: 14.5px; text-decoration: none; border: 1px solid #dfe4ec; background: #fff; color: var(--ink); }
-  .mbar svg { width: 17px; height: 17px; }
-  .mbar .bcall { background: var(--brand); border-color: var(--brand); color: #fff; }
-  .mbar .bzalo { background: #0068ff; border-color: #0068ff; color: #fff; }
-  .mbar button { font-size: 22px; color: var(--navy); } .mbar button:disabled { opacity: .35; }
 }
 `;
 
@@ -342,7 +335,6 @@ tbody tr:hover .go { color: var(--brand); }
       <div class="mleft" id="mLeft"></div>
       <div class="mright" id="mRight"></div>
     </div>
-    <div class="mbar"><button id="bPrev" aria-label="Căn trước">‹</button><a class="bcall" id="bCall"></a><a class="bzalo" id="bZalo" target="_blank" rel="noopener"></a><button id="bNext" aria-label="Căn sau">›</button></div>
   </div></div>
   <div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Ảnh chỉ căn"><div class="zbar"><span id="zTitle"></span><span><a id="zOrig" target="_blank" rel="noopener">Ảnh gốc ↗</a> <button id="zClose" aria-label="Đóng">Đóng ×</button></span></div><img id="zImg" alt=""></div>
   <div class="toast" id="toast" role="status"></div>
@@ -795,11 +787,7 @@ tbody tr:hover .go { color: var(--brand); }
       $('mLoanBtn').onclick = function () { var b = $('mLoan'); b.hidden = !b.hidden; this.classList.toggle('on', !b.hidden); if (!b.hidden) updateLoan(u); };
       ['lPct', 'lYears', 'lRate'].forEach(function (id) { $(id).oninput = $(id).onchange = function () { updateLoan(u); }; });
       var list = state.visible || [], i = list.indexOf(u);
-      $('mPrev').disabled = $('bPrev').disabled = i <= 0; $('mNext').disabled = $('bNext').disabled = i < 0 || i >= list.length - 1;
-      $('bCall').href = 'tel:' + C.hotline; $('bCall').innerHTML = ICON.phone + 'Gọi ngay';
-      $('bZalo').href = C.zalo; $('bZalo').innerHTML = ICON.chat + 'Nhắn Zalo';
-      $('bZalo').onclick = function (e) { e.preventDefault(); track('zalo', u); ask(); };
-      $('bCall').onclick = function () { track('goi', u); };
+      $('mPrev').disabled = i <= 0; $('mNext').disabled = i < 0 || i >= list.length - 1;
       track('xem_can', u);
       $('modal').classList.add('open'); $('mClose').focus();
     }
@@ -810,8 +798,6 @@ tbody tr:hover .go { color: var(--brand); }
     function closeZoom() { $('zoom').classList.remove('open'); }
     $('zClose').onclick = closeZoom;
     $('zoom').onclick = function (e) { if (e.target === $('zoom')) closeZoom(); };
-    $('bPrev').onclick = function () { $('mPrev').click(); };
-    $('bNext').onclick = function () { $('mNext').click(); };
     $('mPrev').onclick = function () { var l = state.visible || [], i = l.indexOf(state.current); if (i > 0) openUnit(l[i - 1]); };
     $('mNext').onclick = function () { var l = state.visible || [], i = l.indexOf(state.current); if (i >= 0 && i < l.length - 1) openUnit(l[i + 1]); };
     function closeModal() { $('modal').classList.remove('open'); state.current = null; updateHash(); }
