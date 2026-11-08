@@ -140,6 +140,10 @@ Website chỉ có **một trang bảng hàng công khai cho khách**, chạy tr�
 
 **Sửa giao diện bảng hàng về sau:** sửa `docs/embed.js`, chạy `npm i terser` một lần rồi `node tools/build-wordpress.mjs` để tạo lại `wordpress/bang-hang-cong-khai.html`, sau đó dán lại vào WordPress.
 
+### Đo lường (Google Tag Manager / GA4)
+
+Bảng hàng đẩy sự kiện `adl_bang_hang` vào `dataLayer` nếu website có cài Google Tag Manager. Biến `adl_action` cho biết khách làm gì: `xem_can`, `goi`, `zalo`, `phieu_tinh_gia`, `chi_can`, `thong_tin_du_an`, `chia_se`, `gui_thong_tin`; kèm `adl_project`, `adl_unit` (mã căn), `adl_price`. Trong GTM: tạo trigger Custom Event tên `adl_bang_hang`, tạo các biến Data Layer tương ứng, rồi gửi sự kiện GA4. Website chưa cài GTM thì bảng hàng vẫn chạy bình thường.
+
 ## Bản đang chạy
 
 - Dự án Apps Script: **Giỏ hàng Á Đông Land**, tạo ngày 04/11/2026 trên tài khoản `tranductuan06@gmail.com`. Mở để sửa tại `https://script.google.com/d/1dQF-b0wb7FiatIk102i5If10gvQzCI4WYGik-AG23-wN_89Q0IamweX6/edit`.

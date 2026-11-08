@@ -171,6 +171,7 @@ tbody tr:hover .go { color: var(--brand); }
 .mleft { background: #f6f8fb; border-right: 1px solid var(--line); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
 .media { position: relative; border-radius: 14px; overflow: hidden; background: #eef2f7; border: 1px solid var(--line); aspect-ratio: 4 / 5; max-height: 64vh; display: flex; align-items: center; justify-content: center; }
 .media.has-img { cursor: zoom-in; }
+.media.no-img { aspect-ratio: 4 / 3; }
 .media img { width: 100%; height: 100%; object-fit: contain; display: block; opacity: 0; transition: opacity .25s; }
 .media img.ok { opacity: 1; }
 .media.loading::before { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, #eef2f7 30%, #f8fafc 50%, #eef2f7 70%); background-size: 200% 100%; animation: sh 1.2s infinite; }
@@ -200,7 +201,7 @@ tbody tr:hover .go { color: var(--brand); }
 .quick div + div { border-left: 1px solid var(--line-2); }
 .quick span { display: inline-flex; align-items: center; gap: 5px; color: #2f6fd6; font-size: 13.5px; }
 .quick svg { width: 15px; height: 15px; }
-.quick b { display: block; margin-top: 2px; font-size: 13.5px; font-weight: 700; color: var(--ink); text-transform: uppercase; }
+.quick b { display: block; margin-top: 2px; font-size: 13.5px; font-weight: 700; color: var(--ink); }
 .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .act { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 44px; border-radius: 10px; border: 1px solid #dfe4ec; background: #fff; color: var(--ink); font-weight: 600; font-size: 14px; text-decoration: none; }
 .act:hover { border-color: var(--navy-2); }
@@ -208,6 +209,7 @@ tbody tr:hover .go { color: var(--brand); }
 .act.send { background: var(--navy); border-color: var(--navy); color: #fff; }
 .act.send:hover { background: var(--navy-2); }
 .mright { padding: 6px 22px 18px; }
+.mbar { display: none; }
 .blk { padding: 14px 0; border-bottom: 1px solid var(--line-2); }
 .blk:last-child { border-bottom: 0; }
 .bh { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -281,6 +283,12 @@ tbody tr:hover .go { color: var(--brand); }
   .mright { padding: 2px 14px 16px; }
   .g2 { grid-template-columns: 1fr; gap: 8px; }
   .loan .in, .loan .out { grid-template-columns: 1fr 1fr; }
+  .mbar { display: grid; grid-template-columns: 44px 1fr 1fr 44px; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: #fff; box-shadow: 0 -6px 18px rgba(16,24,40,.06); }
+  .mbar a, .mbar button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 44px; border-radius: 10px; font-weight: 700; font-size: 14.5px; text-decoration: none; border: 1px solid #dfe4ec; background: #fff; color: var(--ink); }
+  .mbar svg { width: 17px; height: 17px; }
+  .mbar .bcall { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .mbar .bzalo { background: #0068ff; border-color: #0068ff; color: #fff; }
+  .mbar button { font-size: 22px; color: var(--navy); } .mbar button:disabled { opacity: .35; }
 }
 `;
 
@@ -334,6 +342,7 @@ tbody tr:hover .go { color: var(--brand); }
       <div class="mleft" id="mLeft"></div>
       <div class="mright" id="mRight"></div>
     </div>
+    <div class="mbar"><button id="bPrev" aria-label="Căn trước">‹</button><a class="bcall" id="bCall"></a><a class="bzalo" id="bZalo" target="_blank" rel="noopener"></a><button id="bNext" aria-label="Căn sau">›</button></div>
   </div></div>
   <div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Ảnh chỉ căn"><div class="zbar"><span id="zTitle"></span><span><a id="zOrig" target="_blank" rel="noopener">Ảnh gốc ↗</a> <button id="zClose" aria-label="Đóng">Đóng ×</button></span></div><img id="zImg" alt=""></div>
   <div class="toast" id="toast" role="status"></div>
@@ -735,8 +744,9 @@ tbody tr:hover .go { color: var(--brand); }
       // Cột trái: ảnh, thông tin nhanh, thao tác
       var img = unitImage(u);
       $('mLeft').innerHTML = '<div class="media' + (img ? ' has-img loading' : ' no-img') + '" id="mMedia">' + (img ? '<img id="mImg" src="' + esc(img) + '" alt="Ảnh chỉ căn ' + esc(u.code) + '">' +
-          '<div class="mtools"><button id="mZoom" type="button">Phóng to</button></div><span class="hint">Chạm vào ảnh để xem toàn màn hình</span>' : posterHtml(u)) + '</div>' +
-        '<div class="quick"><div><span>' + ICON.home + 'Loại hình</span><b>' + esc(u.type || '-') + '</b></div><div><span>' + ICON.compass + 'Hướng</span><b>' + esc(u.direction || '-') + '</b></div>' +
+          '<div class="mtools"><button id="mZoom" type="button">Phóng to</button></div><span class="hint">Bấm vào ảnh để xem toàn màn hình</span>' : posterHtml(u)) + '</div>' +
+        '<div class="quick"><div><span>' + ICON.home + 'Loại hình</span><b>' + esc(u.type || '-') + '</b></div>' +
+          (u.direction || !u.handover ? '<div><span>' + ICON.compass + 'Hướng</span><b>' + esc(u.direction || '-') + '</b></div>' : '<div><span>' + ICON.home + 'Bàn giao</span><b>' + esc(u.handover) + '</b></div>') +
         '<div><span>' + ICON.area + 'Diện tích</span><b>' + (u.land != null ? m2(u.land) + 'm²' : '-') + '</b></div></div>' +
         '<div class="acts"><button class="act" id="mShare">' + ICON.share + 'Chia sẻ</button><button class="act send" id="mSend">' + ICON.chat + 'Gửi thông tin</button></div>';
       var im = $('mImg');
@@ -757,7 +767,7 @@ tbody tr:hover .go { color: var(--brand); }
         '<div class="blk"><div class="bh"><h4>Diện tích</h4><div class="tools2">' + lk(u.unitLink, 'Chỉ căn') + '</div></div>' +
           '<div class="g2">' + r('DT đất', u.land != null ? m2(u.land) + ' m²' : '') + r('DT xây dựng', u.build != null ? m2(u.build) + ' m²' : '') + '</div></div>' +
         '<div class="blk"><div class="bh"><h4>Thông tin bàn giao</h4></div><div class="g2">' + r('Tiêu chuẩn bàn giao', esc(u.handover), false, true) +
-          r('Quỹ căn', u.dq && dqc ? esc(dqc.label || 'ĐQ') : '', false, true) + r('Phân khu', esc(u.zone)) + r('Dãy / đường', esc(u.street)) + '</div></div>' +
+          r('Quỹ căn', u.dq && dqc ? esc(dqc.label || 'ĐQ') : '', false, true) + r('Phân khu', esc(u.zone), false, true) + r('Dãy / đường', esc(u.street), false, true) + '</div></div>' +
         '<div class="blk"><div class="bh"><h4>Trạng thái</h4><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div>' +
           '<div class="g2">' + r('Cập nhật gần nhất', esc(upd), false, true) + '</div><div class="people">' + contacts() + '</div>' +
           '<div class="mfoot">' + (projectLink() ? lk(projectLink(), 'Thông tin dự án') : '') +
@@ -767,21 +777,30 @@ tbody tr:hover .go { color: var(--brand); }
         (u.type ? '\nLoại hình: ' + u.type : '') + (u.handover ? ', bàn giao: ' + u.handover : '') + (u.direction ? '\nHướng: ' + u.direction : '') +
         (u.ptg ? '\nPhiếu tính giá: ' + u.ptg : '') + '\nTình trạng: ' + u.status + (projectLink() ? '\nThông tin dự án: ' + projectLink() : '');
       var ask = function () { copy('Tôi muốn tìm hiểu căn ' + u.code + ' dự án ' + state.project.name + ' (giá niêm yết ' + ty(u.price) + ').', 'Đã sao chép tin nhắn, dán vào Zalo để gửi'); window.open(C.zalo, '_blank', 'noopener'); };
-      Array.prototype.forEach.call($('mRight').querySelectorAll('a[data-zalo]'), function (a) { a.onclick = function (e) { e.preventDefault(); ask(); }; });
+      Array.prototype.forEach.call($('mRight').querySelectorAll('a[data-zalo]'), function (a) { a.onclick = function (e) { e.preventDefault(); track('zalo', u); ask(); }; });
       // Chia sẻ: gửi link căn. Gửi thông tin: gửi đầy đủ thông tin căn (kèm link).
       $('mShare').onclick = function () {
+        track('chia_se', u);
         if (navigator.share) navigator.share({ title: 'Căn ' + u.code + ' ' + state.project.name, url: location.href }).catch(function () {});
         else copy(location.href, 'Đã sao chép link căn');
       };
       $('mSend').onclick = function () {
+        track('gui_thong_tin', u);
         var text = info + '\nXem căn: ' + location.href;
         if (navigator.share) navigator.share({ title: 'Căn ' + u.code + ' ' + state.project.name, text: text }).catch(function () {});
         else copy(text, 'Đã sao chép thông tin căn, dán vào Zalo hoặc Messenger để gửi');
       };
+      Array.prototype.forEach.call($('mRight').querySelectorAll('a.ph'), function (a) { a.addEventListener('click', function () { track('goi', u); }); });
+      Array.prototype.forEach.call($('mRight').querySelectorAll('a.lk'), function (a) { a.addEventListener('click', function () { track(a.href === u.ptg ? 'phieu_tinh_gia' : a.href === u.unitLink ? 'chi_can' : 'thong_tin_du_an', u); }); });
       $('mLoanBtn').onclick = function () { var b = $('mLoan'); b.hidden = !b.hidden; this.classList.toggle('on', !b.hidden); if (!b.hidden) updateLoan(u); };
       ['lPct', 'lYears', 'lRate'].forEach(function (id) { $(id).oninput = $(id).onchange = function () { updateLoan(u); }; });
       var list = state.visible || [], i = list.indexOf(u);
-      $('mPrev').disabled = i <= 0; $('mNext').disabled = i < 0 || i >= list.length - 1;
+      $('mPrev').disabled = $('bPrev').disabled = i <= 0; $('mNext').disabled = $('bNext').disabled = i < 0 || i >= list.length - 1;
+      $('bCall').href = 'tel:' + C.hotline; $('bCall').innerHTML = ICON.phone + 'Gọi ngay';
+      $('bZalo').href = C.zalo; $('bZalo').innerHTML = ICON.chat + 'Nhắn Zalo';
+      $('bZalo').onclick = function (e) { e.preventDefault(); track('zalo', u); ask(); };
+      $('bCall').onclick = function () { track('goi', u); };
+      track('xem_can', u);
       $('modal').classList.add('open'); $('mClose').focus();
     }
     function openZoom(src, u) {
@@ -791,6 +810,8 @@ tbody tr:hover .go { color: var(--brand); }
     function closeZoom() { $('zoom').classList.remove('open'); }
     $('zClose').onclick = closeZoom;
     $('zoom').onclick = function (e) { if (e.target === $('zoom')) closeZoom(); };
+    $('bPrev').onclick = function () { $('mPrev').click(); };
+    $('bNext').onclick = function () { $('mNext').click(); };
     $('mPrev').onclick = function () { var l = state.visible || [], i = l.indexOf(state.current); if (i > 0) openUnit(l[i - 1]); };
     $('mNext').onclick = function () { var l = state.visible || [], i = l.indexOf(state.current); if (i >= 0 && i < l.length - 1) openUnit(l[i + 1]); };
     function closeModal() { $('modal').classList.remove('open'); state.current = null; updateHash(); }
@@ -803,6 +824,13 @@ tbody tr:hover .go { color: var(--brand); }
       else if (e.key === 'ArrowLeft') $('mPrev').click();
       else if (e.key === 'ArrowRight') $('mNext').click();
     });
+    // Đo lường: đẩy sự kiện vào dataLayer (Google Tag Manager / GA4) nếu website có cài.
+    function track(action, u) {
+      try {
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'adl_bang_hang', adl_action: action, adl_project: state.project && state.project.id, adl_unit: u ? u.code : undefined, adl_price: u ? u.price : undefined });
+      } catch (e) { /* bỏ qua */ }
+    }
     function copy(t, msg) {
       var ok = function () { toast(msg); };
       var fb = function () { var a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select(); try { document.execCommand('copy'); ok(); } catch (e) { /* bỏ qua */ } a.remove(); };
