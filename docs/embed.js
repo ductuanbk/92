@@ -157,44 +157,88 @@ tbody tr:hover .go { color: var(--brand); }
 .facts div { font-size: 13px; color: var(--ink); }
 .facts span { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; }
 
-/* Chi tiết căn */
-.mbg { position: fixed; inset: 0; background: rgba(11,31,75,.45); display: none; align-items: center; justify-content: center; z-index: 2147483000; padding: 16px; }
+/* Chi tiết căn: hai cột (ảnh bên trái, thông tin bên phải) */
+.mbg { position: fixed; inset: 0; background: rgba(11,31,75,.5); display: none; align-items: center; justify-content: center; z-index: 2147483000; padding: 16px; }
 .mbg.open { display: flex; }
-.modal { background: #fff; border-radius: 18px; width: min(920px, 100%); max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(0,0,0,.25); overflow: hidden; }
-.mh { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
-.mh h3 { margin: 0; font-size: 24px; font-weight: 700; color: var(--navy); line-height: 1.2; letter-spacing: .2px; }
-.mh .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.modal { background: #fff; border-radius: 18px; width: min(1180px, 100%); max-height: 94vh; display: flex; flex-direction: column; box-shadow: 0 24px 60px rgba(0,0,0,.28); overflow: hidden; }
+.mh { display: flex; align-items: center; gap: 12px; padding: 14px 18px 14px 22px; border-bottom: 1px solid var(--line); }
+.mh h3 { margin: 0; font-size: 26px; font-weight: 700; color: var(--navy); line-height: 1.15; letter-spacing: .3px; }
+.mh .sub { color: var(--muted); font-size: 13px; margin-top: 3px; }
 .mh .np { margin-left: auto; text-align: right; }
-.mh .np .k { color: var(--muted); font-size: 12px; }
-.mh .np .v { color: var(--brand); font-size: 26px; font-weight: 700; line-height: 1.1; }
-.mh .np .k2 { color: var(--muted); font-size: 11.5px; }
-.close { background: var(--bg); border: 0; width: 36px; height: 36px; border-radius: 50%; color: var(--ink-2); font-size: 20px; line-height: 36px; padding: 0; flex: none; }
-.close:hover { background: var(--line); }
-.mb { padding: 16px 20px 18px; overflow: auto; }
-.msec { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.sec { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
-.sec.wide { grid-column: 1 / -1; }
-.sh { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-.sh h4 { margin: 0; font-size: 16px; font-weight: 700; color: var(--navy); }
-.lk { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #dfe4ec; background: #fff; border-radius: 8px; padding: 6px 11px; font-size: 13px; font-weight: 600; color: var(--navy); text-decoration: none; }
-.lk:hover { border-color: var(--navy); }
-.lk.main { background: var(--brand); border-color: var(--brand); color: #fff; }
-.lk .ar { font-size: 12px; opacity: .8; }
-.lk.off { color: #a8b0bd; border-style: dashed; cursor: default; }
-.kv { display: grid; grid-template-columns: auto 1fr; gap: 7px 12px; font-size: 14px; }
-.kv dt, .kv .k { color: var(--muted); }
-.kv .v { text-align: right; font-weight: 600; color: var(--ink); white-space: nowrap; }
-.kv .v.hl { color: var(--brand); font-weight: 700; }
-.contact { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.contact .who { flex: 1; min-width: 180px; }
-.contact .who b { display: block; color: var(--navy); font-size: 15px; }
-.contact .who span { color: var(--muted); font-size: 13px; }
-.mf { display: flex; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--line); background: #fbfcfe; align-items: center; flex-wrap: wrap; }
-.btn { display: inline-flex; align-items: center; justify-content: center; text-align: center; border-radius: 10px; padding: 11px 16px; font-weight: 600; text-decoration: none; border: 1px solid #dfe4ec; background: #fff; color: var(--navy); }
-.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
-.btn.navy { background: var(--navy); border-color: var(--navy); color: #fff; }
-.btn.sm { padding: 8px 12px; font-size: 13px; }
-.mf .legal { margin: 0; flex: 1 1 260px; }
+.mh .np .row { display: flex; align-items: baseline; gap: 8px; justify-content: flex-end; }
+.mh .np .k { color: var(--muted); font-size: 13px; }
+.mh .np .v { color: #e3262d; font-size: 28px; font-weight: 700; line-height: 1.1; }
+.mh .np .k2 { color: var(--muted); font-size: 12px; }
+.close { background: transparent; border: 0; width: 38px; height: 38px; border-radius: 50%; color: var(--ink-2); font-size: 22px; line-height: 38px; padding: 0; flex: none; }
+.close:hover { background: var(--bg); }
+.close:disabled { opacity: .3; cursor: default; }
+.mb { display: grid; grid-template-columns: minmax(0, 46fr) minmax(0, 54fr); overflow: auto; }
+.mleft { background: #f6f8fb; border-right: 1px solid var(--line); padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.media { position: relative; border-radius: 14px; overflow: hidden; background: #0b1f4b; aspect-ratio: 4 / 5; max-height: 62vh; display: flex; align-items: center; justify-content: center; }
+.media img { width: 100%; height: 100%; object-fit: contain; display: block; background: #0b1f4b; }
+.media .open { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,.92); color: var(--navy); border-radius: 999px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; text-decoration: none; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.media .tagq { position: absolute; top: 10px; left: 10px; }
+.poster { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 22px; color: #fff;
+  background: radial-gradient(120% 80% at 100% 0%, rgba(240,180,41,.18), rgba(240,180,41,0) 55%), linear-gradient(160deg, #0b1f4b 0%, #123a6b 55%, #0f5b63 100%); }
+.poster .brand { display: flex; justify-content: space-between; align-items: center; font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; color: rgba(255,255,255,.75); }
+.poster .brand b { color: var(--gold); letter-spacing: 1.6px; }
+.poster .mc { font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,.7); }
+.poster .code2 { font-size: 46px; font-weight: 700; color: var(--gold); line-height: 1.05; letter-spacing: .5px; }
+.poster .pfacts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.poster .pfacts div { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14); border-radius: 10px; padding: 10px; }
+.poster .pfacts span { display: block; font-size: 11px; color: rgba(255,255,255,.65); text-transform: uppercase; letter-spacing: .4px; }
+.poster .pfacts b { font-size: 15px; font-weight: 600; }
+.poster .pnote { font-size: 12.5px; color: rgba(255,255,255,.7); }
+.poster .pnote a { color: #fff; font-weight: 600; }
+.quick { display: grid; grid-template-columns: repeat(3, 1fr); background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+.quick div { text-align: center; padding: 10px 6px; }
+.quick div + div { border-left: 1px solid var(--line-2); }
+.quick span { display: inline-flex; align-items: center; gap: 5px; color: #2f6fd6; font-size: 13.5px; }
+.quick svg { width: 15px; height: 15px; }
+.quick b { display: block; margin-top: 2px; font-size: 13.5px; font-weight: 700; color: var(--ink); text-transform: uppercase; }
+.acts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.act { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 44px; border-radius: 10px; border: 1px solid #dfe4ec; background: #fff; color: var(--ink); font-weight: 600; font-size: 14px; text-decoration: none; }
+.act:hover { border-color: var(--navy-2); }
+.act svg { width: 17px; height: 17px; }
+.act.on { color: var(--brand); border-color: #f3c4c6; background: var(--brand-soft); }
+.act.ask { color: #2f6fd6; border-color: #2f6fd6; }
+.mright { padding: 6px 22px 18px; }
+.blk { padding: 14px 0; border-bottom: 1px solid var(--line-2); }
+.blk:last-child { border-bottom: 0; }
+.bh { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.bh h4 { margin: 0; font-size: 19px; font-weight: 700; color: var(--navy); }
+.bh .tools2 { display: flex; gap: 6px; flex-wrap: wrap; }
+.lk { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e3e7ee; background: #f8fafc; border-radius: 8px; padding: 7px 12px; font-size: 13.5px; font-weight: 600; color: var(--navy); text-decoration: none; }
+.lk:hover { border-color: var(--navy); background: #fff; }
+.lk .ar { font-size: 12px; opacity: .6; padding-left: 6px; border-left: 1px solid #d5dbe5; }
+.lk.on { background: var(--navy); border-color: var(--navy); color: #fff; }
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 28px; }
+.g2 .r { display: flex; justify-content: space-between; gap: 10px; font-size: 14.5px; }
+.g2 .r .k { color: var(--muted); }
+.g2 .r .v { font-weight: 600; color: var(--ink); text-align: right; white-space: nowrap; }
+.g2 .r .v.hl { color: #e3262d; font-weight: 700; }
+.g2 .full { grid-column: 1 / -1; }
+.loan { margin-top: 12px; background: #f6f8fb; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.loan .in { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.loan label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-2); font-weight: 600; }
+.loan select, .loan input { height: 38px; border: 1px solid #dfe4ec; border-radius: 8px; padding: 0 10px; background: #fff; font-size: 14px; width: 100%; min-width: 0; }
+.loan .out { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.loan .out div { background: #fff; border-radius: 8px; padding: 8px 10px; }
+.loan .out span { display: block; font-size: 11.5px; color: var(--muted); }
+.loan .out b { font-size: 15px; color: var(--navy); }
+.loan p { margin: 8px 0 0; font-size: 11.5px; color: var(--muted); }
+.people { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin-top: 12px; }
+.person { display: flex; gap: 12px; align-items: center; background: #f8fafc; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.ava { width: 52px; height: 52px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--navy), var(--navy-2)); border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); font-size: 16px; overflow: hidden; }
+.ava img { width: 100%; height: 100%; object-fit: cover; }
+.person .nm b { display: block; color: var(--ink); font-size: 15px; }
+.person .nm span { display: block; color: var(--muted); font-size: 12.5px; }
+.person .cbtn { display: flex; gap: 6px; margin-top: 6px; }
+.cbtn a, .cbtn button { width: 46px; height: 32px; border-radius: 8px; border: 0; display: inline-flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; }
+.cbtn .ph { background: #22b14c; } .cbtn .zl { background: #2f6fd6; }
+.cbtn svg { width: 16px; height: 16px; }
+.mfoot { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+.mfoot .legal { flex: 1 1 100%; margin: 6px 0 0; }
 .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: #1f2a3d; color: #fff; padding: 10px 16px; border-radius: 10px; z-index: 2147483001; display: none; font-size: 13.5px; }
 .toast.show { display: block; }
 
@@ -215,13 +259,21 @@ tbody tr:hover .go { color: var(--brand); }
   .stat .k { font-size: 11.5px; }
   .adv { grid-template-columns: 1fr 1fr; gap: 10px; }
   .tw { display: none; } .cards { display: block; }
-  .msec { grid-template-columns: 1fr; }
-  .mh { flex-wrap: wrap; padding: 14px 16px; }
-  .mh .np { order: 5; width: 100%; text-align: left; margin-left: 0; display: flex; align-items: baseline; gap: 8px; }
-  .mh .np .v { font-size: 22px; }
+  .mbg { padding: 0; align-items: stretch; }
+  .modal { border-radius: 0; max-height: 100vh; height: 100%; }
+  .mh { flex-wrap: wrap; padding: 12px 14px; }
+  .mh h3 { font-size: 22px; }
+  .mh .np { order: 5; width: 100%; text-align: left; margin-left: 0; }
+  .mh .np .row { justify-content: flex-start; } .mh .np .v { font-size: 24px; }
   #mPrev, #mNext { display: none; }
   .mh #mClose { margin-left: auto; }
-  .mb { padding: 14px 16px; } .mf { padding: 12px 16px; } .mf .btn { flex: 1 1 140px; }
+  .mb { grid-template-columns: 1fr; }
+  .mleft { border-right: 0; border-bottom: 1px solid var(--line); padding: 12px; }
+  .media { aspect-ratio: 4 / 3; max-height: 46vh; }
+  .poster .code2 { font-size: 36px; } .poster { padding: 16px; }
+  .mright { padding: 2px 14px 16px; }
+  .g2 { grid-template-columns: 1fr; gap: 8px; }
+  .loan .in, .loan .out { grid-template-columns: 1fr 1fr; }
 }
 `;
 
@@ -266,14 +318,16 @@ tbody tr:hover .go { color: var(--brand); }
 
   <div class="mbg" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="modal">
     <div class="mh">
-      <button class="close" id="mPrev" aria-label="Căn trước">‹</button>
       <div><h3 id="mTitle"></h3><div class="sub" id="mSub"></div></div>
       <div class="np" id="mPrice"></div>
+      <button class="close" id="mPrev" aria-label="Căn trước">‹</button>
       <button class="close" id="mNext" aria-label="Căn sau">›</button>
       <button class="close" id="mClose" aria-label="Đóng">×</button>
     </div>
-    <div class="mb" id="mBody"></div>
-    <div class="mf" id="mFoot"></div>
+    <div class="mb">
+      <div class="mleft" id="mLeft"></div>
+      <div class="mright" id="mRight"></div>
+    </div>
   </div></div>
   <div class="toast" id="toast" role="status"></div>
 </div>`;
@@ -512,7 +566,8 @@ tbody tr:hover .go { color: var(--brand); }
 
     function matches(u, skip) {
       var f = state.filter, q = norm(f.q).trim();
-      if (skip !== 'dq' && f.dq && !u.dq) return false;
+      if (skip !== 'tab' && f.dq && !u.dq) return false;
+      if (skip !== 'tab' && f.saved && !isSaved(u)) return false;
       for (var id in FIELDS) {
         var d = FIELDS[id], v = f[d.k];
         if (!v || skip === d.k) continue;
@@ -525,17 +580,21 @@ tbody tr:hover .go { color: var(--brand); }
 
     function dqCfg() { return state.data && state.data.exclusiveTab; }
     function renderTabs() {
-      var cfg = dqCfg(), n = state.units.filter(function (u) { return u.dq; }).length;
-      var show = !!cfg && n > 0;
-      $('gtabs').hidden = !show;
-      if (!show) { state.filter.dq = ''; return; }
-      var all = state.units.filter(function (u) { return matches(u, 'dq'); }).length;
-      var dq = state.units.filter(function (u) { return u.dq && matches(u, 'dq'); }).length;
-      $('gtabs').innerHTML = '<button role="tab" data-dq=""' + (state.filter.dq ? '' : ' class="on"') + ' aria-selected="' + !state.filter.dq + '">Tất cả căn <b>' + all + '</b></button>' +
-        '<button role="tab" data-dq="1"' + (state.filter.dq ? ' class="on"' : '') + ' aria-selected="' + !!state.filter.dq + '" title="' + esc(cfg.title || '') + '"><span class="dqmark">' + esc(cfg.short || 'ĐQ') + '</span>' +
-        esc((cfg.label || '').replace(new RegExp('^' + (cfg.short || 'ĐQ') + '\\s*'), '')) + ' <b>' + dq + '</b></button>';
+      var cfg = dqCfg(), ndq = state.units.filter(function (u) { return u.dq; }).length;
+      var nsaved = state.units.filter(isSaved).length;
+      var showDq = !!cfg && ndq > 0;
+      if (!showDq) state.filter.dq = '';
+      if (!nsaved) state.filter.saved = '';
+      $('gtabs').hidden = !showDq && !nsaved;
+      if ($('gtabs').hidden) return;
+      var cur = state.filter.saved ? 'saved' : state.filter.dq ? 'dq' : '';
+      var base = state.units.filter(function (u) { return matches(u, 'tab'); });
+      var b = function (v, inner) { return '<button role="tab" data-tab="' + v + '"' + (cur === v ? ' class="on"' : '') + ' aria-selected="' + (cur === v) + '">' + inner + '</button>'; };
+      $('gtabs').innerHTML = b('', 'Tất cả căn <b>' + base.length + '</b>') +
+        (showDq ? b('dq', '<span class="dqmark">' + esc(cfg.short || 'ĐQ') + '</span>' + esc((cfg.label || '').replace(new RegExp('^' + (cfg.short || 'ĐQ') + '\\s*'), '')) + ' <b>' + base.filter(function (u) { return u.dq; }).length + '</b>') : '') +
+        (nsaved ? b('saved', '<span style="color:var(--brand);display:inline-flex;width:15px">' + ICON.heart + '</span>Đã lưu <b>' + base.filter(isSaved).length + '</b>') : '');
     }
-    $('gtabs').onclick = function (e) { var b = e.target.closest('button[data-dq]'); if (!b) return; state.filter.dq = b.dataset.dq; updateHash(); reset(); };
+    $('gtabs').onclick = function (e) { var b = e.target.closest('button[data-tab]'); if (!b) return; var t = b.dataset.tab; state.filter.dq = t === 'dq' ? '1' : ''; state.filter.saved = t === 'saved' ? '1' : ''; updateHash(); reset(); };
     function dqTag(u) { var c = dqCfg(); return u.dq && c ? '<span class="dq" title="' + esc(c.title || '') + '">' + esc(c.short || 'ĐQ') + '</span>' : ''; }
     function renderChips() { renderTabs(); renderFilters(); }
 
@@ -616,41 +675,117 @@ tbody tr:hover .go { color: var(--brand); }
     function findCode(c) { var n = norm(c).replace(/\s/g, ''); return state.units.filter(function (u) { return norm(u.code).replace(/\s/g, '') === n; })[0]; }
 
     // ─── Chi tiết căn ───
+    var ICON = {
+      home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>',
+      compass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>',
+      area: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg>',
+      heart: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.3 2.3h2c.7-1.2 2.2-2.3 4.3-2.3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg>',
+      share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
+      chat: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C6.5 3 2 6.9 2 11.6c0 2.4 1.2 4.6 3.1 6.1L4.5 21l3.8-1.9c1.2.4 2.4.6 3.7.6 5.5 0 10-3.9 10-8.6S17.5 3 12 3zm-4 9.6a1.2 1.2 0 1 1 0-2.4 1.2 1.2 0 0 1 0 2.4zm4 0a1.2 1.2 0 1 1 0-2.4 1.2 1.2 0 0 1 0 2.4zm4 0a1.2 1.2 0 1 1 0-2.4 1.2 1.2 0 0 1 0 2.4z"/></svg>',
+      phone: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.4 0 .7-.2 1z"/></svg>'
+    };
+    // Ảnh chỉ căn: link ảnh trực tiếp, hoặc file Google Drive (xem trước nếu file chia sẻ công khai).
+    function unitImage(u) {
+      var l = u.unitLink || '';
+      if (/\.(webp|jpe?g|png|gif)(\?|$)/i.test(l)) return l;
+      var m = l.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]{20,})/);
+      return m ? 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1400' : '';
+    }
+    function posterHtml(u) {
+      return '<div class="poster"><div class="brand"><b>Á Đông Land</b><span>' + esc(state.project.name) + '</span></div>' +
+        '<div><div class="mc">Mã căn</div><div class="code2">' + esc(u.code) + '</div></div>' +
+        '<div class="pfacts"><div><span>DT đất</span><b>' + (u.land != null ? m2(u.land) + ' m²' : '-') + '</b></div><div><span>DT xây dựng</span><b>' + (u.build != null ? m2(u.build) + ' m²' : '-') + '</b></div>' +
+        '<div><span>Loại hình</span><b>' + esc(u.type || '-') + '</b></div></div>' +
+        '<div class="pnote">' + esc([u.zone, u.street ? 'Dãy ' + u.street : '', u.handover ? 'Bàn giao ' + lowerVi(u.handover) : ''].filter(Boolean).join(' · ')) +
+        (u.unitLink ? ' · <a href="' + esc(u.unitLink) + '" target="_blank" rel="noopener">Xem ảnh chỉ căn ↗</a>' : '') + '</div></div>';
+    }
+    // Danh sách căn quan tâm, lưu trong trình duyệt
+    var SAVED_KEY = 'adl_bang_hang_luu';
+    function savedSet() { try { return JSON.parse(localStorage.getItem(SAVED_KEY) || '[]'); } catch (e) { return []; } }
+    function isSaved(u) { return savedSet().indexOf(state.project.id + '|' + u.code) >= 0; }
+    function toggleSaved(u) {
+      var list = savedSet(), k = state.project.id + '|' + u.code, i = list.indexOf(k);
+      if (i >= 0) list.splice(i, 1); else list.push(k);
+      try { localStorage.setItem(SAVED_KEY, JSON.stringify(list)); } catch (e) { /* bỏ qua */ }
+      return i < 0;
+    }
+    function contacts() {
+      var list = C.contacts && C.contacts.length ? C.contacts : [{ name: 'Á Đông Land', role: 'Tư vấn dự án ' + state.project.name, phone: C.hotline, phoneText: C.hotlineText, zalo: C.zalo }];
+      return list.map(function (p) {
+        var ini = String(p.name || '').split(/\s+/).filter(Boolean).slice(-2).map(function (w) { return w.charAt(0); }).join('').toUpperCase();
+        return '<div class="person"><div class="ava">' + (p.avatar ? '<img src="' + esc(p.avatar) + '" alt="">' : esc(ini)) + '</div><div class="nm"><b>' + esc(p.name) + '</b><span>' + esc(p.role || '') +
+          (p.phoneText ? ' · ' + esc(p.phoneText) : '') + '</span><div class="cbtn">' +
+          (p.phone ? '<a class="ph" href="tel:' + esc(p.phone) + '" title="Gọi ' + esc(p.phoneText || p.phone) + '" aria-label="Gọi">' + ICON.phone + '</a>' : '') +
+          (p.zalo ? '<a class="zl" href="' + esc(p.zalo) + '" target="_blank" rel="noopener" title="Nhắn Zalo" aria-label="Nhắn Zalo" data-zalo="1">' + ICON.chat + '</a>' : '') + '</div></div></div>';
+      }).join('');
+    }
+    function loanCalc(u) {
+      var price = u.priceLoan || u.price || 0;
+      return '<div class="loan" id="mLoan" hidden><div class="in">' +
+        '<label>Tỷ lệ vay<select id="lPct">' + [50, 60, 65, 70, 80].map(function (v) { return '<option value="' + v + '"' + (v === 70 ? ' selected' : '') + '>' + v + '%</option>'; }).join('') + '</select></label>' +
+        '<label>Thời hạn<select id="lYears">' + [10, 15, 20, 25, 30].map(function (v) { return '<option value="' + v + '"' + (v === 25 ? ' selected' : '') + '>' + v + ' năm</option>'; }).join('') + '</select></label>' +
+        '<label>Lãi suất (%/năm)<input id="lRate" type="number" min="0" max="30" step="0.1" value="9"></label></div>' +
+        '<div class="out"><div><span>Số tiền vay</span><b id="lAmt"></b></div><div><span>Trả đều mỗi tháng</span><b id="lMon"></b></div><div><span>Tháng đầu (dư nợ giảm dần)</span><b id="lFirst"></b></div></div>' +
+        '<p>Tính trên ' + (u.priceLoan ? 'giá vay' : 'giá niêm yết') + ' ' + ty(price) + '. Kết quả ước tính để tham khảo; lãi suất, ân hạn và hỗ trợ lãi suất theo chính sách chủ đầu tư và ngân hàng tại thời điểm vay.</p></div>';
+    }
+    function updateLoan(u) {
+      var price = u.priceLoan || u.price || 0, pct = +$('lPct').value / 100, n = +$('lYears').value * 12, r = (+$('lRate').value || 0) / 100 / 12;
+      var P = price * pct, mon = r ? P * r / (1 - Math.pow(1 + r, -n)) : P / n, first = P / n + P * r;
+      $('lAmt').textContent = ty(P); $('lMon').textContent = num(mon / 1e6, 1) + ' triệu'; $('lFirst').textContent = num(first / 1e6, 1) + ' triệu';
+    }
+
     function openUnit(u) {
       state.current = u; updateHash();
       var upd = when(state.data.updatedAt);
       $('mTitle').innerHTML = esc(u.code) + dqTag(u);
-      $('mSub').textContent = state.project.name + (u.zone ? ' · ' + u.zone : '') + (u.type ? ' · ' + u.type : '');
-      $('mPrice').innerHTML = '<div class="k">Giá niêm yết</div><div class="v">' + ty(u.price) + '</div><div class="k2">Gồm VAT và kinh phí bảo trì</div>';
-      function row(k, v, hl) { return v ? '<div class="k">' + k + '</div><div class="v' + (hl ? ' hl' : '') + '">' + v + '</div>' : ''; }
-      function link(url, label, main) {
-        return url ? '<a class="lk' + (main ? ' main' : '') + '" href="' + esc(url) + '" target="_blank" rel="noopener">' + label + ' <span class="ar">↗</span></a>'
-          : '<span class="lk off" title="Chưa có trên bảng hàng, vui lòng gọi hotline">' + label + '</span>';
-      }
-      var priceSec = '<div class="sec"><div class="sh"><h4>Giá</h4>' + link(u.ptg, 'Phiếu tính giá', true) + '</div><div class="kv">' +
-        row('Giá niêm yết', u.price ? vnd(u.price) : 'Liên hệ', true) + row('Giá chưa VAT', u.priceExVat ? vnd(u.priceExVat) : '') +
-        row('Giá vay (theo chính sách)', u.priceLoan ? ty(u.priceLoan) : '') + row('Đơn giá', trieu(perM2(u))) + '</div></div>';
-      var areaSec = '<div class="sec"><div class="sh"><h4>Diện tích</h4>' + (u.unitLink ? link(u.unitLink, 'Chỉ căn') : '') + '</div><div class="kv">' +
-        row('Diện tích đất', u.land != null ? m2(u.land) + ' m²' : '') + row('Diện tích xây dựng', u.build != null ? m2(u.build) + ' m²' : '') + '</div></div>';
-      var infoSec = '<div class="sec"><div class="sh"><h4>Thông tin căn</h4></div><div class="kv">' +
-        row('Loại hình', esc(u.type)) + row('Hướng', esc(u.direction)) + row('Tiêu chuẩn bàn giao', esc(u.handover)) + row('Phân khu', esc(u.zone)) +
-        row('Dãy / đường', esc(u.street)) + '</div></div>';
-      var statusSec = '<div class="sec"><div class="sh"><h4>Trạng thái</h4><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div><div class="kv">' +
-        row('Cập nhật lúc', esc(upd)) + '</div><div class="contact" style="margin-top:12px"><div class="who"><b>Á Đông Land</b><span>Tư vấn dự án ' + esc(state.project.name) + '</span></div>' +
-        '<a class="btn primary sm" href="tel:' + esc(C.hotline) + '">Gọi ' + esc(C.hotlineText) + '</a><button class="btn navy sm" id="mZalo">Zalo</button></div>' +
-        (projectLink() ? '<a class="lk" style="margin-top:10px" href="' + esc(projectLink()) + '" target="_blank" rel="noopener">Thông tin dự án ' + esc(state.project.name) + ' <span class="ar">↗</span></a>' : '') + '</div>';
-      $('mBody').innerHTML = '<div class="msec">' + priceSec + areaSec + infoSec + statusSec + '</div>';
-      $('mFoot').innerHTML = '<button class="btn sm" id="mLink">Chia sẻ link căn</button><button class="btn sm" id="mCopy">Sao chép thông tin</button>' +
-        '<p class="legal">Giá tham khảo theo bảng hàng cập nhật lúc ' + esc(upd) + '. Giá và chính sách có thể thay đổi theo xác nhận của chủ đầu tư.</p>';
-      var info = 'Căn ' + u.code + ', ' + state.project.name + '\nGiá niêm yết: ' + ty(u.price) + ' (gồm VAT và KPBT)' +
+      $('mSub').textContent = state.project.name + (u.zone ? ' · ' + u.zone : '');
+      $('mPrice').innerHTML = '<div class="row"><span class="k">Giá NY:</span><span class="v">' + ty(u.price) + '</span></div><div class="k2">(Gồm VAT và kinh phí bảo trì)</div>';
+      // Cột trái: ảnh, thông tin nhanh, thao tác
+      var img = unitImage(u);
+      $('mLeft').innerHTML = '<div class="media" id="mMedia">' + (img ? '<img id="mImg" src="' + esc(img) + '" alt="Ảnh chỉ căn ' + esc(u.code) + '" loading="lazy">' +
+          '<a class="open" href="' + esc(u.unitLink) + '" target="_blank" rel="noopener">Mở ảnh ↗</a>' : posterHtml(u)) + '</div>' +
+        '<div class="quick"><div><span>' + ICON.home + 'Loại hình</span><b>' + esc(u.type || '-') + '</b></div><div><span>' + ICON.compass + 'Hướng</span><b>' + esc(u.direction || '-') + '</b></div>' +
+        '<div><span>' + ICON.area + 'Diện tích</span><b>' + (u.land != null ? m2(u.land) + 'm²' : '-') + '</b></div></div>' +
+        '<div class="acts"><button class="act' + (isSaved(u) ? ' on' : '') + '" id="mSave">' + ICON.heart + '<span>' + (isSaved(u) ? 'Đã lưu' : 'Quan tâm') + '</span></button>' +
+        '<button class="act" id="mShare">' + ICON.share + 'Chia sẻ</button><button class="act ask" id="mAsk">' + ICON.chat + 'Hỏi đáp</button></div>';
+      var im = $('mImg'); if (im) im.onerror = function () { $('mMedia').innerHTML = posterHtml(u); };
+      // Cột phải: các mục thông tin
+      function r(k, v, hl, full) { return v ? '<div class="r' + (full ? ' full' : '') + '"><span class="k">' + k + ':</span><span class="v' + (hl ? ' hl' : '') + '">' + v + '</span></div>' : ''; }
+      function lk(url, label, id) { return url ? '<a class="lk" href="' + esc(url) + '" target="_blank" rel="noopener">' + label + '<span class="ar">↗</span></a>' : (id ? '<button class="lk" id="' + id + '">' + label + '</button>' : ''); }
+      var dqc = dqCfg();
+      $('mRight').innerHTML =
+        '<div class="blk"><div class="bh"><h4>Giá</h4><div class="tools2">' + lk(u.ptg, 'Phiếu tính giá') + '<button class="lk" id="mLoanBtn">Tính lãi vay</button></div></div>' +
+          '<div class="g2">' + r('Giá niêm yết', u.price ? ty(u.price) : 'Liên hệ', true) + r('Giá chưa VAT', u.priceExVat ? ty(u.priceExVat) : '') +
+          r('Giá vay', u.priceLoan ? ty(u.priceLoan) : '') + r('Đơn giá', trieu(perM2(u))) + '</div>' + loanCalc(u) + '</div>' +
+        '<div class="blk"><div class="bh"><h4>Diện tích</h4><div class="tools2">' + lk(u.unitLink, 'Chỉ căn') + '</div></div>' +
+          '<div class="g2">' + r('DT đất', u.land != null ? m2(u.land) + ' m²' : '') + r('DT xây dựng', u.build != null ? m2(u.build) + ' m²' : '') + '</div></div>' +
+        '<div class="blk"><div class="bh"><h4>Thông tin bàn giao</h4></div><div class="g2">' + r('Tiêu chuẩn bàn giao', esc(u.handover), false, true) +
+          r('Quỹ căn', u.dq && dqc ? esc(dqc.label || 'ĐQ') : '', false, true) + r('Phân khu', esc(u.zone)) + r('Dãy / đường', esc(u.street)) + '</div></div>' +
+        '<div class="blk"><div class="bh"><h4>Trạng thái</h4><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div>' +
+          '<div class="g2">' + r('Cập nhật gần nhất', esc(upd), false, true) + '</div><div class="people">' + contacts() + '</div>' +
+          '<div class="mfoot">' + (projectLink() ? lk(projectLink(), 'Thông tin dự án') : '') + '<button class="lk" id="mCopy">Sao chép thông tin</button>' +
+          '<p class="legal">Giá tham khảo theo bảng hàng cập nhật lúc ' + esc(upd) + '. Giá và chính sách có thể thay đổi theo xác nhận của chủ đầu tư.</p></div></div>';
+      var info = 'Căn ' + u.code + ', ' + state.project.name + '\n' + 'Giá niêm yết: ' + ty(u.price) + ' (gồm VAT và KPBT)' +
         (u.land != null ? '\nDiện tích đất: ' + m2(u.land) + ' m²' : '') + (u.build != null ? ', xây dựng: ' + m2(u.build) + ' m²' : '') +
-        (u.type ? '\nLoại hình: ' + u.type : '') + (u.handover ? ', bàn giao: ' + u.handover : '') + (u.direction ? '\nHướng: ' + u.direction : '') + (u.ptg ? '\nPhiếu tính giá: ' + u.ptg : '') + '\nTình trạng: ' + u.status + (projectLink() ? '\nThông tin dự án: ' + projectLink() : '');
-      $('mZalo').onclick = function () { copy('Tôi muốn tìm hiểu căn ' + u.code + ' dự án ' + state.project.name + ' (giá niêm yết ' + ty(u.price) + ').', 'Đã sao chép tin nhắn, dán vào Zalo để gửi'); window.open(C.zalo, '_blank', 'noopener'); };
-      $('mLink').onclick = function () { copy(location.href, 'Đã sao chép link căn'); };
+        (u.type ? '\nLoại hình: ' + u.type : '') + (u.handover ? ', bàn giao: ' + u.handover : '') + (u.direction ? '\nHướng: ' + u.direction : '') +
+        (u.ptg ? '\nPhiếu tính giá: ' + u.ptg : '') + '\nTình trạng: ' + u.status + (projectLink() ? '\nThông tin dự án: ' + projectLink() : '');
+      var ask = function () { copy('Tôi muốn tìm hiểu căn ' + u.code + ' dự án ' + state.project.name + ' (giá niêm yết ' + ty(u.price) + ').', 'Đã sao chép tin nhắn, dán vào Zalo để gửi'); window.open(C.zalo, '_blank', 'noopener'); };
+      $('mAsk').onclick = ask;
+      Array.prototype.forEach.call($('mRight').querySelectorAll('a[data-zalo]'), function (a) { a.onclick = function (e) { e.preventDefault(); ask(); }; });
       $('mCopy').onclick = function () { copy(info, 'Đã sao chép thông tin căn'); };
+      $('mShare').onclick = function () {
+        if (navigator.share) navigator.share({ title: 'Căn ' + u.code + ' ' + state.project.name, text: info, url: location.href }).catch(function () {});
+        else copy(location.href, 'Đã sao chép link căn');
+      };
+      $('mSave').onclick = function () {
+        var on = toggleSaved(u); this.classList.toggle('on', on); this.querySelector('span').textContent = on ? 'Đã lưu' : 'Quan tâm';
+        toast(on ? 'Đã lưu căn ' + u.code + ' vào danh sách quan tâm' : 'Đã bỏ căn ' + u.code + ' khỏi danh sách quan tâm');
+        renderTabs(); if (state.filter.saved) render();
+      };
+      $('mLoanBtn').onclick = function () { var b = $('mLoan'); b.hidden = !b.hidden; this.classList.toggle('on', !b.hidden); if (!b.hidden) updateLoan(u); };
+      ['lPct', 'lYears', 'lRate'].forEach(function (id) { $(id).oninput = $(id).onchange = function () { updateLoan(u); }; });
       var list = state.visible || [], i = list.indexOf(u);
       $('mPrev').disabled = i <= 0; $('mNext').disabled = i < 0 || i >= list.length - 1;
-      $('mPrev').style.opacity = $('mPrev').disabled ? .35 : 1; $('mNext').style.opacity = $('mNext').disabled ? .35 : 1;
       $('modal').classList.add('open'); $('mClose').focus();
     }
     $('mPrev').onclick = function () { var l = state.visible || [], i = l.indexOf(state.current); if (i > 0) openUnit(l[i - 1]); };
