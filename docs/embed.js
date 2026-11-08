@@ -69,11 +69,6 @@ a { color: var(--brand); }
 .switch { display: inline-flex; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; padding: 4px; gap: 2px; flex-wrap: wrap; }
 .switch button { border: 0; background: transparent; color: rgba(255,255,255,.85); padding: 7px 16px; border-radius: 999px; font-weight: 600; font-size: 13px; white-space: nowrap; }
 .switch button.on { background: #fff; color: var(--navy); }
-.stats { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
-.stat { background: rgba(255,255,255,.09); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 12px 14px; }
-.stat .k { font-size: 12px; color: rgba(255,255,255,.7); }
-.stat .v { font-size: 20px; font-weight: 700; color: #fff; margin-top: 2px; white-space: nowrap; }
-.stat .v small { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.7); }
 
 /* Tab giỏ hàng (Tất cả / ĐQ) */
 .gtabs { display: flex; gap: 4px; margin: 0 0 12px; border-bottom: 1px solid var(--line); }
@@ -255,18 +250,18 @@ tbody tr:hover .go { color: var(--brand); }
 /* Co theo bề rộng khung chứa của theme */
 @container (max-width: 1100px) { .col-build { display: none; } }
 @container (max-width: 980px) { .adv { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@container (max-width: 980px) { .col-zone, .col-direction { display: none; } .stats { grid-template-columns: repeat(2, 1fr); } }
+@container (max-width: 980px) { .col-zone, .col-direction { display: none; } }
 @container (max-width: 760px) {
   .w { padding: 4px 12px 32px; }
   .hero { padding: 20px 18px 18px; border-radius: 14px; }
   .hero h2 { font-size: 23px; }
-  .stat .v { font-size: 17px; }
+
   .hero-top { gap: 12px; }
   .gtabs button { flex: 1 1 0; justify-content: center; padding: 10px 4px 11px; font-size: 14px; gap: 6px; min-width: 0; }
   .switch { width: 100%; flex-wrap: nowrap; } .switch button { flex: 1 1 0; min-width: 0; padding: 8px 6px; font-size: 12.5px; white-space: normal; line-height: 1.25; }
   .search { flex: 1 1 100%; }
   .sort { flex: 1 1 0; min-width: 0; } .sort span { display: none; } .sort select { min-width: 0; width: 100%; }
-  .stat .k { font-size: 11.5px; }
+
   .adv { grid-template-columns: 1fr 1fr; gap: 10px; }
   .tw { display: none; } .cards { display: block; }
   .mbg { padding: 0; align-items: stretch; }
@@ -296,7 +291,6 @@ tbody tr:hover .go { color: var(--brand); }
       <div><p class="eyebrow">Bảng hàng</p><h2 id="hName">Đang tải bảng hàng</h2><p id="hSub">Bảng giá tham khảo do Á Đông Land tư vấn.</p><a class="plink" id="hLink" target="_blank" rel="noopener" hidden>Thông tin dự án <span>↗</span></a></div>
       <div class="switch" id="projects" role="tablist" aria-label="Chọn dự án"></div>
     </div>
-    <div class="stats" id="stats"></div>
   </section>
 
   <div class="gtabs" id="gtabs" role="tablist" aria-label="Chọn giỏ hàng" hidden></div>
@@ -504,26 +498,11 @@ tbody tr:hover .go { color: var(--brand); }
       $('legal').textContent = 'Giá niêm yết đã gồm VAT và kinh phí bảo trì, theo bảng hàng cập nhật lúc ' + upd +
         '. Đơn giá tính bằng giá niêm yết chia diện tích đất. Giá và chính sách có thể thay đổi theo sản phẩm, thời điểm và xác nhận của chủ đầu tư.' +
         (state.project.incomplete ? ' Một phần giỏ hàng đang cập nhật, vui lòng gọi hotline để có danh sách đầy đủ.' : '');
-      renderStats();
       host.dispatchEvent(new CustomEvent('adl:update', { bubbles: true, detail: { project: { id: state.project.id, name: state.project.name }, updatedAt: state.data.updatedAt, demo: !!state.data.demo } }));
       buildOptions(); render();
     }
 
     function projectLink() { var l = (C.projectLinks || {})[state.project && state.project.id]; return /^https:\/\//i.test(l || '') ? l : ''; }
-    function renderStats() {
-      var u = state.units, av = u.filter(function (x) { return x.status === 'Còn hàng'; });
-      var prices = av.map(function (x) { return x.price; }).filter(Boolean);
-      var pm = av.map(perM2).filter(Boolean);
-      var lands = {}; u.forEach(function (x) { if (x.land) { var k = Math.round(x.land); lands[k] = (lands[k] || 0) + 1; } });
-      var topLand = Object.keys(lands).sort(function (a, b) { return lands[b] - lands[a]; })[0];
-      var items = [
-        ['Căn còn hàng', av.length + ' <small>/ ' + u.length + ' căn</small>'],
-        ['Giá từ', prices.length ? ty(Math.min.apply(null, prices)) : 'Liên hệ'],
-        ['Đơn giá trung bình', pm.length ? num(pm.reduce(function (a, b) { return a + b; }, 0) / pm.length / 1e6, 1) + ' <small>triệu/m²</small>' : 'Liên hệ'],
-        ['Diện tích đất phổ biến', topLand ? topLand + ' <small>m²</small>' : '-']
-      ];
-      $('stats').innerHTML = items.map(function (it) { return '<div class="stat"><div class="k">' + it[0] + '</div><div class="v">' + it[1] + '</div></div>'; }).join('');
-    }
 
     // ─── Bộ lọc: các ô chọn thả xuống, mỗi lựa chọn kèm số căn theo các lọc còn lại ───
     function coverage(k) { return state.units.length ? state.units.filter(function (u) { return u[k]; }).length / state.units.length : 0; }
