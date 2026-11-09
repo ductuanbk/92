@@ -10,6 +10,8 @@
  *   data-tieu-de="0"     ẩn khung tiêu đề dự án phía trên bảng
  *   data-lien-ket="0"    không ghi mã căn lên thanh địa chỉ
  *   data-gio="dq"        mở sẵn tab ĐQ (giỏ hàng độc quyền Á Đông Land)
+ *   data-muc="tong-quan" mở sẵn tab thông tin khác (mặc định: quy-can). Các tab: tong-quan, vi-tri, phan-khu,
+ *                        mat-bang, quy-can, chinh-sach, tien-do, tai-lieu, tin-tuc
  *
  * Khối chạy trong Shadow DOM: CSS của theme không ảnh hưởng tới bảng và ngược lại.
  * Dữ liệu chỉ gồm trường công khai (xem Code.gs › publicData_).
@@ -31,7 +33,30 @@
       VHCG: 'https://adongland.vn/vinhomes-green-paradise/'
     },
     refreshSeconds: 120,
-    pageSize: 50
+    pageSize: 50,
+    // Các tab thông tin dự án. Nội dung lấy trực tiếp từ trang dự án trên WordPress (projectLinks):
+    // mỗi tiêu đề H2 của trang được xếp vào tab có từ khóa khớp (không dấu, chữ thường).
+    // Sửa trang dự án trong WordPress là các tab tự cập nhật. Đổi tên, thứ tự, bỏ tab: sửa danh sách này.
+    tabs: [
+      { id: 'tong-quan', label: 'Tổng quan', icon: 'globe', match: ['tong quan', 'chu dau tu', 'tien ich', 'ly do', 'co nen', 'so sanh', 'gioi thieu'] },
+      { id: 'vi-tri', label: 'Vị trí', icon: 'pin', match: ['vi tri', 'ket noi'] },
+      { id: 'phan-khu', label: 'Phân khu', icon: 'grid', match: ['phan khu'] },
+      { id: 'mat-bang', label: 'Mặt bằng quỹ căn', icon: 'map', match: ['mat bang'] },
+      { id: 'quy-can', label: 'Quỹ căn', icon: 'house' },
+      { id: 'chinh-sach', label: 'Chính sách bán hàng', icon: 'doc', match: ['gia ban', 'chinh sach', 'bang gia', 'uu dai', 'thanh toan'] },
+      { id: 'tien-do', label: 'Tiến độ', icon: 'cal', match: ['tien do'] },
+      { id: 'tai-lieu', label: 'Tài liệu', icon: 'book', match: ['phap ly', 'tai lieu'] },
+      { id: 'tin-tuc', label: 'Tin tức', icon: 'news' }
+    ],
+    defaultTab: 'quy-can',
+    // Tiêu đề chứa các cụm này không đưa vào tab (hỏi đáp, khung mời để lại thông tin...).
+    skipHeadings: ['cau hoi', 'hoi dap', 'nhan tai lieu', 'nhan bang gia', 'nhan tron bo', 'nhan thong tin', 'nhan phuong an', 'dang ky'],
+    // Thứ tự xét từ khóa khi một tiêu đề khớp nhiều tab.
+    tabPriority: ['tien-do', 'mat-bang', 'phan-khu', 'chinh-sach', 'tai-lieu', 'vi-tri', 'tong-quan'],
+    // Tin tức: tìm bài trên website theo các cụm này (bài có cụm trong tiêu đề xếp trước).
+    newsSearch: { VHSGP: ['Vinhomes Saigon Park', 'Vinhomes Hóc Môn'], VHCG: ['Vinhomes Green Paradise', 'Vinhomes Cần Giờ'] },
+    // Tài liệu tải về thêm tay cho từng dự án: [{ label: 'Tên tài liệu', url: 'https://...' }]
+    docs: { VHSGP: [], VHCG: [] }
   };
   var C = Object.assign({}, DEFAULTS, window.ADL_SITE || {});
 
@@ -137,6 +162,73 @@ tbody tr:hover .go { color: var(--brand); }
 .more button { border: 1px solid #dfe4ec; background: #fff; color: var(--navy); font-weight: 600; border-radius: 10px; padding: 10px 22px; }
 .more button:hover { border-color: var(--navy); }
 .empty { padding: 44px 20px; text-align: center; color: var(--muted); white-space: normal; }
+.ptabs { display: flex; justify-content: center; gap: 0; margin: 0 0 16px; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.ptabs::-webkit-scrollbar { display: none; }
+.ptabs button { flex: none; display: inline-flex; align-items: center; gap: 7px; border: 0; background: none; padding: 12px 14px 13px; font-size: 14.5px; font-weight: 600; color: var(--ink-2); border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap; position: relative; }
+.ptabs button + button::before { content: ""; position: absolute; left: 0; top: 50%; height: 16px; margin-top: -8px; border-left: 1px solid #d5dbe5; }
+.ptabs button svg { width: 17px; height: 17px; color: var(--navy-2); }
+.ptabs button:hover { color: var(--navy); }
+.ptabs button.on { color: #d98c00; border-bottom-color: var(--gold); }
+.ptabs button.on svg { color: var(--brand); }
+.info { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 28px; align-items: start; }
+.info.solo { grid-template-columns: minmax(0, 1fr); }
+.toc { position: sticky; top: 16px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 14px 10px; }
+.toc b { display: block; font-size: 12px; letter-spacing: .6px; text-transform: uppercase; color: var(--muted); padding: 0 8px 8px; }
+.toc a { display: block; padding: 7px 8px; border-radius: 8px; color: var(--ink); font-size: 13.5px; line-height: 1.4; text-decoration: none; }
+.toc a.sub { padding-left: 20px; color: var(--ink-2); font-size: 13px; }
+.toc a:hover { background: var(--bg); color: var(--navy); }
+.doc { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 26px 30px; min-width: 0; }
+.doc .sec + .sec { margin-top: 30px; padding-top: 26px; border-top: 1px solid var(--line-2); }
+.doc h2 { margin: 0 0 14px; font-size: 23px; line-height: 1.3; color: var(--navy); font-weight: 700; padding-left: 14px; border-left: 4px solid var(--brand); }
+.doc h3 { margin: 22px 0 10px; font-size: 18px; line-height: 1.35; color: var(--navy); font-weight: 700; }
+.doc h4 { margin: 16px 0 8px; font-size: 16px; color: var(--ink); font-weight: 700; }
+.doc p { margin: 0 0 12px; font-size: 15px; line-height: 1.75; color: var(--ink-2); }
+.doc p.cap { font-size: 13px; color: var(--muted); text-align: center; margin-top: -4px; }
+.doc a { color: var(--navy-2); font-weight: 600; }
+.doc ul, .doc ol { margin: 0 0 14px; padding: 0; list-style: none; display: grid; gap: 8px; }
+.doc li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.65; color: var(--ink-2); }
+.doc ul li::before { content: ""; position: absolute; left: 4px; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+.doc ol { counter-reset: n; } .doc ol li { counter-increment: n; padding-left: 30px; }
+.doc ol li::before { content: counter(n); position: absolute; left: 0; top: 2px; width: 21px; height: 21px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.doc .pic { margin: 6px 0 16px; border-radius: 12px; overflow: hidden; background: var(--bg); border: 1px solid var(--line); cursor: zoom-in; }
+.doc .pic img { display: block; width: 100%; height: auto; }
+.doc .gal { display: grid; grid-template-columns: repeat(var(--g, 2), minmax(0, 1fr)); gap: 10px; margin: 6px 0 16px; }
+.doc .gal .pic { margin: 0; aspect-ratio: 4 / 3; }
+.doc .gal .pic img { height: 100%; object-fit: cover; }
+.doc .tbl { overflow-x: auto; margin: 4px 0 16px; border: 1px solid var(--line); border-radius: 12px; }
+.doc table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.doc th, .doc td { padding: 10px 12px; border-bottom: 1px solid var(--line-2); text-align: left; white-space: normal; vertical-align: top; color: var(--ink-2); }
+.doc tr:first-child td, .doc th { background: #f8fafc; color: var(--navy); font-weight: 700; }
+.doc tr:last-child td { border-bottom: 0; }
+.doc .vid { position: relative; aspect-ratio: 16 / 9; margin: 6px 0 16px; border-radius: 12px; overflow: hidden; background: #000; }
+.doc .vid iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.doc blockquote { margin: 0 0 14px; padding: 12px 16px; border-left: 4px solid var(--gold); background: #fffaf0; border-radius: 0 10px 10px 0; color: var(--ink); font-size: 15px; line-height: 1.7; }
+.cta { margin-top: 26px; display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%); color: #fff; border-radius: 14px; padding: 18px 20px; }
+.cta b { display: block; font-size: 16px; } .cta span { font-size: 13px; color: rgba(255,255,255,.75); }
+.cta .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.cta a { display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 16px; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none; background: #fff; color: var(--navy); }
+.cta a.call { background: var(--brand); color: #fff; } .cta a svg { width: 16px; height: 16px; }
+.src { margin: 12px 2px 0; font-size: 12px; color: var(--muted); }
+.src a { color: var(--navy-2); }
+.sumgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin: 4px 0 18px; }
+.sum { text-align: left; border: 1px solid var(--line); background: #f8fafc; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
+.sum:hover { border-color: var(--navy-2); background: #fff; }
+.sum span { font-size: 13px; color: var(--muted); } .sum b { font-size: 17px; color: var(--navy); } .sum i { font-style: normal; font-size: 13px; color: var(--ink-2); }
+.sum em { font-style: normal; font-size: 12.5px; color: var(--navy-2); font-weight: 700; margin-top: 4px; }
+.docs { display: grid; gap: 8px; margin: 4px 0 16px; }
+.docs a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--ink); font-weight: 600; background: #f8fafc; }
+.docs a:hover { border-color: var(--navy-2); background: #fff; }
+.docs a svg { width: 20px; height: 20px; color: var(--brand); flex: none; } .docs a span { flex: 1; } .docs a i { font-style: normal; color: var(--muted); }
+.news { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.post { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; text-decoration: none; color: var(--ink); transition: box-shadow .15s, transform .15s; }
+.post:hover { box-shadow: 0 10px 24px rgba(16,24,40,.10); transform: translateY(-2px); }
+.post .im { aspect-ratio: 16 / 10; background: var(--bg) center / cover no-repeat; }
+.post .tx { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; }
+.post time { font-size: 12px; color: var(--muted); }
+.post b { font-size: 15.5px; line-height: 1.45; color: var(--navy); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.post p { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.iload { padding: 40px 20px; text-align: center; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 16px; }
+@container (max-width: 980px) { .news { grid-template-columns: repeat(2, minmax(0, 1fr)); } .info { grid-template-columns: minmax(0, 1fr); } .toc { display: none; } }
 .legal { color: var(--muted); font-size: 12px; margin: 12px 2px 0; line-height: 1.6; }
 .skel td span { display: block; height: 12px; border-radius: 6px; background: linear-gradient(90deg, #eef1f5 25%, #f6f8fb 50%, #eef1f5 75%); background-size: 200% 100%; animation: sh 1.2s infinite; }
 @keyframes sh { from { background-position: 200% 0; } to { background-position: -200% 0; } }
@@ -293,6 +385,13 @@ tbody tr:hover .go { color: var(--brand); }
   .g2 { grid-template-columns: 1fr; gap: 8px; }
   .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } .tiles .tile:last-child:nth-child(odd) { grid-column: 1 / -1; } .tile b { font-size: 15px; }
   .loan .in, .loan .out { grid-template-columns: 1fr 1fr; }
+  .ptabs { justify-content: flex-start; margin: 0 -12px 14px; padding: 0 6px; }
+  .ptabs button { padding: 11px 11px 12px; font-size: 14px; }
+  .doc { padding: 18px 16px; border-radius: 14px; } .doc h2 { font-size: 20px; } .doc h3 { font-size: 17px; } .doc p, .doc li { font-size: 14.5px; }
+  .doc .gal { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .news { grid-template-columns: 1fr; }
+  .sumgrid { grid-template-columns: 1fr 1fr; gap: 8px; } .sum { padding: 10px 12px; } .sum b { font-size: 15px; } .sum i, .sum span { font-size: 12.5px; }
+  .cta { padding: 16px; } .cta .btns { width: 100%; } .cta a { flex: 1; justify-content: center; }
 }
 `;
 
@@ -305,6 +404,9 @@ tbody tr:hover .go { color: var(--brand); }
     </div>
   </section>
 
+  <nav class="ptabs" id="ptabs" role="tablist" aria-label="Thông tin dự án"></nav>
+  <div id="pInfo" hidden></div>
+  <div id="pQuy">
   <div class="gtabs" id="gtabs" role="tablist" aria-label="Chọn giỏ hàng" hidden></div>
   <div class="tools">
     <div class="row1">
@@ -333,6 +435,7 @@ tbody tr:hover .go { color: var(--brand); }
   <div class="cards" id="cards"></div>
   <div class="more" id="more" hidden><button id="moreBtn"></button></div>
   <p class="legal" id="legal"></p>
+  </div>
 
   <div class="mbg" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="modal">
     <div class="mh">
@@ -347,7 +450,7 @@ tbody tr:hover .go { color: var(--brand); }
       <div class="mright" id="mRight"></div>
     </div>
   </div></div>
-  <div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Ảnh chỉ căn"><div class="zbar"><span id="zTitle"></span><span><a id="zOrig" target="_blank" rel="noopener">Ảnh gốc ↗</a> <button id="zClose" aria-label="Đóng">Đóng ×</button></span></div><img id="zImg" alt=""></div>
+  <div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Xem ảnh"><div class="zbar"><span id="zTitle"></span><span><a id="zOrig" target="_blank" rel="noopener">Ảnh gốc ↗</a> <button id="zClose" aria-label="Đóng">Đóng ×</button></span></div><img id="zImg" alt=""></div>
   <div class="toast" id="toast" role="status"></div>
 </div>`;
 
@@ -365,7 +468,7 @@ tbody tr:hover .go { color: var(--brand); }
     var d = new Date(iso);
     return d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ngày ' + d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
   }
-  function hashParams() { var h = new URLSearchParams(location.hash.replace(/^#/, '')); var q = new URLSearchParams(location.search); return { p: h.get('du-an') || q.get('p'), u: h.get('can') || q.get('u'), g: h.get('gio') }; }
+  function hashParams() { var h = new URLSearchParams(location.hash.replace(/^#/, '')); var q = new URLSearchParams(location.search); return { p: h.get('du-an') || q.get('p'), u: h.get('can') || q.get('u'), g: h.get('gio'), t: h.get('muc') }; }
 
   // ─── Chuẩn hóa cách ghi khác nhau giữa các sheet (LK / Liền kề, GIÃN XÂY / Giãn xây, "–"...) ───
   var EMPTY_MARKS = { '-': 1, '–': 1, '—': 1, '_': 1, '.': 1, 'n/a': 1, 'x': 1 };
@@ -512,9 +615,257 @@ tbody tr:hover .go { color: var(--brand); }
         (state.project.incomplete ? ' Một phần giỏ hàng đang cập nhật, vui lòng gọi hotline để có danh sách đầy đủ.' : '');
       host.dispatchEvent(new CustomEvent('adl:update', { bubbles: true, detail: { project: { id: state.project.id, name: state.project.name }, updatedAt: state.data.updatedAt, demo: !!state.data.demo } }));
       buildOptions(); render();
+      if (!keep || changed) showTab(curTab, false);
     }
 
     function projectLink() { var l = (C.projectLinks || {})[state.project && state.project.id]; return /^https:\/\//i.test(l || '') ? l : ''; }
+
+
+    // ─── Tab thông tin dự án: nội dung lấy từ trang dự án WordPress, chia theo tiêu đề H2 ───
+    var TICON = {
+      globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+      pin: '<path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+      grid: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>',
+      map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
+      house: '<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+      doc: '<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M8 13h8M8 17h6"/>',
+      cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+      book: '<path d="M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2z"/><path d="M12 6v14"/>',
+      news: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/>',
+      file: '<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/>'
+    };
+    function ticon(n) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (TICON[n] || '') + '</svg>'; }
+    var TABS = (C.tabs || []).filter(function (t) { return t && t.id; });
+    var curTab = (TABS.some(function (t) { return t.id === host.getAttribute('data-muc'); }) && host.getAttribute('data-muc')) || C.defaultTab || 'quy-can';
+    (function () { var t = hashParams().t; if (t && TABS.some(function (x) { return x.id === t; })) curTab = t; })();
+    $('ptabs').hidden = TABS.length < 2;
+    $('ptabs').innerHTML = TABS.map(function (t) { return '<button role="tab" data-t="' + esc(t.id) + '">' + ticon(t.icon) + esc(t.label) + '</button>'; }).join('');
+    $('ptabs').onclick = function (e) { var b = e.target.closest('button'); if (b) { showTab(b.dataset.t, true); updateHash(); } };
+
+    function showTab(id, scroll) {
+      if (!TABS.some(function (t) { return t.id === id; })) id = 'quy-can';
+      curTab = id;
+      Array.prototype.forEach.call($('ptabs').children, function (b) { var on = b.dataset.t === id; b.classList.toggle('on', on); b.setAttribute('aria-selected', String(on)); if (on) { var bar = $('ptabs'); bar.scrollLeft = Math.max(0, b.offsetLeft - (bar.clientWidth - b.offsetWidth) / 2); } });
+      var quy = id === 'quy-can';
+      $('pQuy').hidden = !quy; $('pInfo').hidden = quy;
+      if (!quy) renderInfo();
+      if (scroll) { var r = $('ptabs').getBoundingClientRect(); if (r.top < 0) window.scrollBy(0, r.top - 8); }
+    }
+
+    var infoCache = {};
+    function pageApi(link) {
+      var m = /^(https:\/\/[^/]+)\/(.*?)\/?$/.exec(link || ''); if (!m) return '';
+      var slug = m[2].split('/').filter(Boolean).pop();
+      return slug ? m[1] + '/wp-json/wp/v2/pages?slug=' + encodeURIComponent(slug) + '&_fields=content,modified,link' : '';
+    }
+    function getJSON(url) {
+      return fetch(url, { credentials: 'omit' }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); });
+    }
+    function loadInfo(pid) {
+      if (infoCache[pid]) return Promise.resolve(infoCache[pid]);
+      var key = 'adl_info_v1_' + pid, cached = null;
+      try { cached = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { cached = null; }
+      var fresh = cached && Date.now() - cached.t < 30 * 60 * 1000;
+      var url = pageApi((C.projectLinks || {})[pid]);
+      var net = !url ? Promise.reject(new Error('nolink')) : getJSON(url).then(function (arr) {
+        if (!arr || !arr[0] || !arr[0].content) throw new Error('nopage');
+        var d = { t: Date.now(), modified: arr[0].modified, link: arr[0].link, html: arr[0].content.rendered };
+        try { localStorage.setItem(key, JSON.stringify(d)); } catch (e) { /* bỏ qua */ }
+        return d;
+      });
+      if (cached) {
+        if (!fresh) net.then(function (d) { infoCache[pid] = parseInfo(d); if (state.project && state.project.id === pid && curTab !== 'quy-can') renderInfo(); }).catch(function () {});
+        return Promise.resolve(infoCache[pid] = parseInfo(cached));
+      }
+      return net.then(function (d) { return (infoCache[pid] = parseInfo(d)); });
+    }
+
+    // Chuyển HTML trang dự án thành các khối gọn (tiêu đề, đoạn, danh sách, ảnh, bảng, video), bỏ form và mã thừa.
+    function inline(node) {
+      var out = '';
+      node.childNodes.forEach(function (c) {
+        if (c.nodeType === 3) { out += esc(c.nodeValue); return; }
+        if (c.nodeType !== 1) return;
+        var t = c.tagName;
+        // Nhãn và giá trị đặt trong hai thẻ riêng (ví dụ <b>Quy mô</b><span>1.080 ha</span>): thêm dấu ngăn cho dễ đọc.
+        if ((t === 'SPAN' || t === 'DIV' || t === 'P') && out && !/(\s|<br>)$/.test(out)) { var pv = c.previousElementSibling; out += pv && (pv.tagName === 'B' || pv.tagName === 'STRONG') ? ': ' : ' '; }
+        if (t === 'BR') out += '<br>';
+        else if (t === 'A') { var h = c.getAttribute('href') || ''; var x = inline(c); out += /^https?:\/\//i.test(h) ? '<a href="' + esc(h) + '" target="_blank" rel="noopener">' + x + '</a>' : x; }
+        else if (t === 'STRONG' || t === 'B') out += '<b>' + inline(c) + '</b>';
+        else if (t === 'EM' || t === 'I') out += '<i>' + inline(c) + '</i>';
+        else if (t !== 'IMG' && t !== 'SVG' && t !== 'svg' && t !== 'SCRIPT' && t !== 'STYLE') out += inline(c);
+      });
+      return out;
+    }
+    function imgSrc(im) {
+      var s = im.getAttribute('data-src') || im.getAttribute('data-lazy-src') || im.getAttribute('src') || '';
+      if (!/^https?:\/\//i.test(s) || /\.svg(\?|$)/i.test(s)) return '';
+      var w = +(im.getAttribute('width') || 0); if (w && w < 120) return '';
+      return s;
+    }
+    function parseInfo(d) {
+      var doc = new DOMParser().parseFromString('<div>' + (d.html || '') + '</div>', 'text/html');
+      Array.prototype.forEach.call(doc.querySelectorAll('script,style,noscript,form,.wpcf7,button,input,select,textarea,.mfp-hide,.lightbox-content,.hidden,[style*="display:none"],[style*="display: none"]'), function (n) { n.remove(); });
+      var blocks = [], seen = {}, docs = [];
+      Array.prototype.forEach.call(doc.querySelectorAll('a[href]'), function (a) {
+        var h = a.getAttribute('href');
+        if (/\.pdf(\?|#|$)/i.test(h) || /drive\.google\.com\/(file|drive)|docs\.google\.com/i.test(h)) docs.push({ label: (a.textContent || '').trim() || decodeURIComponent(h.split('/').pop()), url: h });
+      });
+      Array.prototype.forEach.call(doc.querySelectorAll('h2,h3,h4,p,ul,ol,table,img,iframe,blockquote,figcaption'), function (el) {
+        if (el.parentElement && el.parentElement.closest('ul,ol,table,blockquote')) return;
+        var t = el.tagName.toLowerCase(), txt;
+        if (t === 'img') { var src = imgSrc(el); if (src && !seen[src]) { seen[src] = 1; blocks.push({ t: 'img', src: src, alt: el.getAttribute('alt') || '' }); } return; }
+        if (t === 'iframe') { var u = el.getAttribute('data-src') || el.getAttribute('src') || ''; if (/^https:\/\/(www\.)?(youtube(-nocookie)?\.com|player\.vimeo\.com|www\.google\.com\/maps)/i.test(u)) blocks.push({ t: 'vid', src: u }); return; }
+        if (t === 'ul' || t === 'ol') { var items = Array.prototype.map.call(el.querySelectorAll(':scope > li'), function (li) { return inline(li).trim(); }).filter(Boolean); if (items.length) blocks.push({ t: t, items: items }); return; }
+        if (t === 'table') { var rows = Array.prototype.map.call(el.querySelectorAll('tr'), function (tr) { return Array.prototype.map.call(tr.children, function (c) { return inline(c).trim(); }); }).filter(function (r) { return r.join(''); }); if (rows.length) blocks.push({ t: 'table', rows: rows }); return; }
+        txt = (t === 'h2' || t === 'h3' || t === 'h4') ? (el.textContent || '').replace(/\s+/g, ' ').trim() : inline(el).replace(/^\s+|\s+$/g, '');
+        if (!txt || !/[0-9A-Za-zÀ-ỹ]/.test(txt.replace(/<[^>]+>/g, ''))) return;
+        blocks.push({ t: t === 'figcaption' ? 'cap' : t === 'blockquote' ? 'quote' : t, x: txt });
+      });
+      // Chia thành các mục theo H2, bỏ các mục và tiêu đề con thuộc danh sách bỏ qua.
+      var secs = [], cur = { title: '', blocks: [] }, skipLevel = 0;
+      var skipWords = (C.skipHeadings || []).map(norm);
+      blocks.forEach(function (b) {
+        var lvl = b.t === 'h2' ? 2 : b.t === 'h3' ? 3 : b.t === 'h4' ? 4 : 0;
+        if (lvl && skipLevel && lvl > skipLevel) return;
+        if (lvl) skipLevel = 0;
+        if (lvl && skipWords.some(function (w) { return norm(b.x).indexOf(w) === 0 || norm(b.x).indexOf(' ' + w) >= 0 && w.indexOf('nhan') !== 0; })) { skipLevel = lvl; if (lvl === 2) { secs.push(cur); cur = { title: '', blocks: [], skip: true }; } return; }
+        if (skipLevel) return;
+        if (lvl === 2) { secs.push(cur); cur = { title: b.x, blocks: [] }; return; }
+        cur.blocks.push(b);
+      });
+      secs.push(cur);
+      var byTab = {}, order = C.tabPriority || [];
+      secs.forEach(function (sec, i) {
+        if (sec.skip || !sec.blocks.length) return;
+        var n = norm(sec.title), tab = '';
+        if (!sec.title) tab = 'tong-quan';
+        order.some(function (id) { var t = TABS.filter(function (x) { return x.id === id; })[0]; if (t && (t.match || []).some(function (w) { return n.indexOf(w) >= 0; })) { tab = id; return true; } return false; });
+        if (!tab) tab = TABS.some(function (x) { return x.id === 'tong-quan'; }) ? 'tong-quan' : '';
+        if (!tab) return;
+        (byTab[tab] = byTab[tab] || []).push({ id: 's' + i, title: sec.title, blocks: sec.blocks });
+      });
+      return { byTab: byTab, docs: docs, link: d.link, modified: d.modified };
+    }
+
+    function renderBlocks(blocks) {
+      var out = '', i = 0;
+      while (i < blocks.length) {
+        var b = blocks[i];
+        if (b.t === 'img') {
+          var g = []; while (i < blocks.length && blocks[i].t === 'img') g.push(blocks[i++]);
+          var pic = function (x) { return '<div class="pic" data-z="' + esc(x.src) + '" data-a="' + esc(x.alt) + '"><img loading="lazy" src="' + esc(x.src) + '" alt="' + esc(x.alt) + '"></div>'; };
+          out += g.length === 1 ? pic(g[0]) : '<div class="gal" style="--g:' + (g.length % 3 === 0 ? 3 : 2) + '">' + g.map(pic).join('') + '</div>';
+          continue;
+        }
+        if (b.t === 'h3' || b.t === 'h4') out += '<' + b.t + ' id="' + esc(b.id || '') + '">' + esc(b.x) + '</' + b.t + '>';
+        else if (b.t === 'p') out += '<p>' + b.x + '</p>';
+        else if (b.t === 'cap') out += '<p class="cap">' + b.x + '</p>';
+        else if (b.t === 'quote') out += '<blockquote>' + b.x + '</blockquote>';
+        else if (b.t === 'ul' || b.t === 'ol') out += '<' + b.t + '>' + b.items.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</' + b.t + '>';
+        else if (b.t === 'table') out += '<div class="tbl"><table>' + b.rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; }).join('') + '</table></div>';
+        else if (b.t === 'vid') out += '<div class="vid"><iframe loading="lazy" src="' + esc(b.src) + '" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+        i++;
+      }
+      return out;
+    }
+    function ctaHtml(label) {
+      var pl = projectLink();
+      return '<div class="cta"><div><b>Cần tư vấn ' + esc(label.toLowerCase()) + ' ' + esc(state.project.name) + '?</b><span>Á Đông Land gửi thông tin mới nhất qua điện thoại hoặc Zalo.</span></div>' +
+        '<div class="btns"><a class="call" href="tel:' + esc(C.hotline) + '" data-track="goi">' + ICON.phone + 'Gọi ' + esc(C.hotlineText) + '</a><a href="' + esc(C.zalo) + '" target="_blank" rel="noopener" data-track="zalo">' + ICON.chat + 'Nhắn Zalo</a></div></div>' +
+        (pl ? '<p class="src">Xem đầy đủ tại trang <a href="' + esc(pl) + '" target="_blank" rel="noopener">' + esc(state.project.name) + ' ↗</a></p>' : '');
+    }
+    function quySummary() {
+      var av = state.units.filter(function (u) { return u.status === 'Còn hàng'; });
+      function group(k) {
+        var g = {}; av.forEach(function (u) { if (!u[k]) return; var x = g[u[k]] = g[u[k]] || { n: 0, min: 0 }; x.n++; if (u.price && (!x.min || u.price < x.min)) x.min = u.price; });
+        return Object.keys(g).sort(function (a, b) { return g[b].n - g[a].n; }).map(function (v) { return '<button class="sum" data-k="' + k + '" data-v="' + esc(v) + '"><span>' + esc(v) + '</span><b>' + g[v].n + ' căn còn hàng</b><i>Giá từ ' + ty(g[v].min) + '</i><em>Xem quỹ căn ›</em></button>'; }).join('');
+      }
+      var byZone = coverage('zone') > 0.6 ? group('zone') : '', byType = group('type');
+      return '<div class="sec"><h2>Quỹ căn đang mở bán</h2><p>Cập nhật lúc ' + esc(when(state.data.updatedAt)) + ', theo giỏ hàng Á Đông Land. Bấm vào một nhóm để xem danh sách căn.</p>' +
+        (byZone ? '<h3>Theo phân khu</h3><div class="sumgrid">' + byZone + '</div>' : '') + (byType ? '<h3>Theo loại hình</h3><div class="sumgrid">' + byType + '</div>' : '') + '</div>';
+    }
+    function newsHtml(pid) {
+      var words = (C.newsSearch || {})[pid] || [state.project.name];
+      var origin = (/^(https:\/\/[^/]+)/.exec((C.projectLinks || {})[pid] || '') || [])[1];
+      if (!origin) return Promise.resolve('');
+      return Promise.all(words.map(function (w) {
+        return getJSON(origin + '/wp-json/wp/v2/posts?search=' + encodeURIComponent(w) + '&per_page=12&_embed=wp:featuredmedia&_fields=title,link,date,excerpt,_links,_embedded').catch(function () { return []; });
+      })).then(function (lists) {
+        var all = {}, nw = words.map(norm);
+        [].concat.apply([], lists).forEach(function (p) { if (p && p.link && !all[p.link]) all[p.link] = p; });
+        var posts = Object.keys(all).map(function (k) { var p = all[k], tt = norm(p.title && p.title.rendered); p._hit = nw.some(function (w) { return tt.indexOf(w) >= 0; }) ? 1 : 0; return p; })
+          .sort(function (a, b) { return b._hit - a._hit || String(b.date).localeCompare(String(a.date)); }).slice(0, 9);
+        var txt = function (h) { var d = document.createElement('div'); d.innerHTML = h || ''; return (d.textContent || '').replace(/\s+/g, ' ').trim(); };
+        return posts.map(function (p) {
+          var m = p._embedded && p._embedded['wp:featuredmedia'] && p._embedded['wp:featuredmedia'][0], sz = m && m.media_details && m.media_details.sizes;
+          var img = (sz && (sz.medium_large || sz.large || sz.medium) || {}).source_url || (m && m.source_url) || '';
+          var dt = new Date(p.date);
+          return '<a class="post" href="' + esc(p.link) + '" target="_blank" rel="noopener"><div class="im"' + (/^https:\/\//.test(img) ? ' style="background-image:url(\'' + esc(img) + '\')"' : '') + '></div><div class="tx"><time>' +
+            dt.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + '</time><b>' + esc(txt(p.title && p.title.rendered)) + '</b><p>' + esc(txt(p.excerpt && p.excerpt.rendered)) + '</p></div></a>';
+        }).join('');
+      });
+    }
+    var infoSeq = 0;
+    function renderInfo() {
+      var tab = TABS.filter(function (t) { return t.id === curTab; })[0]; if (!tab || !state.project) return;
+      var pid = state.project.id, seq = ++infoSeq, box = $('pInfo');
+      if (tab.id === 'tin-tuc') {
+        box.innerHTML = '<div class="iload">Đang tải tin tức...</div>';
+        newsHtml(pid).then(function (h) {
+          if (seq !== infoSeq) return;
+          box.innerHTML = (h ? '<div class="news">' + h + '</div>' : '<div class="iload">Chưa có bài viết về dự án này.</div>') + ctaHtml('dự án');
+          wireInfo();
+          track('xem_muc', { code: 'tin-tuc' });
+        });
+        return;
+      }
+      if (!infoCache[pid]) box.innerHTML = '<div class="iload">Đang tải nội dung ' + esc(tab.label.toLowerCase()) + '...</div>';
+      loadInfo(pid).then(function (info) {
+        if (seq !== infoSeq) return;
+        var secs = info.byTab[tab.id] || [], pre = '';
+        if (tab.id === 'mat-bang' && state.units.length) pre = quySummary();
+        if (tab.id === 'tai-lieu') {
+          var docs = ((C.docs || {})[pid] || []).concat(info.docs), seenU = {};
+          docs = docs.filter(function (d) { if (!d || !/^https:\/\//i.test(d.url) || seenU[d.url]) return false; seenU[d.url] = 1; return true; });
+          pre = '<div class="sec"><h2>Tài liệu dự án</h2>' + (docs.length ? '<div class="docs">' + docs.map(function (d) { return '<a href="' + esc(d.url) + '" target="_blank" rel="noopener">' + ticon('file') + '<span>' + esc(d.label) + '</span><i>↗</i></a>'; }).join('') + '</div>'
+            : '<p>Bộ tài liệu dự án (mặt bằng, chính sách, phiếu tính giá, pháp lý) được gửi trực tiếp qua Zalo. Bấm "Nhắn Zalo" bên dưới để nhận bản mới nhất.</p>') + '</div>';
+        }
+        var body = pre + secs.map(function (sec) {
+          var bl = sec.blocks.map(function (b, j) { return (b.t === 'h3') ? Object.assign({}, b, { id: sec.id + '-' + j }) : b; });
+          return '<div class="sec" id="' + sec.id + '">' + (sec.title ? '<h2>' + esc(sec.title) + '</h2>' : '') + renderBlocks(bl) + '</div>';
+        }).join('');
+        if (!body) body = '<div class="sec"><h2>' + esc(tab.label) + '</h2><p>Nội dung đang được cập nhật. Vui lòng liên hệ để nhận thông tin ' + esc(tab.label.toLowerCase()) + ' mới nhất.</p></div>';
+        var toc = [];
+        secs.forEach(function (sec) {
+          if (sec.title) toc.push('<a href="#" data-to="' + sec.id + '">' + esc(sec.title) + '</a>');
+          sec.blocks.forEach(function (b, j) { if (b.t === 'h3' && secs.length < 4) toc.push('<a class="sub" href="#" data-to="' + sec.id + '-' + j + '">' + esc(b.x) + '</a>'); });
+        });
+        var showToc = toc.length >= 3;
+        box.innerHTML = '<div class="info' + (showToc ? '' : ' solo') + '">' + (showToc ? '<aside class="toc"><b>Nội dung</b>' + toc.slice(0, 18).join('') + '</aside>' : '') +
+          '<div><article class="doc">' + body + '</article>' + ctaHtml(tab.label) + '</div></div>';
+        wireInfo();
+        track('xem_muc', { code: tab.id });
+      }).catch(function () {
+        if (seq !== infoSeq) return;
+        var pl = projectLink();
+        box.innerHTML = '<div class="iload">Chưa tải được nội dung. ' + (pl ? '<a href="' + esc(pl) + '" target="_blank" rel="noopener">Xem trang ' + esc(state.project.name) + ' ↗</a>' : '') + '</div>' + ctaHtml(tab.label);
+        wireInfo();
+      });
+    }
+    function wireInfo() {
+      var box = $('pInfo');
+      box.onclick = function (e) {
+        var z = e.target.closest('.pic');
+        if (z) { openZoom(z.dataset.z, z.dataset.a || state.project.name, z.dataset.z); return; }
+        var to = e.target.closest('[data-to]');
+        if (to) { e.preventDefault(); var el = root.getElementById ? root.getElementById(to.dataset.to) : null; if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+        var sm = e.target.closest('.sum');
+        if (sm) { state.filter = blank(); state.filter[sm.dataset.k] = sm.dataset.v; state.filter.status = 'Còn hàng'; state.shown = C.pageSize; $('q').value = ''; buildOptions(); render(); showTab('quy-can', true); updateHash(); return; }
+        var tr = e.target.closest('[data-track]');
+        if (tr) track(tr.dataset.track, null);
+      };
+    }
 
     // ─── Bộ lọc: các ô chọn thả xuống, mỗi lựa chọn kèm số căn theo các lọc còn lại ───
     function coverage(k) { return state.units.length ? state.units.filter(function (u) { return u[k]; }).length / state.units.length : 0; }
@@ -754,7 +1105,7 @@ tbody tr:hover .go { color: var(--brand); }
         '<div class="acts"><button class="act" id="mShare">' + ICON.share + 'Chia sẻ</button><button class="act send" id="mSend">' + ICON.chat + 'Gửi thông tin</button></div>';
       var im = $('mImg');
       if (im) {
-        var showZoom = function () { openZoom(img, u); };
+        var showZoom = function () { openZoom(img, u.code, u.unitLink || img); };
         im.onload = function () { im.classList.add('ok'); $('mMedia').classList.remove('loading'); };
         im.onerror = function () { var m = $('mMedia'); m.className = 'media no-img'; m.innerHTML = posterHtml(u); };
         $('mMedia').onclick = function (e) { if (!e.target.closest('a')) showZoom(); };
@@ -805,9 +1156,9 @@ tbody tr:hover .go { color: var(--brand); }
       track('xem_can', u);
       $('modal').classList.add('open'); $('mClose').focus();
     }
-    function openZoom(src, u) {
-      $('zImg').src = src; $('zImg').alt = 'Ảnh chỉ căn ' + u.code; $('zTitle').textContent = u.code;
-      $('zOrig').href = u.unitLink || src; $('zoom').classList.add('open'); $('zoom').scrollTop = 0;
+    function openZoom(src, title, orig) {
+      $('zImg').src = src; $('zImg').alt = title; $('zTitle').textContent = title;
+      $('zOrig').href = orig || src; $('zoom').classList.add('open'); $('zoom').scrollTop = 0;
     }
     function closeZoom() { $('zoom').classList.remove('open'); }
     $('zClose').onclick = closeZoom;
@@ -841,6 +1192,7 @@ tbody tr:hover .go { color: var(--brand); }
       var p = new URLSearchParams();
       if (state.project && !lockProject) p.set('du-an', state.project.id);
       if (state.filter.dq) p.set('gio', 'dq');
+      if (curTab && curTab !== (C.defaultTab || 'quy-can')) p.set('muc', curTab);
       if (state.current) p.set('can', state.current.code);
       var h = p.toString();
       try { history.replaceState(null, '', location.pathname + location.search + (h ? '#' + h : '')); } catch (e) { /* bỏ qua */ }
