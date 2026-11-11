@@ -9,6 +9,10 @@ Google Sheet vẫn là nguồn dữ liệu gốc. App đọc thẳng từ sheet 
 | Vinhomes Saigon Park | `ADL_ GIỎ HÀNG VHSGP` | `GHĐQ ADL` (độc quyền, sửa được), `GIỎ HÀNG ĐỐI TÁC` (chỉ xem) |
 | Vinhomes Green Paradise | `ADL - BẢNG HÀNG VHCG` | `GHĐQ` (độc quyền), `GIỎ HÀNG ĐỐI TÁC` (đều sửa được) |
 
+## Phần mềm bán ra thị trường (thư mục `saas/`)
+
+**ADL Giỏ Hàng**: bản SaaS nhiều khách hàng, mỗi sàn hoặc đại lý một tài khoản riêng. Gồm quản lý giỏ hàng, giữ căn, nhập Excel và Google Sheet, bảng hàng công khai mang thương hiệu riêng, gói dịch vụ và thanh toán chuyển khoản. Hướng dẫn chạy và triển khai: [saas/README.md](saas/README.md).
+
 ## Có gì mới ở phiên bản 4: giao diện bảng hàng gọn, dễ lọc
 
 - Nền trắng, khung tiêu đề dự án ở đầu trang, menu ở giữa có gạch chân cho mục đang chọn.

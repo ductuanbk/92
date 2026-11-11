@@ -10,6 +10,7 @@
     "dev": "node --no-warnings=ExperimentalWarning --watch src/server.js",
     "test": "node --no-warnings=ExperimentalWarning --test test/*.test.js",
     "sync-widget": "node scripts/sync-widget.mjs",
-    "superadmin": "node --no-warnings=ExperimentalWarning scripts/superadmin.mjs"
+    "superadmin": "node --no-warnings=ExperimentalWarning scripts/superadmin.mjs",
+    "backup": "node --no-warnings=ExperimentalWarning scripts/backup.mjs"
   }
 }

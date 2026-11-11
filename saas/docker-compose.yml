@@ -1,0 +1,22 @@
+# Chạy phần mềm và Caddy (tự cấp chứng chỉ HTTPS). Điền tên miền trong file .env (DOMAIN=giohang.tencongty.vn).
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - BASE_URL=https://${DOMAIN}
+    volumes:
+      - ./data:/data
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on: [app]
+volumes:
+  caddy_data:

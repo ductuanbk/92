@@ -783,7 +783,7 @@ export function createApp(db, opts = {}) {
     return ctx.raw(200, js, { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'public, max-age=300', 'Access-Control-Allow-Origin': '*' });
   });
 
-  const PUBLIC_CSP = "default-src 'self'; img-src https: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; " +
+  const PUBLIC_CSP = "default-src 'self'; img-src 'self' https: data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; " +
     "script-src 'self'; connect-src 'self' https:; frame-src https:; frame-ancestors *; base-uri 'self'";
   r.get('/b/:slug', async (ctx) => {
     const ws = wsBySlug(ctx.params.slug);
