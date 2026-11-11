@@ -142,11 +142,11 @@ Website chỉ có **một trang bảng hàng công khai cho khách**, chạy tr�
 
 ### Các tab thông tin dự án
 
-Phía trên bảng hàng có thanh tab: Tổng quan, Vị trí, Phân khu, Mặt bằng quỹ căn, **Quỹ căn** (bảng hàng, mở mặc định), Chính sách bán hàng, Tiến độ, Tài liệu, Tin tức.
+Phía trên bảng hàng có thanh tab: Tổng quan, Vị trí, Phân khu, Mặt bằng Layout, **Quỹ căn** (bảng hàng, mở mặc định), Chính sách bán hàng, Tiến độ, Tài liệu, Tin tức.
 
-- **Nội dung lấy trực tiếp từ trang dự án trên WordPress** (`projectLinks`, ví dụ https://adongland.vn/vinhomes-saigon-park/). Mỗi tiêu đề H2 của trang được xếp vào tab có từ khóa khớp: "Vị trí…" vào tab Vị trí, "Phân khu…" vào Phân khu, "Mặt bằng…" vào Mặt bằng quỹ căn, "Giá bán / Chính sách…" vào Chính sách bán hàng, "Tiến độ…" vào Tiến độ, "Pháp lý…" vào Tài liệu, còn lại vào Tổng quan. Mục hỏi đáp và khung "Nhận bảng giá / tài liệu" được bỏ qua.
+- **Nội dung lấy trực tiếp từ trang dự án trên WordPress** (`projectLinks`, ví dụ https://adongland.vn/vinhomes-saigon-park/). Mỗi tiêu đề H2 của trang được xếp vào tab có từ khóa khớp: "Vị trí…" vào tab Vị trí, "Phân khu…" vào Phân khu, "Mặt bằng…" vào Mặt bằng Layout, "Giá bán / Chính sách…" vào Chính sách bán hàng, "Tiến độ…" vào Tiến độ, "Pháp lý…" vào Tài liệu, còn lại vào Tổng quan. Mục hỏi đáp và khung "Nhận bảng giá / tài liệu" được bỏ qua.
 - **Sửa nội dung**: sửa trang dự án trong WordPress (thêm, bớt, đổi tiêu đề H2). Tab cập nhật sau tối đa 30 phút với khách đã xem trước đó, ngay lập tức với khách mới. Muốn một mục vào đúng tab, đặt tiêu đề H2 chứa từ khóa của tab đó.
-- **Mặt bằng quỹ căn**: phía trên nội dung có ô tóm tắt quỹ căn còn hàng theo phân khu và loại hình (số liệu trực tiếp từ giỏ hàng), bấm vào để xem danh sách căn.
+- **Mặt bằng Layout**: thư viện file mặt bằng và layout thiết kế, chia nhóm Mặt bằng tổng thể / Phân khu, tiện ích / Sản phẩm, thiết kế / Tài liệu mặt bằng; mỗi thẻ có nút Phóng to và Ảnh gốc. Tự gom ảnh trong mục Mặt bằng, Phân khu của trang dự án và ảnh có chú thích (alt) chứa "mặt bằng", "layout", "thiết kế", "sơ đồ", "kiến trúc". Thêm ảnh: chèn vào trang dự án với chú thích như trên; thêm file PDF/Drive: khai báo ở `layouts` trong `docs/embed.js`.
 - **Tài liệu**: tự liệt kê link PDF, Google Drive, Google Docs có trong trang dự án; thêm tài liệu riêng ở `docs` trong cấu hình `embed.js`.
 - **Tin tức**: tự lấy bài viết trên website theo cụm từ trong `newsSearch` (bài có tên dự án trong tiêu đề xếp trước).
 - Đổi tên, thứ tự hoặc bỏ tab: sửa danh sách `tabs` trong `docs/embed.js` rồi tạo lại đoạn mã WordPress (`node tools/build-wordpress.mjs`).

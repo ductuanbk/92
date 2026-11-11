@@ -41,7 +41,7 @@
       { id: 'tong-quan', label: 'Tổng quan', icon: 'globe', match: ['tong quan', 'chu dau tu', 'tien ich', 'ly do', 'co nen', 'so sanh', 'gioi thieu'] },
       { id: 'vi-tri', label: 'Vị trí', icon: 'pin', match: ['vi tri', 'ket noi'] },
       { id: 'phan-khu', label: 'Phân khu', icon: 'grid', match: ['phan khu'] },
-      { id: 'mat-bang', label: 'Mặt bằng quỹ căn', icon: 'map', match: ['mat bang'] },
+      { id: 'mat-bang', label: 'Mặt bằng Layout', icon: 'map', match: ['mat bang', 'layout'] },
       { id: 'quy-can', label: 'Quỹ căn', icon: 'house' },
       { id: 'chinh-sach', label: 'Chính sách bán hàng', icon: 'doc', match: ['gia ban', 'chinh sach', 'bang gia', 'uu dai', 'thanh toan'] },
       { id: 'tien-do', label: 'Tiến độ', icon: 'cal', match: ['tien do'] },
@@ -56,7 +56,11 @@
     // Tin tức: tìm bài trên website theo các cụm này (bài có cụm trong tiêu đề xếp trước).
     newsSearch: { VHSGP: ['Vinhomes Saigon Park', 'Vinhomes Hóc Môn'], VHCG: ['Vinhomes Green Paradise', 'Vinhomes Cần Giờ'] },
     // Tài liệu tải về thêm tay cho từng dự án: [{ label: 'Tên tài liệu', url: 'https://...' }]
-    docs: { VHSGP: [], VHCG: [] }
+    docs: { VHSGP: [], VHCG: [] },
+    // Tab Mặt bằng Layout: tự gom ảnh trong mục Mặt bằng, Phân khu của trang dự án và ảnh có chú thích (alt) chứa các cụm này.
+    layoutWords: ['mat bang', 'layout', 'so do', 'thiet ke', 'kien truc', 'mau nha', 'tmb', 'quy hoach'],
+    // File mặt bằng thêm tay (ảnh, PDF, Google Drive): [{ title: 'Mặt bằng phân khu A', url: 'https://...', group: 'Phân khu, tiện ích' }]
+    layouts: { VHSGP: [], VHCG: [] }
   };
   var C = Object.assign({}, DEFAULTS, window.ADL_SITE || {});
 
@@ -210,11 +214,24 @@ tbody tr:hover .go { color: var(--brand); }
 .cta a.call { background: var(--brand); color: #fff; } .cta a svg { width: 16px; height: 16px; }
 .src { margin: 12px 2px 0; font-size: 12px; color: var(--muted); }
 .src a { color: var(--navy-2); }
-.sumgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin: 4px 0 18px; }
-.sum { text-align: left; border: 1px solid var(--line); background: #f8fafc; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
-.sum:hover { border-color: var(--navy-2); background: #fff; }
-.sum span { font-size: 13px; color: var(--muted); } .sum b { font-size: 17px; color: var(--navy); } .sum i { font-style: normal; font-size: 13px; color: var(--ink-2); }
-.sum em { font-style: normal; font-size: 12.5px; color: var(--navy-2); font-weight: 700; margin-top: 4px; }
+.lchips { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 16px; }
+.lchips button { border: 1px solid #dfe4ec; background: #fff; color: var(--ink-2); border-radius: 999px; padding: 7px 14px; font-size: 13.5px; font-weight: 600; display: inline-flex; gap: 6px; align-items: center; }
+.lchips button b { font-size: 12px; color: var(--muted); }
+.lchips button.on { background: var(--navy); border-color: var(--navy); color: #fff; } .lchips button.on b { color: rgba(255,255,255,.7); }
+.lgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 8px; }
+.lcard { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: #fff; display: flex; flex-direction: column; transition: box-shadow .15s; }
+.lcard:hover { box-shadow: 0 10px 24px rgba(16,24,40,.08); }
+.lcard[hidden] { display: none; }
+.doc .lthumb { margin: 0; border: 0; border-radius: 0; aspect-ratio: 4 / 3; background: #eef2f7; display: flex; align-items: center; justify-content: center; }
+.doc .lthumb img { width: 100%; height: 100%; object-fit: contain; }
+.doc .lthumb.file { flex-direction: column; gap: 8px; color: var(--brand); text-decoration: none; font-weight: 600; font-size: 14px; }
+.lthumb.file svg { width: 44px; height: 44px; }
+.lmeta { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 4px; flex: 1; border-top: 1px solid var(--line-2); }
+.lmeta i { font-style: normal; font-size: 11.5px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; color: #d98c00; }
+.lmeta b { font-size: 14.5px; line-height: 1.45; color: var(--navy); }
+.lact { display: flex; gap: 8px; margin-top: auto; padding-top: 8px; }
+.lact button, .doc .lact a { flex: 1; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #dfe4ec; background: #f8fafc; color: var(--navy); }
+.lact button:hover, .doc .lact a:hover { border-color: var(--navy-2); background: #fff; }
 .docs { display: grid; gap: 8px; margin: 4px 0 16px; }
 .docs a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--ink); font-weight: 600; background: #f8fafc; }
 .docs a:hover { border-color: var(--navy-2); background: #fff; }
@@ -228,7 +245,7 @@ tbody tr:hover .go { color: var(--brand); }
 .post b { font-size: 15.5px; line-height: 1.45; color: var(--navy); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .post p { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .iload { padding: 40px 20px; text-align: center; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 16px; }
-@container (max-width: 980px) { .news { grid-template-columns: repeat(2, minmax(0, 1fr)); } .info { grid-template-columns: minmax(0, 1fr); } .toc { display: none; } }
+@container (max-width: 980px) { .news, .lgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .info { grid-template-columns: minmax(0, 1fr); } .toc { display: none; } }
 .legal { color: var(--muted); font-size: 12px; margin: 12px 2px 0; line-height: 1.6; }
 .skel td span { display: block; height: 12px; border-radius: 6px; background: linear-gradient(90deg, #eef1f5 25%, #f6f8fb 50%, #eef1f5 75%); background-size: 200% 100%; animation: sh 1.2s infinite; }
 @keyframes sh { from { background-position: 200% 0; } to { background-position: -200% 0; } }
@@ -390,7 +407,8 @@ tbody tr:hover .go { color: var(--brand); }
   .doc { padding: 18px 16px; border-radius: 14px; } .doc h2 { font-size: 20px; } .doc h3 { font-size: 17px; } .doc p, .doc li { font-size: 14.5px; }
   .doc .gal { grid-template-columns: 1fr 1fr; gap: 6px; }
   .news { grid-template-columns: 1fr; }
-  .sumgrid { grid-template-columns: 1fr 1fr; gap: 8px; } .sum { padding: 10px 12px; } .sum b { font-size: 15px; } .sum i, .sum span { font-size: 12.5px; }
+  .lgrid { grid-template-columns: 1fr; gap: 12px; }
+  .lchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -16px; padding-right: 16px; } .lchips button { flex: none; }
   .cta { padding: 16px; } .cta .btns { width: 100%; } .cta a { flex: 1; justify-content: center; }
 }
 `;
@@ -706,7 +724,7 @@ tbody tr:hover .go { color: var(--brand); }
     function parseInfo(d) {
       var doc = new DOMParser().parseFromString('<div>' + (d.html || '') + '</div>', 'text/html');
       Array.prototype.forEach.call(doc.querySelectorAll('script,style,noscript,form,.wpcf7,button,input,select,textarea,.mfp-hide,.lightbox-content,.hidden,[style*="display:none"],[style*="display: none"]'), function (n) { n.remove(); });
-      var blocks = [], seen = {}, docs = [];
+      var blocks = [], seen = {}, docs = [], ctxH2 = '', ctxH3 = '';
       Array.prototype.forEach.call(doc.querySelectorAll('a[href]'), function (a) {
         var h = a.getAttribute('href');
         if (/\.pdf(\?|#|$)/i.test(h) || /drive\.google\.com\/(file|drive)|docs\.google\.com/i.test(h)) docs.push({ label: (a.textContent || '').trim() || decodeURIComponent(h.split('/').pop()), url: h });
@@ -714,11 +732,22 @@ tbody tr:hover .go { color: var(--brand); }
       Array.prototype.forEach.call(doc.querySelectorAll('h2,h3,h4,p,ul,ol,table,img,iframe,blockquote,figcaption'), function (el) {
         if (el.parentElement && el.parentElement.closest('ul,ol,table,blockquote')) return;
         var t = el.tagName.toLowerCase(), txt;
-        if (t === 'img') { var src = imgSrc(el); if (src && !seen[src]) { seen[src] = 1; blocks.push({ t: 'img', src: src, alt: el.getAttribute('alt') || '' }); } return; }
+        if (t === 'img') {
+          var src = imgSrc(el), key = src.replace(/-\d+x\d+(?=\.\w+$)/, '');
+          if (src && !seen[key]) {
+            seen[key] = 1;
+            // Ảnh gốc lớn nhất trong srcset để xem chi tiết mặt bằng.
+            var full = src, best = 0;
+            (el.getAttribute('data-srcset') || el.getAttribute('srcset') || '').split(',').forEach(function (c) { var m = /^\s*(\S+)\s+(\d+)w/.exec(c); if (m && +m[2] > best && /^https?:\/\//.test(m[1])) { best = +m[2]; full = m[1]; } });
+            blocks.push({ t: 'img', src: src, full: full, alt: el.getAttribute('alt') || '', ctx: ctxH3 || ctxH2 });
+          }
+          return;
+        }
         if (t === 'iframe') { var u = el.getAttribute('data-src') || el.getAttribute('src') || ''; if (/^https:\/\/(www\.)?(youtube(-nocookie)?\.com|player\.vimeo\.com|www\.google\.com\/maps)/i.test(u)) blocks.push({ t: 'vid', src: u }); return; }
         if (t === 'ul' || t === 'ol') { var items = Array.prototype.map.call(el.querySelectorAll(':scope > li'), function (li) { return inline(li).trim(); }).filter(Boolean); if (items.length) blocks.push({ t: t, items: items }); return; }
         if (t === 'table') { var rows = Array.prototype.map.call(el.querySelectorAll('tr'), function (tr) { return Array.prototype.map.call(tr.children, function (c) { return inline(c).trim(); }); }).filter(function (r) { return r.join(''); }); if (rows.length) blocks.push({ t: 'table', rows: rows }); return; }
         txt = (t === 'h2' || t === 'h3' || t === 'h4') ? (el.textContent || '').replace(/\s+/g, ' ').trim() : inline(el).replace(/^\s+|\s+$/g, '');
+        if (t === 'h2') { ctxH2 = txt; ctxH3 = ''; } else if (t === 'h3') ctxH3 = txt;
         if (!txt || !/[0-9A-Za-zÀ-ỹ]/.test(txt.replace(/<[^>]+>/g, ''))) return;
         blocks.push({ t: t === 'figcaption' ? 'cap' : t === 'blockquote' ? 'quote' : t, x: txt });
       });
@@ -745,7 +774,24 @@ tbody tr:hover .go { color: var(--brand); }
         if (!tab) return;
         (byTab[tab] = byTab[tab] || []).push({ id: 's' + i, title: sec.title, blocks: sec.blocks });
       });
-      return { byTab: byTab, docs: docs, link: d.link, modified: d.modified };
+      // Thư viện mặt bằng: ảnh trong mục Mặt bằng, Phân khu và ảnh có chú thích liên quan đến mặt bằng, thiết kế.
+      var lw = (C.layoutWords || []).map(norm), layouts = [];
+      Object.keys(byTab).forEach(function (tb) {
+        byTab[tb].forEach(function (sec) {
+          sec.blocks.forEach(function (b) {
+            if (b.t !== 'img') return;
+            // Xếp nhóm theo chú thích riêng của ảnh (alt, tên file); chỉ dùng tiêu đề mục khi ảnh không có chú thích.
+            var own = norm(b.alt + ' ' + b.src.split('/').pop().replace(/[-_]/g, ' ')), hay = own + ' ' + norm(b.ctx);
+            if (tb !== 'mat-bang' && tb !== 'phan-khu' && !lw.some(function (w) { return hay.indexOf(w) >= 0; })) return;
+            if (/ket noi|di chuyen|vi tri|tien do|cong truong/.test(own) && !/mat bang/.test(own)) return; // bản đồ vị trí, ảnh tiến độ: thuộc tab khác
+            var by = b.alt ? own : hay;
+            var g = /mau|kien truc|thiet ke|shophouse|biet thu|nha pho|can ho|san pham/.test(by) ? 'Sản phẩm, thiết kế'
+              : /tong the|toan khu|quy hoach/.test(by) ? 'Mặt bằng tổng thể' : 'Phân khu, tiện ích';
+            layouts.push({ title: b.alt || b.ctx || 'Mặt bằng', src: b.src, full: b.full || b.src, group: g });
+          });
+        });
+      });
+      return { byTab: byTab, docs: docs, layouts: layouts, link: d.link, modified: d.modified };
     }
 
     function renderBlocks(blocks) {
@@ -775,15 +821,30 @@ tbody tr:hover .go { color: var(--brand); }
         '<div class="btns"><a class="call" href="tel:' + esc(C.hotline) + '" data-track="goi">' + ICON.phone + 'Gọi ' + esc(C.hotlineText) + '</a><a href="' + esc(C.zalo) + '" target="_blank" rel="noopener" data-track="zalo">' + ICON.chat + 'Nhắn Zalo</a></div></div>' +
         (pl ? '<p class="src">Xem đầy đủ tại trang <a href="' + esc(pl) + '" target="_blank" rel="noopener">' + esc(state.project.name) + ' ↗</a></p>' : '');
     }
-    function quySummary() {
-      var av = state.units.filter(function (u) { return u.status === 'Còn hàng'; });
-      function group(k) {
-        var g = {}; av.forEach(function (u) { if (!u[k]) return; var x = g[u[k]] = g[u[k]] || { n: 0, min: 0 }; x.n++; if (u.price && (!x.min || u.price < x.min)) x.min = u.price; });
-        return Object.keys(g).sort(function (a, b) { return g[b].n - g[a].n; }).map(function (v) { return '<button class="sum" data-k="' + k + '" data-v="' + esc(v) + '"><span>' + esc(v) + '</span><b>' + g[v].n + ' căn còn hàng</b><i>Giá từ ' + ty(g[v].min) + '</i><em>Xem quỹ căn ›</em></button>'; }).join('');
-      }
-      var byZone = coverage('zone') > 0.6 ? group('zone') : '', byType = group('type');
-      return '<div class="sec"><h2>Quỹ căn đang mở bán</h2><p>Cập nhật lúc ' + esc(when(state.data.updatedAt)) + ', theo giỏ hàng Á Đông Land. Bấm vào một nhóm để xem danh sách căn.</p>' +
-        (byZone ? '<h3>Theo phân khu</h3><div class="sumgrid">' + byZone + '</div>' : '') + (byType ? '<h3>Theo loại hình</h3><div class="sumgrid">' + byType + '</div>' : '') + '</div>';
+    // Tab Mặt bằng Layout: thư viện file mặt bằng, chia nhóm, xem toàn màn hình hoặc mở ảnh gốc.
+    function layoutGallery(info, pid) {
+      var extra = ((C.layouts || {})[pid] || []).filter(function (x) { return x && /^https:\/\//i.test(x.url); }).map(function (x) {
+        var isImg = /\.(jpe?g|png|webp|gif)(\?|$)/i.test(x.url);
+        return { title: x.title || 'Mặt bằng', src: isImg ? x.url : '', full: x.url, group: x.group || 'Tài liệu mặt bằng', file: !isImg };
+      });
+      var fileDocs = (info.docs || []).filter(function (d) { return /mat bang|layout|tmb|thiet ke/.test(norm(d.label + ' ' + d.url)); })
+        .map(function (d) { return { title: d.label, src: '', full: d.url, group: 'Tài liệu mặt bằng', file: true }; });
+      var order = ['Mặt bằng tổng thể', 'Phân khu, tiện ích', 'Sản phẩm, thiết kế', 'Tài liệu mặt bằng'];
+      var items = extra.concat(info.layouts || [], fileDocs);
+      items.sort(function (a, b) { return (order.indexOf(a.group) + 9) % 9 - (order.indexOf(b.group) + 9) % 9; });
+      if (!items.length) return '';
+      var groups = []; items.forEach(function (x) { if (groups.indexOf(x.group) < 0) groups.push(x.group); });
+      var count = function (g) { return items.filter(function (x) { return x.group === g; }).length; };
+      return '<div class="sec"><h2>Mặt bằng &amp; layout thiết kế</h2><p>Mặt bằng tổng thể, mặt bằng phân khu và mẫu thiết kế ' + esc(state.project.name) + '. Bấm vào ảnh để xem toàn màn hình, mở ảnh gốc để xem rõ chi tiết.</p>' +
+        (groups.length > 1 ? '<div class="lchips"><button class="on" data-g="">Tất cả <b>' + items.length + '</b></button>' + groups.map(function (g) { return '<button data-g="' + esc(g) + '">' + esc(g) + ' <b>' + count(g) + '</b></button>'; }).join('') + '</div>' : '') +
+        '<div class="lgrid">' + items.map(function (x) {
+          return '<div class="lcard" data-g="' + esc(x.group) + '">' +
+            (x.file ? '<a class="lthumb file" href="' + esc(x.full) + '" target="_blank" rel="noopener">' + ticon('file') + '<span>Mở tài liệu</span></a>'
+              : '<div class="lthumb pic" data-z="' + esc(x.full) + '" data-a="' + esc(x.title) + '"><img loading="lazy" src="' + esc(x.src) + '" alt="' + esc(x.title) + '"></div>') +
+            '<div class="lmeta"><i>' + esc(x.group) + '</i><b>' + esc(x.title) + '</b><div class="lact">' +
+            (x.file ? '' : '<button class="lzoom" data-z="' + esc(x.full) + '" data-a="' + esc(x.title) + '">Phóng to</button>') +
+            '<a href="' + esc(x.full) + '" target="_blank" rel="noopener">' + (x.file ? 'Mở file ↗' : 'Ảnh gốc ↗') + '</a></div></div></div>';
+        }).join('') + '</div></div>';
     }
     function newsHtml(pid) {
       var words = (C.newsSearch || {})[pid] || [state.project.name];
@@ -824,7 +885,12 @@ tbody tr:hover .go { color: var(--brand); }
       loadInfo(pid).then(function (info) {
         if (seq !== infoSeq) return;
         var secs = info.byTab[tab.id] || [], pre = '';
-        if (tab.id === 'mat-bang' && state.units.length) pre = quySummary();
+        if (tab.id === 'mat-bang') {
+          // Ảnh đã nằm trong thư viện phía trên; phần chữ của mục Mặt bằng giữ lại bên dưới.
+          pre = layoutGallery(info, pid);
+          secs = secs.map(function (sec) { return { id: sec.id, title: sec.title, blocks: sec.blocks.filter(function (b) { return b.t !== 'img'; }) }; })
+            .filter(function (sec) { return sec.blocks.some(function (b) { return b.t === 'p' || b.t === 'ul' || b.t === 'ol' || b.t === 'table'; }); });
+        }
         if (tab.id === 'tai-lieu') {
           var docs = ((C.docs || {})[pid] || []).concat(info.docs), seenU = {};
           docs = docs.filter(function (d) { if (!d || !/^https:\/\//i.test(d.url) || seenU[d.url]) return false; seenU[d.url] = 1; return true; });
@@ -856,12 +922,16 @@ tbody tr:hover .go { color: var(--brand); }
     function wireInfo() {
       var box = $('pInfo');
       box.onclick = function (e) {
-        var z = e.target.closest('.pic');
+        var ch = e.target.closest('.lchips button');
+        if (ch) {
+          Array.prototype.forEach.call(ch.parentNode.children, function (x) { x.classList.toggle('on', x === ch); });
+          Array.prototype.forEach.call(box.querySelectorAll('.lcard'), function (c) { c.hidden = !!ch.dataset.g && c.dataset.g !== ch.dataset.g; });
+          return;
+        }
+        var z = e.target.closest('.pic, .lzoom');
         if (z) { openZoom(z.dataset.z, z.dataset.a || state.project.name, z.dataset.z); return; }
         var to = e.target.closest('[data-to]');
         if (to) { e.preventDefault(); var el = root.getElementById ? root.getElementById(to.dataset.to) : null; if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
-        var sm = e.target.closest('.sum');
-        if (sm) { state.filter = blank(); state.filter[sm.dataset.k] = sm.dataset.v; state.filter.status = 'Còn hàng'; state.shown = C.pageSize; $('q').value = ''; buildOptions(); render(); showTab('quy-can', true); updateHash(); return; }
         var tr = e.target.closest('[data-track]');
         if (tr) track(tr.dataset.track, null);
       };
