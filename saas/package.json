@@ -1,0 +1,15 @@
+{
+  "name": "adl-gio-hang",
+  "version": "1.0.0",
+  "description": "Phần mềm quản lý giỏ hàng bất động sản cho sàn và đại lý (SaaS)",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node --no-warnings=ExperimentalWarning src/server.js",
+    "dev": "node --no-warnings=ExperimentalWarning --watch src/server.js",
+    "test": "node --no-warnings=ExperimentalWarning --test test/*.test.js",
+    "sync-widget": "node scripts/sync-widget.mjs",
+    "superadmin": "node --no-warnings=ExperimentalWarning scripts/superadmin.mjs"
+  }
+}

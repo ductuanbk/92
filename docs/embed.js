@@ -23,6 +23,8 @@
 
   var DEFAULTS = {
     API_URL: 'https://script.google.com/macros/s/AKfycbwwmEKbhm_tU2C0MtddBsS-3N2tqy5aAvzKPva8_XZUc_EPODnpUXyPnhk8Ia--4B59/exec',
+    brandName: 'Á Đông Land',        // tên hiển thị trên bảng hàng (đổi khi dùng cho đơn vị khác)
+    brandColor: '',                   // màu nhấn, ví dụ '#a31d24'; để trống dùng màu mặc định
     hotline: '0901303092',
     hotlineText: '0901 30 30 92',
     zalo: 'https://zalo.me/386470265573132310',
@@ -417,7 +419,7 @@ tbody tr:hover .go { color: var(--brand); }
 <div class="w">
   <section class="hero" id="hero">
     <div class="hero-top">
-      <div><p class="eyebrow">Bảng hàng</p><h2 id="hName">Đang tải bảng hàng</h2><p id="hSub">Bảng giá tham khảo do Á Đông Land tư vấn.</p><a class="plink" id="hLink" target="_blank" rel="noopener" hidden>Thông tin dự án <span>↗</span></a></div>
+      <div><p class="eyebrow">Bảng hàng</p><h2 id="hName">Đang tải bảng hàng</h2><p id="hSub">Bảng giá tham khảo.</p><a class="plink" id="hLink" target="_blank" rel="noopener" hidden>Thông tin dự án <span>↗</span></a></div>
       <div class="switch" id="projects" role="tablist" aria-label="Chọn dự án"></div>
     </div>
   </section>
@@ -572,6 +574,7 @@ tbody tr:hover .go { color: var(--brand); }
     if (host.__adl) return; host.__adl = true;
     var root = host.attachShadow ? host.attachShadow({ mode: 'open' }) : host;
     root.innerHTML = '<style>' + CSS + '</style>' + HTML;
+    if (/^#[0-9a-f]{6}$/i.test(C.brandColor || '')) { var wEl = root.querySelector('.w'); wEl.style.setProperty('--brand', C.brandColor); wEl.style.setProperty('--brand-soft', C.brandColor + '14'); }
     var $ = function (id) { return root.getElementById ? root.getElementById(id) : root.querySelector('#' + id); };
     var lockProject = host.getAttribute('data-du-an') || '';
     var useHash = host.getAttribute('data-lien-ket') !== '0';
@@ -627,7 +630,7 @@ tbody tr:hover .go { color: var(--brand); }
       var upd = when(state.data.updatedAt);
       $('hName').textContent = state.project.name;
       var pl = projectLink(); $('hLink').hidden = !pl; if (pl) { $('hLink').href = pl; $('hLink').title = 'Xem thông tin dự án ' + state.project.name; }
-      $('hSub').textContent = (state.data.demo ? 'Dữ liệu minh họa. ' : '') + 'Bảng giá tham khảo do Á Đông Land tư vấn, cập nhật lúc ' + upd + '.';
+      $('hSub').textContent = (state.data.demo ? 'Dữ liệu minh họa. ' : '') + 'Bảng giá tham khảo do ' + C.brandName + ' tư vấn, cập nhật lúc ' + upd + '.';
       $('legal').textContent = 'Giá niêm yết đã gồm VAT và kinh phí bảo trì, theo bảng hàng cập nhật lúc ' + upd +
         '. Đơn giá tính bằng giá niêm yết chia diện tích đất. Giá và chính sách có thể thay đổi theo sản phẩm, thời điểm và xác nhận của chủ đầu tư.' +
         (state.project.incomplete ? ' Một phần giỏ hàng đang cập nhật, vui lòng gọi hotline để có danh sách đầy đủ.' : '');
@@ -817,7 +820,7 @@ tbody tr:hover .go { color: var(--brand); }
     }
     function ctaHtml(label) {
       var pl = projectLink();
-      return '<div class="cta"><div><b>Cần tư vấn ' + esc(label.toLowerCase()) + ' ' + esc(state.project.name) + '?</b><span>Á Đông Land gửi thông tin mới nhất qua điện thoại hoặc Zalo.</span></div>' +
+      return '<div class="cta"><div><b>Cần tư vấn ' + esc(label.toLowerCase()) + ' ' + esc(state.project.name) + '?</b><span>' + esc(C.brandName) + ' gửi thông tin mới nhất qua điện thoại hoặc Zalo.</span></div>' +
         '<div class="btns"><a class="call" href="tel:' + esc(C.hotline) + '" data-track="goi">' + ICON.phone + 'Gọi ' + esc(C.hotlineText) + '</a><a href="' + esc(C.zalo) + '" target="_blank" rel="noopener" data-track="zalo">' + ICON.chat + 'Nhắn Zalo</a></div></div>' +
         (pl ? '<p class="src">Xem đầy đủ tại trang <a href="' + esc(pl) + '" target="_blank" rel="noopener">' + esc(state.project.name) + ' ↗</a></p>' : '');
     }
@@ -1117,7 +1120,7 @@ tbody tr:hover .go { color: var(--brand); }
       return m ? 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1400' : '';
     }
     function posterHtml(u) {
-      return '<div class="poster"><div class="brand"><b>Á Đông Land</b><span>' + esc(state.project.name) + '</span></div>' +
+      return '<div class="poster"><div class="brand"><b>' + esc(C.brandName) + '</b><span>' + esc(state.project.name) + '</span></div>' +
         '<div><div class="mc">Mã căn</div><div class="code2">' + esc(u.code) + '</div></div>' +
         '<div class="pfacts"><div><span>DT đất</span><b>' + (u.land != null ? m2(u.land) + ' m²' : '-') + '</b></div><div><span>DT xây dựng</span><b>' + (u.build != null ? m2(u.build) + ' m²' : '-') + '</b></div>' +
         '<div><span>Loại hình</span><b>' + esc(u.type || '-') + '</b></div></div>' +
@@ -1135,7 +1138,7 @@ tbody tr:hover .go { color: var(--brand); }
       return i < 0;
     }
     function contacts() {
-      var list = C.contacts && C.contacts.length ? C.contacts : [{ name: 'Á Đông Land', role: 'Tư vấn dự án ' + state.project.name, phone: C.hotline, phoneText: C.hotlineText, zalo: C.zalo }];
+      var list = C.contacts && C.contacts.length ? C.contacts : [{ name: C.brandName, role: 'Tư vấn dự án ' + state.project.name, phone: C.hotline, phoneText: C.hotlineText, zalo: C.zalo }];
       return list.map(function (p) {
         var ini = String(p.name || '').split(/\s+/).filter(Boolean).slice(-2).map(function (w) { return w.charAt(0); }).join('').toUpperCase();
         return '<div class="person"><div class="ava">' + (p.avatar ? '<img src="' + esc(p.avatar) + '" alt="">' : esc(ini)) + '</div><div class="nm"><b>' + esc(p.name) + '</b><span>' + esc(p.role || '') +
