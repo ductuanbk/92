@@ -109,6 +109,8 @@ a { color: var(--brand); }
 .gtabs button.on b { background: var(--brand); color: #fff; }
 .gtabs .dqmark { background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .5px; padding: 2px 7px; border-radius: 5px; }
 .dq { display: inline-block; vertical-align: 1px; margin-left: 6px; background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: .5px; padding: 2px 6px; border-radius: 4px; }
+.dq.tg { background: linear-gradient(135deg, #1aa3a3, #0d7377); margin-left: 4px; }
+.dq + .dq { margin-left: 4px; }
 
 .plink { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28); color: #fff; font-weight: 600; font-size: 13px; text-decoration: none; }
 .plink:hover { background: #fff; color: var(--navy); }
@@ -516,7 +518,8 @@ tbody tr:hover .go { color: var(--brand); }
       handover: cleanHandover(u.handover),
       land: u.land, build: u.build != null ? Math.round(u.build * 10) / 10 : u.build, price: u.price, status: viewStatus(u.status),
       ptg: /^https:\/\//i.test(u.ptg || '') ? u.ptg : '', unitLink: /^https:\/\//i.test(u.unitLink || '') ? u.unitLink : '',
-      priceExVat: u.priceExVat || null, priceLoan: u.priceLoan || null, priceEarly: u.priceEarly || null, priceProgress: u.priceProgress || null, fund: u.fund ? String(u.fund) : '', dq: !!u.dq
+      priceExVat: u.priceExVat || null, priceLoan: u.priceLoan || null, priceEarly: u.priceEarly || null, priceProgress: u.priceProgress || null, fund: u.fund ? String(u.fund) : '', dq: !!u.dq,
+      tags: Array.isArray(u.tags) ? u.tags.map(String).filter(Boolean).slice(0, 4) : []
     };
   }
   // Trạng thái hiển thị: gộp "Đang giữ chỗ" và "Liên hệ" thành "Check admin".
@@ -1023,7 +1026,12 @@ tbody tr:hover .go { color: var(--brand); }
         (nsaved ? b('saved', '<span style="color:var(--brand);display:inline-flex;width:15px">' + ICON.heart + '</span>Đã lưu <b>' + base.filter(isSaved).length + '</b>') : '');
     }
     $('gtabs').onclick = function (e) { var b = e.target.closest('button[data-tab]'); if (!b) return; var t = b.dataset.tab; state.filter.dq = t === 'dq' ? '1' : ''; state.filter.saved = t === 'saved' ? '1' : ''; updateHash(); reset(); };
-    function dqTag(u) { var c = dqCfg(); return u.dq && c ? '<span class="dq" title="' + esc(c.title || '') + '">' + esc(c.short || 'ĐQ') + '</span>' : ''; }
+    function dqTag(u) {
+      var c = dqCfg(), titles = (state.data && state.data.tagTitles) || {};
+      // Nhãn ĐQ (giỏ độc quyền) và các nhãn danh sách khác, ví dụ VOS (căn thuộc Quỹ VOS).
+      return (u.dq && c ? '<span class="dq" title="' + esc(c.title || '') + '">' + esc(c.short || 'ĐQ') + '</span>' : '') +
+        (u.tags || []).map(function (t) { return '<span class="dq tg" title="' + esc(titles[t] || t) + '">' + esc(t) + '</span>'; }).join('');
+    }
     function renderChips() { renderTabs(); renderFilters(); }
 
     // ─── Bảng ───
@@ -1205,7 +1213,7 @@ tbody tr:hover .go { color: var(--brand); }
         (u.land != null ? '\nDiện tích đất: ' + m2(u.land) + ' m²' : '') + (u.build != null ? ', xây dựng: ' + m2(u.build) + ' m²' : '') +
         (u.type ? '\nLoại hình: ' + u.type : '') + (u.handover ? ', bàn giao: ' + u.handover : '') + (u.direction ? '\nHướng: ' + u.direction : '') +
         (u.priceLoan ? '\nGiá vay: ' + ty(u.priceLoan) : '') + (u.priceProgress ? '\nGiá TTTĐ: ' + ty(u.priceProgress) : '') + (u.priceEarly ? '\nGiá TTS: ' + ty(u.priceEarly) : '') +
-        (u.fund ? '\nQuỹ căn: ' + u.fund : '') + (u.ptg ? '\nPhiếu tính giá: ' + u.ptg : '') + '\nTình trạng: ' + u.status + (projectLink() ? '\nThông tin dự án: ' + projectLink() : '');
+        (u.fund ? '\nQuỹ căn: ' + u.fund : '') + (u.tags && u.tags.length ? '\nThuộc quỹ: ' + u.tags.join(', ') : '') + (u.ptg ? '\nPhiếu tính giá: ' + u.ptg : '') + '\nTình trạng: ' + u.status + (projectLink() ? '\nThông tin dự án: ' + projectLink() : '');
       var ask = function () { copy('Tôi muốn tìm hiểu căn ' + u.code + ' dự án ' + state.project.name + ' (giá niêm yết ' + ty(u.price) + ').', 'Đã sao chép tin nhắn, dán vào Zalo để gửi'); window.open(C.zalo, '_blank', 'noopener'); };
       Array.prototype.forEach.call($('mRight').querySelectorAll('a[data-zalo]'), function (a) { a.onclick = function (e) { e.preventDefault(); track('zalo', u); ask(); }; });
       // Chia sẻ: gửi link căn. Gửi thông tin: gửi đầy đủ thông tin căn (kèm link).
@@ -1290,12 +1298,12 @@ tbody tr:hover .go { color: var(--brand); }
           var land = d[3] + (i % 3) * 5;
           out.push({ code: d[1] + '-' + ('0' + i * 2).slice(-2), zone: d[0], street: d[1], type: d[2], direction: dirs[(i + d[1].length) % 6], handover: i % 2 ? 'GIÃN XÂY' : 'Thô',
             land: land, build: Math.round(land * 2.7 * 10) / 10, price: Math.round((d[5] + (i % 5) * 0.21e9) / 1e7) * 1e7, status: st[(i * 5 + d[1].length) % 6],
-            ptg: i % 4 ? 'https://drive.google.com/drive/folders/minh-hoa' : '', dq: d[6] ? 1 : 0, priceExVat: Math.round((d[5] + (i % 5) * 0.21e9) / 1.1 / 1e6) * 1e6, priceLoan: Math.round((d[5] + (i % 5) * 0.21e9) * 1.03 / 1e7) * 1e7, priceProgress: d[5] + (i % 5) * 0.21e9, priceEarly: Math.round((d[5] + (i % 5) * 0.21e9) * 0.965 / 1e7) * 1e7, fund: i % 3 ? 'Thứ cấp' : 'Sơ cấp' });
+            ptg: i % 4 ? 'https://drive.google.com/drive/folders/minh-hoa' : '', dq: d[6] ? 1 : 0, priceExVat: Math.round((d[5] + (i % 5) * 0.21e9) / 1.1 / 1e6) * 1e6, priceLoan: Math.round((d[5] + (i % 5) * 0.21e9) * 1.03 / 1e7) * 1e7, priceProgress: d[5] + (i % 5) * 0.21e9, priceEarly: Math.round((d[5] + (i % 5) * 0.21e9) * 0.965 / 1e7) * 1e7, fund: i % 3 ? 'Thứ cấp' : 'Sơ cấp', tags: i % 5 === 1 ? ['VOS'] : [] });
         }
       });
       return out;
     }
-    return { ok: true, updatedAt: new Date().toISOString(), exclusiveTab: { enabled: true, short: 'ĐQ', label: 'ĐQ Á Đông Land', title: 'Giỏ hàng độc quyền Á Đông Land' }, projects: [
+    return { ok: true, updatedAt: new Date().toISOString(), tagTitles: { VOS: 'Căn thuộc Quỹ VOS' }, exclusiveTab: { enabled: true, short: 'ĐQ', label: 'ĐQ Á Đông Land', title: 'Giỏ hàng độc quyền Á Đông Land' }, projects: [
       { id: 'VHSGP', name: 'Vinhomes Saigon Park', units: gen([['', 'AS76', 'LK', 50, 14, 5.8e9, 1], ['', 'TL12A', 'Liền kề', 50, 12, 5.9e9], ['', 'AS85', 'LK (GÓC)', 60, 8, 6.5e9], ['', 'ĐLCV2', 'SL', 112, 6, 17.2e9, 1], ['', 'AS60', 'Liền kề xẻ khe', 70, 10, 9.6e9]]) },
       { id: 'VHCG', name: 'Vinhomes Green Paradise', units: gen([['VỊNH NGỌC', 'AS24', 'SL', 280, 6, 31.2e9], ['VỊNH NGỌC', 'TĐX', 'SL', 180, 6, 45.1e9], ['VỊNH TIÊN', 'VT44', 'LK', 80, 8, 14.9e9]]) }
     ] };

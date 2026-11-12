@@ -62,6 +62,10 @@ var CONFIG = {
         { sheet: 'GIỎ HÀNG ĐỐI TÁC', label: 'Đối tác', kind: 'partner', editable: false, enabled: true }
         // Thêm public: false vào một nguồn để không đưa giỏ đó lên trang công khai.
       ],
+      // Nhãn gắn cạnh mã căn trên bảng hàng công khai (giống nhãn ĐQ): căn có mã nằm trong tab này được gắn nhãn.
+      tags: [
+        { sheet: 'Quỹ VOS', label: 'VOS', title: 'Căn thuộc Quỹ VOS' }
+      ],
       references: [
         { sheet: 'STK CỌC VHSGP', label: 'STK cọc / ký quỹ' },
         { sheet: 'Quỹ VOS', label: 'Quỹ VOS' }
