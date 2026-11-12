@@ -51,6 +51,8 @@
       { id: 'tin-tuc', label: 'Tin tức', icon: 'news' }
     ],
     defaultTab: 'quy-can',
+    // Lựa chọn ghép thêm vào ô Bàn giao: bàn giao + nhãn, ví dụ "Thô VOS" = bàn giao Thô và thuộc Quỹ VOS.
+    handoverCombos: [{ label: 'Thô VOS', handover: 'Thô', tag: 'VOS' }],
     // Tiêu đề chứa các cụm này không đưa vào tab (hỏi đáp, khung mời để lại thông tin...).
     skipHeadings: ['cau hoi', 'hoi dap', 'nhan tai lieu', 'nhan bang gia', 'nhan tron bo', 'nhan thong tin', 'nhan phuong an', 'dang ky'],
     // Thứ tự xét từ khóa khi một tiêu đề khớp nhiều tab.
@@ -499,6 +501,7 @@ tbody tr:hover .go { color: var(--brand); }
   function cleanHandover(v) {
     var t = blankish(v); if (!t) return '';
     t = sentence(t).replace(/^bàn giao\s+/i, '').replace(/\s*[-–—]\s*/g, ' ').replace(/\s+/g, ' ').trim();
+    t = t.replace(/^gi[àảaạ]n xây/i, 'giãn xây'); // lỗi gõ thường gặp trong sheet (Giản xây, Giàn xây)
     return t ? t.charAt(0).toLocaleUpperCase('vi-VN') + t.slice(1) : '';
   }
   function lowerVi(t) { return t.toLocaleLowerCase('vi-VN'); }
@@ -962,6 +965,12 @@ tbody tr:hover .go { color: var(--brand); }
           var c = {}; pool.forEach(function (u) { if (u[d.k]) c[u[d.k]] = (c[u[d.k]] || 0) + 1; });
           var keys = d.order ? d.order.filter(function (x) { return c[x]; }) : Object.keys(c).sort(function (a, b) { return c[b] - c[a] || natural(a, b); });
           items = keys.map(function (x) { return { v: x, l: x, n: c[x] }; });
+          // Ô Bàn giao: chèn lựa chọn ghép (ví dụ "Thô VOS") ngay sau lựa chọn bàn giao gốc.
+          if (d.k === 'handover') combos().forEach(function (cb) {
+            var n = pool.filter(function (u) { return comboMatch(u, cb); }).length;
+            var at = items.map(function (it) { return it.v; }).indexOf(cb.handover);
+            if (n || cur === cb.label) items.splice(at < 0 ? items.length : at + 1, 0, { v: cb.label, l: cb.label, n: n });
+          });
         }
         var shown = items.filter(function (it) { return it.n > 0 || it.v === cur; });
         var el = $(id), lab = el.closest('label');
@@ -1003,12 +1012,16 @@ tbody tr:hover .go { color: var(--brand); }
         var d = FIELDS[id], v = f[d.k];
         if (!v || skip === d.k) continue;
         if (d.buckets) { if (!inBucket(u[d.k], d.buckets[+v], d.mul)) return false; }
+        else if (d.k === 'handover' && comboByLabel(v)) { if (!comboMatch(u, comboByLabel(v))) return false; }
         else if (u[d.k] !== v) return false;
       }
       if (q && q.split(/\s+/).some(function (w) { return norm([u.code, u.zone, u.street, u.type, u.direction, u.handover].join(' ')).indexOf(w) < 0; })) return false;
       return true;
     }
 
+    function combos() { return (C.handoverCombos || []).filter(function (cb) { return cb && cb.label && cb.handover && cb.tag; }); }
+    function comboByLabel(v) { return combos().filter(function (cb) { return cb.label === v; })[0]; }
+    function comboMatch(u, cb) { return norm(u.handover) === norm(cb.handover) && (u.tags || []).indexOf(cb.tag) >= 0; }
     function dqCfg() { return state.data && state.data.exclusiveTab; }
     function renderTabs() {
       var cfg = dqCfg(), ndq = state.units.filter(function (u) { return u.dq; }).length;
