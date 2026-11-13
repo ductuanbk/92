@@ -11,7 +11,7 @@
  *   data-lien-ket="0"    không ghi mã căn lên thanh địa chỉ
  *   data-gio="dq"        mở sẵn tab ĐQ (giỏ hàng độc quyền Á Đông Land)
  *   data-muc="tong-quan" mở sẵn tab thông tin khác (mặc định: quy-can). Các tab: tong-quan, vi-tri, phan-khu,
- *                        mat-bang, quy-can, chinh-sach, tien-do, tai-lieu, tin-tuc
+ *                        mat-bang, quy-can, chinh-sach, tai-lieu
  *
  * Khối chạy trong Shadow DOM: CSS của theme không ảnh hưởng tới bảng và ngược lại.
  * Dữ liệu chỉ gồm trường công khai (xem Code.gs › publicData_).
@@ -46,17 +46,17 @@
       { id: 'mat-bang', label: 'Mặt bằng Layout', icon: 'map', match: ['mat bang', 'layout'] },
       { id: 'quy-can', label: 'Quỹ căn', icon: 'house' },
       { id: 'chinh-sach', label: 'Chính sách bán hàng', icon: 'doc', match: ['gia ban', 'chinh sach', 'bang gia', 'uu dai', 'thanh toan'] },
-      { id: 'tien-do', label: 'Tiến độ', icon: 'cal', match: ['tien do'] },
-      { id: 'tai-lieu', label: 'Tài liệu', icon: 'book', match: ['phap ly', 'tai lieu'] },
-      { id: 'tin-tuc', label: 'Tin tức', icon: 'news' }
+      { id: 'tai-lieu', label: 'Tài liệu', icon: 'book', match: ['phap ly', 'tai lieu'] }
     ],
     defaultTab: 'quy-can',
     // Lựa chọn ghép thêm vào ô Bàn giao: bàn giao + nhãn, ví dụ "Thô VOS" = bàn giao Thô và thuộc Quỹ VOS.
     handoverCombos: [{ label: 'Thô VOS', handover: 'Thô', tag: 'VOS' }],
     // Tiêu đề chứa các cụm này không đưa vào tab (hỏi đáp, khung mời để lại thông tin...).
     skipHeadings: ['cau hoi', 'hoi dap', 'nhan tai lieu', 'nhan bang gia', 'nhan tron bo', 'nhan thong tin', 'nhan phuong an', 'dang ky'],
+    // Mục (tiêu đề H2) chứa các cụm này bị bỏ, không dồn sang tab Tổng quan (ví dụ mục Tiến độ khi đã bỏ tab Tiến độ).
+    dropSections: ['tien do'],
     // Thứ tự xét từ khóa khi một tiêu đề khớp nhiều tab.
-    tabPriority: ['tien-do', 'mat-bang', 'phan-khu', 'chinh-sach', 'tai-lieu', 'vi-tri', 'tong-quan'],
+    tabPriority: ['mat-bang', 'phan-khu', 'chinh-sach', 'tai-lieu', 'vi-tri', 'tong-quan'],
     // Tin tức: tìm bài trên website theo các cụm này (bài có cụm trong tiêu đề xếp trước).
     newsSearch: { VHSGP: ['Vinhomes Saigon Park', 'Vinhomes Hóc Môn'], VHCG: ['Vinhomes Green Paradise', 'Vinhomes Cần Giờ'] },
     // Tài liệu tải về thêm tay cho từng dự án: [{ label: 'Tên tài liệu', url: 'https://...' }]
@@ -777,6 +777,7 @@ tbody tr:hover .go { color: var(--brand); }
       secs.forEach(function (sec, i) {
         if (sec.skip || !sec.blocks.length) return;
         var n = norm(sec.title), tab = '';
+        if (sec.title && (C.dropSections || []).some(function (w) { return n.indexOf(norm(w)) >= 0; })) return;
         if (!sec.title) tab = 'tong-quan';
         order.some(function (id) { var t = TABS.filter(function (x) { return x.id === id; })[0]; if (t && (t.match || []).some(function (w) { return n.indexOf(w) >= 0; })) { tab = id; return true; } return false; });
         if (!tab) tab = TABS.some(function (x) { return x.id === 'tong-quan'; }) ? 'tong-quan' : '';
