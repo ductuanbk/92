@@ -26,7 +26,7 @@
     brandName: 'Á Đông Land',        // tên hiển thị trên bảng hàng (đổi khi dùng cho đơn vị khác)
     brandColor: '',                   // màu nhấn, ví dụ '#a31d24'; để trống dùng màu mặc định
     // Logo: đặt ở góc trái khung ảnh chỉ căn (logo) và ô tròn liên hệ (logoIcon, ảnh vuông). Để trống thì không hiện / hiện chữ viết tắt.
-    logo: 'https://adongland.vn/wp-content/uploads/2025/07/A-DONG-LAND_Logo_1-300x245.png',
+    logo: '',
     logoIcon: 'https://adongland.vn/wp-content/uploads/2025/09/cropped-a-dong-land-favicon-96-96-1-192x192.png',
     hotline: '0901303092',
     hotlineText: '0901 30 30 92',
