@@ -148,12 +148,27 @@ Website chỉ có **một trang bảng hàng công khai cho khách**, chạy tr�
 
 Phía trên bảng hàng có thanh tab: Tổng quan, Vị trí, Phân khu, Mặt bằng Layout, **Quỹ căn** (bảng hàng, mở mặc định), Chính sách bán hàng, Tiến độ, Tài liệu, Tin tức.
 
-- **Nội dung lấy trực tiếp từ trang dự án trên WordPress** (`projectLinks`, ví dụ https://adongland.vn/vinhomes-saigon-park/). Mỗi tiêu đề H2 của trang được xếp vào tab có từ khóa khớp: "Vị trí…" vào tab Vị trí, "Phân khu…" vào Phân khu, "Mặt bằng…" vào Mặt bằng Layout, "Giá bán / Chính sách…" vào Chính sách bán hàng, "Tiến độ…" vào Tiến độ, "Pháp lý…" vào Tài liệu, còn lại vào Tổng quan. Mục hỏi đáp và khung "Nhận bảng giá / tài liệu" được bỏ qua.
-- **Sửa nội dung**: sửa trang dự án trong WordPress (thêm, bớt, đổi tiêu đề H2). Tab cập nhật sau tối đa 30 phút với khách đã xem trước đó, ngay lập tức với khách mới. Muốn một mục vào đúng tab, đặt tiêu đề H2 chứa từ khóa của tab đó.
-- **Mặt bằng Layout**: thư viện file mặt bằng và layout thiết kế, chia nhóm Mặt bằng tổng thể / Phân khu, tiện ích / Sản phẩm, thiết kế / Tài liệu mặt bằng; mỗi thẻ có nút Phóng to và Ảnh gốc. Tự gom ảnh trong mục Mặt bằng, Phân khu của trang dự án và ảnh có chú thích (alt) chứa "mặt bằng", "layout", "thiết kế", "sơ đồ", "kiến trúc". Thêm ảnh: chèn vào trang dự án với chú thích như trên; thêm file PDF/Drive: khai báo ở `layouts` trong `docs/embed.js`.
-- **Tài liệu**: tự liệt kê link PDF, Google Drive, Google Docs có trong trang dự án; thêm tài liệu riêng ở `docs` trong cấu hình `embed.js`.
-- **Tin tức**: tự lấy bài viết trên website theo cụm từ trong `newsSearch` (bài có tên dự án trong tiêu đề xếp trước).
-- Đổi tên, thứ tự hoặc bỏ tab: sửa danh sách `tabs` trong `docs/embed.js` rồi tạo lại đoạn mã WordPress (`node tools/build-wordpress.mjs`).
+**Nội dung các tab lấy từ một trang WordPress riêng cho từng dự án**, tách khỏi trang dự án:
+
+| Dự án | Trang nội dung tab (đường dẫn phải đúng) | File soạn sẵn để dán |
+|---|---|---|
+| Vinhomes Saigon Park | `https://adongland.vn/noi-dung-tab-vinhomes-saigon-park/` | `wordpress/noi-dung-tab-vinhomes-saigon-park.html` |
+| Vinhomes Green Paradise | `https://adongland.vn/noi-dung-tab-vinhomes-green-paradise/` | `wordpress/noi-dung-tab-vinhomes-green-paradise.html` |
+
+Chưa tạo trang riêng (hoặc trang còn Bản nháp, Riêng tư, có mật khẩu) thì các tab tự lấy nội dung từ trang dự án (`projectLinks`).
+
+Tạo trang riêng (làm một lần cho mỗi dự án):
+1. wp-admin → Trang → Thêm mới. Tiêu đề: "Nội dung tab Vinhomes Saigon Park". Đường dẫn (slug): `noi-dung-tab-vinhomes-saigon-park`.
+2. Mở file soạn sẵn, sao chép toàn bộ, dán vào trình soạn thảo ở chế độ mã: trình soạn thảo cổ điển chọn tab "Văn bản"; trình soạn thảo khối chọn ⋮ → "Trình soạn thảo mã". Sau đó quay lại chế độ trực quan để sửa như bài viết.
+3. Yoast SEO → Nâng cao → "Cho phép công cụ tìm kiếm hiển thị Trang này?" chọn **Không**. Không thêm trang vào menu.
+4. Bấm **Xuất bản** (phải là Công khai).
+
+Sửa nội dung: mỗi tiêu đề **H2** là một tab, tên H2 chứa tên tab (ví dụ "Vị trí Vinhomes Saigon Park"). Nội dung dưới H2 (đoạn văn, tiêu đề H3/H4, danh sách, bảng, ảnh, video YouTube, Google Maps) hiện trong tab đó. Khách mới thấy ngay, khách đã xem trước đó thấy sau tối đa 30 phút. Từ khóa nhận tab: Tổng quan (Tổng quan, Giới thiệu, Chủ đầu tư, Tiện ích...), Vị trí, Phân khu, Mặt bằng / Layout, Chính sách / Giá bán / Bảng giá / Ưu đãi / Thanh toán, Tiến độ, Tài liệu / Pháp lý.
+
+- **Mặt bằng Layout**: thư viện ảnh, gom ảnh trong mục Mặt bằng, Phân khu và ảnh có chú thích (alt) chứa "mặt bằng", "layout", "thiết kế", "sơ đồ", "kiến trúc". Nhóm theo chú thích: "tổng thể" → Mặt bằng tổng thể; "mẫu", "shophouse", "biệt thự", "nhà phố" → Sản phẩm, thiết kế; còn lại → Phân khu, tiện ích. File PDF/Drive mặt bằng: khai báo ở `layouts` trong `docs/embed.js`.
+- **Tài liệu**: link PDF, Google Drive, Google Docs trong trang tự thành danh sách tải về; thêm tài liệu riêng ở `docs` trong `docs/embed.js`.
+- **Tin tức**: tự lấy bài viết trên website theo `newsSearch` (bài có tên dự án trong tiêu đề xếp trước).
+- Đổi tên, thứ tự, bỏ tab: sửa `tabs` trong `docs/embed.js`; đổi đường dẫn trang riêng: sửa `contentPages`. Sau đó tạo lại đoạn mã WordPress (`node tools/build-wordpress.mjs`).
 
 ### Giá TTS, Giá TTTĐ, Quỹ căn
 

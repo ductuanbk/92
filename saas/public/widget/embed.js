@@ -36,7 +36,13 @@
     },
     refreshSeconds: 120,
     pageSize: 50,
-    // Các tab thông tin dự án. Nội dung lấy trực tiếp từ trang dự án trên WordPress (projectLinks):
+    // Trang WordPress riêng chứa nội dung các tab (không vào menu, không cho Google lập chỉ mục).
+    // Chưa tạo trang này thì các tab lấy nội dung từ trang dự án (projectLinks).
+    contentPages: {
+      VHSGP: 'https://adongland.vn/noi-dung-tab-vinhomes-saigon-park/',
+      VHCG: 'https://adongland.vn/noi-dung-tab-vinhomes-green-paradise/'
+    },
+    // Các tab thông tin dự án. Nội dung lấy từ trang nội dung riêng (contentPages) hoặc trang dự án (projectLinks):
     // mỗi tiêu đề H2 của trang được xếp vào tab có từ khóa khớp (không dấu, chữ thường).
     // Sửa trang dự án trong WordPress là các tab tự cập nhật. Đổi tên, thứ tự, bỏ tab: sửa danh sách này.
     tabs: [
@@ -690,13 +696,20 @@ tbody tr:hover .go { color: var(--brand); }
     }
     function loadInfo(pid) {
       if (infoCache[pid]) return Promise.resolve(infoCache[pid]);
-      var key = 'adl_info_v1_' + pid, cached = null;
+      var key = 'adl_info_v2_' + pid, cached = null;
       try { cached = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { cached = null; }
       var fresh = cached && Date.now() - cached.t < 30 * 60 * 1000;
-      var url = pageApi((C.projectLinks || {})[pid]);
-      var net = !url ? Promise.reject(new Error('nolink')) : getJSON(url).then(function (arr) {
-        if (!arr || !arr[0] || !arr[0].content) throw new Error('nopage');
-        var d = { t: Date.now(), modified: arr[0].modified, link: arr[0].link, html: arr[0].content.rendered };
+      // Ưu tiên trang nội dung riêng; chưa có (hoặc chưa xuất bản) thì dùng trang dự án.
+      var urls = [pageApi((C.contentPages || {})[pid]), pageApi((C.projectLinks || {})[pid])].filter(Boolean);
+      var fetchPage = function (i) {
+        if (i >= urls.length) return Promise.reject(new Error('nopage'));
+        return getJSON(urls[i]).then(function (arr) {
+          if (!arr || !arr[0] || !arr[0].content || !arr[0].content.rendered) return fetchPage(i + 1);
+          return arr[0];
+        }, function () { return fetchPage(i + 1); });
+      };
+      var net = fetchPage(0).then(function (pg) {
+        var d = { t: Date.now(), modified: pg.modified, link: pg.link, html: pg.content.rendered };
         try { localStorage.setItem(key, JSON.stringify(d)); } catch (e) { /* bỏ qua */ }
         return d;
       });
