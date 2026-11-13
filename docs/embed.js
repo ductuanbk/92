@@ -610,6 +610,8 @@ tbody tr:hover .go { color: var(--brand); }
         if (lockProject) projects = projects.filter(function (p) { return p.id === lockProject; });
         if (!projects.length) throw new Error('noproject');
         state.projects = projects;
+        // Ẩn ngay các khối Tabs soạn bằng UX Builder (nội dung đã đưa vào thanh tab của bảng hàng).
+        projects.forEach(function (p) { try { pageTabsFor(p.id); } catch (e) { /* bỏ qua */ } });
         $('projects').hidden = projects.length < 2;
         $('projects').innerHTML = projects.map(function (p) { return '<button role="tab" data-p="' + esc(p.id) + '">' + esc(p.name) + '</button>'; }).join('');
         var hp = hashParams();
@@ -694,30 +696,81 @@ tbody tr:hover .go { color: var(--brand); }
     function getJSON(url) {
       return fetch(url, { credentials: 'omit' }).then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); });
     }
+    // Nội dung các tab lấy theo thứ tự ưu tiên, từng tab riêng:
+    //   1. Khối Tabs (Flatsome UX Builder) ngay trên trang này, tiêu đề khối là tên dự án;
+    //   2. Trang nội dung riêng (contentPages);  3. Trang dự án (projectLinks).
+    // Tab nào nguồn trên chưa có thì lấy từ nguồn dưới.
     function loadInfo(pid) {
-      if (infoCache[pid]) return Promise.resolve(infoCache[pid]);
-      var key = 'adl_info_v2_' + pid, cached = null;
+      if (infoCache[pid]) return Promise.resolve(withPageTabs(infoCache[pid], pid));
+      var key = 'adl_info_v3_' + pid, cached = null;
       try { cached = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { cached = null; }
       var fresh = cached && Date.now() - cached.t < 30 * 60 * 1000;
-      // Ưu tiên trang nội dung riêng; chưa có (hoặc chưa xuất bản) thì dùng trang dự án.
-      var urls = [pageApi((C.contentPages || {})[pid]), pageApi((C.projectLinks || {})[pid])].filter(Boolean);
-      var fetchPage = function (i) {
-        if (i >= urls.length) return Promise.reject(new Error('nopage'));
-        return getJSON(urls[i]).then(function (arr) {
-          if (!arr || !arr[0] || !arr[0].content || !arr[0].content.rendered) return fetchPage(i + 1);
-          return arr[0];
-        }, function () { return fetchPage(i + 1); });
-      };
-      var net = fetchPage(0).then(function (pg) {
-        var d = { t: Date.now(), modified: pg.modified, link: pg.link, html: pg.content.rendered };
+      var urls = [pageApi((C.projectLinks || {})[pid]), pageApi((C.contentPages || {})[pid])]; // thấp → cao
+      var net = Promise.all(urls.map(function (u) {
+        if (!u) return null;
+        return getJSON(u).then(function (arr) {
+          var pg = arr && arr[0];
+          return pg && pg.content && pg.content.rendered ? { modified: pg.modified, link: pg.link, html: pg.content.rendered } : null;
+        }, function () { return null; });
+      })).then(function (pages) {
+        if (!pages.some(Boolean)) throw new Error('nopage');
+        var d = { t: Date.now(), pages: pages };
         try { localStorage.setItem(key, JSON.stringify(d)); } catch (e) { /* bỏ qua */ }
         return d;
       });
+      var build = function (d) { return (infoCache[pid] = mergeInfo(d.pages.map(function (pg) { return pg ? parseInfo(pg) : null; }))); };
       if (cached) {
-        if (!fresh) net.then(function (d) { infoCache[pid] = parseInfo(d); if (state.project && state.project.id === pid && curTab !== 'quy-can') renderInfo(); }).catch(function () {});
-        return Promise.resolve(infoCache[pid] = parseInfo(cached));
+        if (!fresh) net.then(function (d) { build(d); if (state.project && state.project.id === pid && curTab !== 'quy-can') renderInfo(); }).catch(function () {});
+        return Promise.resolve(withPageTabs(build(cached), pid));
       }
-      return net.then(function (d) { return (infoCache[pid] = parseInfo(d)); });
+      return net.then(build, function (e) { if (pageTabsFor(pid)) return mergeInfo([]); throw e; }).then(function (info) { return withPageTabs(info, pid); });
+    }
+    /** Gộp nhiều nguồn (thấp → cao): mỗi tab lấy từ nguồn cao nhất có tab đó. */
+    function mergeInfo(list) {
+      var out = { byTab: {}, docs: [], layouts: [], link: '' }, owner = {};
+      list.forEach(function (info, i) {
+        if (!info) return;
+        Object.keys(info.byTab).forEach(function (t) { if (info.byTab[t].length) { out.byTab[t] = info.byTab[t]; owner[t] = i; } });
+        out.docs = (info.docs || []).concat(out.docs);
+        if (info.link) out.link = info.link;
+      });
+      list.forEach(function (info, i) {
+        if (info) out.layouts = out.layouts.concat((info.layouts || []).filter(function (l) { return owner[l.tab] === i; }));
+      });
+      return out;
+    }
+    // Khối Tabs của Flatsome trên trang: tìm theo tiêu đề khối (tên dự án), đổi thành HTML chuẩn cho các tab.
+    var pageTabsMemo = {};
+    function pageTabsFor(pid) {
+      if (pid in pageTabsMemo) return pageTabsMemo[pid];
+      var proj = state.projects.filter(function (p) { return p.id === pid; })[0], html = '';
+      var inBuilder = window.self !== window.top || /uxb/i.test(location.search);
+      Array.prototype.forEach.call(document.querySelectorAll('.tabbed-content'), function (box) {
+        if (host.contains(box)) return;
+        var titleEl = box.querySelector(':scope > h1, :scope > h2, :scope > h3, :scope > h4, :scope > h5, :scope > h6');
+        var prev = box.previousElementSibling;
+        var title = (titleEl ? titleEl.textContent : '') + ' ' + (prev && /^(H[1-6]|P|DIV)$/.test(prev.tagName) && (prev.textContent || '').length < 120 ? prev.textContent : '');
+        var nt = norm(title);
+        var mine = proj && (nt.indexOf(norm(proj.name)) >= 0 || nt.split(/\s+/).indexOf(norm(pid)) >= 0 || (state.projects.length === 1 && /noi dung|bang hang|tab/.test(nt)));
+        if (!mine) return;
+        var links = box.querySelectorAll('.nav li a'), panels = box.querySelectorAll('.tab-panels > .panel');
+        Array.prototype.forEach.call(links, function (a, i) {
+          var id = (a.getAttribute('aria-controls') || (a.getAttribute('href') || '').replace(/^#/, ''));
+          var panel = (id && document.getElementById(id)) || panels[i];
+          if (!panel) return;
+          var label = (a.textContent || '').replace(/\s+/g, ' ').trim(), nl = norm(label);
+          var tab = TABS.filter(function (t) { return t.match && (norm(t.label) === nl || t.match.some(function (w) { return nl.indexOf(w) >= 0; })); })[0];
+          if (!tab) return;
+          // Tiêu đề H2 bên trong ô đổi thành H3 để cả ô nằm trọn trong một tab.
+          html += '<h2>' + esc(tab.label) + '</h2>' + panel.innerHTML.replace(/<(\/?)h2\b/gi, '<$1h3');
+        });
+        if (!inBuilder) { box.style.display = 'none'; if (titleEl == null && prev && prev !== host && !prev.contains(host) && (prev.textContent || '').length < 120 && /^H[1-6]$/.test(prev.tagName)) prev.style.display = 'none'; }
+      });
+      return (pageTabsMemo[pid] = html ? parseInfo({ html: html, link: location.href }) : null);
+    }
+    function withPageTabs(info, pid) {
+      var pt = pageTabsFor(pid);
+      return pt ? mergeInfo([info, pt]) : info;
     }
 
     // Chuyển HTML trang dự án thành các khối gọn (tiêu đề, đoạn, danh sách, ảnh, bảng, video), bỏ form và mã thừa.
@@ -809,7 +862,7 @@ tbody tr:hover .go { color: var(--brand); }
             var by = b.alt ? own : hay;
             var g = /mau|kien truc|thiet ke|shophouse|biet thu|nha pho|can ho|san pham/.test(by) ? 'Sản phẩm, thiết kế'
               : /tong the|toan khu|quy hoach/.test(by) ? 'Mặt bằng tổng thể' : 'Phân khu, tiện ích';
-            layouts.push({ title: b.alt || b.ctx || 'Mặt bằng', src: b.src, full: b.full || b.src, group: g });
+            layouts.push({ title: b.alt || b.ctx || 'Mặt bằng', src: b.src, full: b.full || b.src, group: g, tab: tb });
           });
         });
       });

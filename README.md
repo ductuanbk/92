@@ -148,7 +148,13 @@ Website chỉ có **một trang bảng hàng công khai cho khách**, chạy tr�
 
 Phía trên bảng hàng có thanh tab: Tổng quan, Vị trí, Phân khu, Mặt bằng Layout, **Quỹ căn** (bảng hàng, mở mặc định), Chính sách bán hàng, Tiến độ, Tài liệu, Tin tức.
 
-**Nội dung các tab lấy từ một trang WordPress riêng cho từng dự án**, tách khỏi trang dự án:
+**Nguồn nội dung, theo thứ tự ưu tiên, tính riêng từng tab** (tab nào nguồn trên chưa có thì lấy nguồn dưới):
+
+1. **Khối Tabs soạn bằng UX Builder ngay trên trang Bảng hàng** (cách đơn giản nhất). Trong UX Builder thêm phần tử **Tabs**, ô Title ghi tên dự án ("Vinhomes Saigon Park" hoặc "Vinhomes Green Paradise"), mỗi tab con đặt tên đúng tên tab (Tổng quan, Vị trí, Phân khu, Mặt bằng Layout, Chính sách bán hàng, Tiến độ, Tài liệu), bên trong kéo Text, Image, Row... như bình thường. Khối Tabs gốc tự ẩn trên trang (vẫn hiện trong UX Builder để sửa), nội dung hiện trong thanh tab của bảng hàng.
+2. Trang WordPress riêng cho từng dự án (bảng dưới).
+3. Trang dự án (`projectLinks`).
+
+Trang WordPress riêng cho từng dự án, tách khỏi trang dự án:
 
 | Dự án | Trang nội dung tab (đường dẫn phải đúng) | File soạn sẵn để dán |
 |---|---|---|
