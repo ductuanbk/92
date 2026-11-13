@@ -219,8 +219,9 @@ tbody tr:hover .go { color: var(--brand); }
 .cta { margin-top: 26px; display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%); color: #fff; border-radius: 14px; padding: 18px 20px; }
 .cta b { display: block; font-size: 16px; } .cta span { font-size: 13px; color: rgba(255,255,255,.75); }
 .cta .btns { display: flex; gap: 8px; flex-wrap: wrap; }
-.cta a { display: inline-flex; align-items: center; gap: 7px; height: 40px; padding: 0 16px; border-radius: 10px; font-weight: 700; font-size: 14px; text-decoration: none; background: #fff; color: var(--navy); }
-.cta a.call { background: var(--brand); color: #fff; } .cta a svg { width: 16px; height: 16px; }
+.cta a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding: 0 18px; border-radius: 10px; font-weight: 700; font-size: 14.5px; text-decoration: none; white-space: nowrap; background: #fff; color: var(--navy); box-shadow: 0 2px 8px rgba(0,0,0,.12); }
+.cta a.call { background: var(--brand); color: #fff; } .cta a svg { width: 17px; height: 17px; flex: none; }
+.cta > div:first-child { min-width: 0; flex: 1 1 260px; } .cta span { display: block; margin-top: 3px; line-height: 1.5; }
 .src { margin: 12px 2px 0; font-size: 12px; color: var(--muted); }
 .src a { color: var(--navy-2); }
 .lchips { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 16px; }
@@ -423,7 +424,11 @@ tbody tr:hover .go { color: var(--brand); }
   .news { grid-template-columns: 1fr; }
   .lgrid { grid-template-columns: 1fr; gap: 12px; }
   .lchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -16px; padding-right: 16px; } .lchips button { flex: none; }
-  .cta { padding: 16px; } .cta .btns { width: 100%; } .cta a { flex: 1; justify-content: center; }
+  .cta { padding: 18px 16px 16px; gap: 14px; border-radius: 16px; }
+  .cta b { font-size: 17px; line-height: 1.35; } .cta span { font-size: 13.5px; }
+  .cta .btns { width: 100%; display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .cta a { width: 100%; height: 48px; font-size: 15.5px; border-radius: 12px; }
+  .src { text-align: center; }
 }
 `;
 
