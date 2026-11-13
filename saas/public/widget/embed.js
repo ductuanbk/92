@@ -40,11 +40,11 @@
     // mỗi tiêu đề H2 của trang được xếp vào tab có từ khóa khớp (không dấu, chữ thường).
     // Sửa trang dự án trong WordPress là các tab tự cập nhật. Đổi tên, thứ tự, bỏ tab: sửa danh sách này.
     tabs: [
+      { id: 'quy-can', label: 'Quỹ căn', icon: 'house' },
       { id: 'tong-quan', label: 'Tổng quan', icon: 'globe', match: ['tong quan', 'chu dau tu', 'tien ich', 'ly do', 'co nen', 'so sanh', 'gioi thieu'] },
       { id: 'vi-tri', label: 'Vị trí', icon: 'pin', match: ['vi tri', 'ket noi'] },
       { id: 'phan-khu', label: 'Phân khu', icon: 'grid', match: ['phan khu'] },
       { id: 'mat-bang', label: 'Mặt bằng Layout', icon: 'map', match: ['mat bang', 'layout'] },
-      { id: 'quy-can', label: 'Quỹ căn', icon: 'house' },
       { id: 'chinh-sach', label: 'Chính sách bán hàng', icon: 'doc', match: ['gia ban', 'chinh sach', 'bang gia', 'uu dai', 'thanh toan'] },
       { id: 'tai-lieu', label: 'Tài liệu', icon: 'book', match: ['phap ly', 'tai lieu'] }
     ],

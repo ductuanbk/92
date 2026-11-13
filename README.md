@@ -146,7 +146,7 @@ Website chỉ có **một trang bảng hàng công khai cho khách**, chạy tr�
 
 ### Các tab thông tin dự án
 
-Phía trên bảng hàng có thanh tab: Tổng quan, Vị trí, Phân khu, Mặt bằng Layout, **Quỹ căn** (bảng hàng, mở mặc định), Chính sách bán hàng, Tài liệu. (Đã bỏ tab Tiến độ và Tin tức; mục "Tiến độ…" trên trang dự án không hiện ở tab nào, xem `dropSections`.)
+Phía trên bảng hàng có thanh tab: **Quỹ căn** (bảng hàng, đứng đầu, mở mặc định khi vào link), Tổng quan, Vị trí, Phân khu, Mặt bằng Layout, Chính sách bán hàng, Tài liệu. (Đã bỏ tab Tiến độ và Tin tức; mục "Tiến độ…" trên trang dự án không hiện ở tab nào, xem `dropSections`.)
 
 - **Nội dung lấy trực tiếp từ trang dự án trên WordPress** (`projectLinks`, ví dụ https://adongland.vn/vinhomes-saigon-park/). Mỗi tiêu đề H2 của trang được xếp vào tab có từ khóa khớp: "Vị trí…" vào tab Vị trí, "Phân khu…" vào Phân khu, "Mặt bằng…" vào Mặt bằng Layout, "Giá bán / Chính sách…" vào Chính sách bán hàng, "Tiến độ…" vào Tiến độ, "Pháp lý…" vào Tài liệu, còn lại vào Tổng quan. Mục hỏi đáp và khung "Nhận bảng giá / tài liệu" được bỏ qua.
 - **Sửa nội dung**: sửa trang dự án trong WordPress (thêm, bớt, đổi tiêu đề H2). Tab cập nhật sau tối đa 30 phút với khách đã xem trước đó, ngay lập tức với khách mới. Muốn một mục vào đúng tab, đặt tiêu đề H2 chứa từ khóa của tab đó.
