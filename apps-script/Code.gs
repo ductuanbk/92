@@ -78,7 +78,7 @@ function publicData_() {
     var seen = {}, units = [], failed = 0, unmapped = {};
     var tagMap = readTagLists_(project, tagTitles);
     project.sources.filter(isEnabled_).filter(function (s) { return s.public !== false; }).forEach(function (source) {
-      var res = readSource_(project, source);
+      var res = guardSource_(project, source, readSource_(project, source));
       if (res.error) { failed++; return; }
       res.units.forEach(function (u) {
         var k = normalize_(u.code).replace(/\s/g, '');
@@ -116,6 +116,37 @@ function publicData_() {
   var ttl = getProp_('PUBLIC_AUTO_REFRESH') === '1' ? (ps.autoRefreshCacheSeconds || 900) : (ps.cacheSeconds || 120);
   cachePut_('pub_v3', out, ttl);
   return out;
+}
+
+/**
+ * Chống chập chờn khi tab đang được công cụ khác ghi lại (xóa rồi điền lại):
+ * nếu tab bỗng lỗi hoặc còn dưới một nửa số căn so với lần đọc tốt gần nhất, giữ dữ liệu lần trước.
+ * Nếu số căn giảm thật và kéo dài quá 20 phút thì nhận dữ liệu mới.
+ */
+var SOURCE_GUARD_MINUTES = 20;
+function guardSource_(project, source, res) {
+  var key = 'pub_src_' + project.id + '_' + normalize_(source.sheet).replace(/[^a-z0-9]/g, '');
+  var prev = cacheGet_(key), cache = CacheService.getScriptCache(), dropKey = key + '_drop';
+  var bad = res.error || (prev && prev.length >= 20 && res.units.length < prev.length * 0.5);
+  if (bad && prev) {
+    var since = Number(cache.get(dropKey)) || Date.now();
+    cache.put(dropKey, String(since), 6 * 3600);
+    if (Date.now() - since < SOURCE_GUARD_MINUTES * 60000) {
+      Logger.log('Giữ dữ liệu cũ của ' + source.sheet + ' (' + prev.length + ' căn) vì lần đọc này ' + (res.error ? 'lỗi' : 'chỉ có ' + res.units.length + ' căn'));
+      return { units: prev, stale: true };
+    }
+  }
+  cache.remove(dropKey);
+  if (!res.error) {
+    // Chỉ lưu các trường bảng hàng công khai cần, cho gọn.
+    var slim = res.units.map(function (u) {
+      return { code: u.code, zone: u.zone, street: u.street, type: u.type, direction: u.direction, handover: u.handover, land: u.land, build: u.build,
+        priceTotal: u.priceTotal, priceExVat: u.priceExVat, priceLoan: u.priceLoan, priceEarly: u.priceEarly, priceProgress: u.priceProgress,
+        status: u.status, statusRaw: u.statusRaw, ptg: u.ptg, unitLink: u.unitLink, stk: u.stk, note: u.note, fund: u.fund };
+    });
+    cachePut_(key, slim, 6 * 3600);
+  }
+  return res;
 }
 
 /**
