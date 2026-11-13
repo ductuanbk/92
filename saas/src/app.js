@@ -769,7 +769,7 @@ export function createApp(db, opts = {}) {
       API_URL: `${base}/api/public/${ws.slug}`, brandName: ws.brand_name || ws.name, brandColor: ws.color,
       hotline: (ws.hotline || '').replace(/[^\d+]/g, ''), hotlineText: ws.hotline || '', zalo: ws.zalo || '',
       company: { name: ws.company_name || ws.name, address: ws.address, taxCode: ws.tax_code },
-      projectOrder: projects.map((p) => 'P' + p.id), projectLinks: links, contentPages: {}, newsSearch: news, docs: {}, layouts: {}
+      projectOrder: projects.map((p) => 'P' + p.id), projectLinks: links, newsSearch: news, docs: {}, layouts: {}
     };
     // Tab thông tin dự án chỉ bật khi có ít nhất một dự án gắn trang WordPress.
     if (!Object.keys(links).length) cfg.tabs = [];
