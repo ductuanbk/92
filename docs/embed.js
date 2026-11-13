@@ -25,6 +25,9 @@
     API_URL: 'https://script.google.com/macros/s/AKfycbwwmEKbhm_tU2C0MtddBsS-3N2tqy5aAvzKPva8_XZUc_EPODnpUXyPnhk8Ia--4B59/exec',
     brandName: 'Á Đông Land',        // tên hiển thị trên bảng hàng (đổi khi dùng cho đơn vị khác)
     brandColor: '',                   // màu nhấn, ví dụ '#a31d24'; để trống dùng màu mặc định
+    // Logo: đặt ở góc trái khung ảnh chỉ căn (logo) và ô tròn liên hệ (logoIcon, ảnh vuông). Để trống thì không hiện / hiện chữ viết tắt.
+    logo: 'https://adongland.vn/wp-content/uploads/2025/07/A-DONG-LAND_Logo_1-300x245.png',
+    logoIcon: 'https://adongland.vn/wp-content/uploads/2025/09/cropped-a-dong-land-favicon-96-96-1-192x192.png',
     hotline: '0901303092',
     hotlineText: '0901 30 30 92',
     zalo: 'https://zalo.me/386470265573132310',
@@ -291,6 +294,8 @@ tbody tr:hover .go { color: var(--brand); }
 .media img.ok { opacity: 1; }
 .media.loading::before { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, #eef2f7 30%, #f8fafc 50%, #eef2f7 70%); background-size: 200% 100%; animation: sh 1.2s infinite; }
 .media .mtools { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 1; }
+.media .mlogo { position: absolute; top: 10px; left: 10px; z-index: 1; display: flex; align-items: center; background: rgba(255,255,255,.96); border-radius: 12px; padding: 6px 9px; box-shadow: 0 4px 14px rgba(0,0,0,.18); pointer-events: none; }
+.media .mlogo img { display: block; height: 40px; width: auto; opacity: 1; }
 .media .mtools a, .media .mtools button { background: rgba(255,255,255,.95); color: var(--navy); border: 0; border-radius: 999px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; text-decoration: none; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
 .media .hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); background: rgba(11,31,75,.72); color: #fff; font-size: 12px; padding: 5px 12px; border-radius: 999px; white-space: nowrap; pointer-events: none; }
 .media .poster { border-radius: 0; }
@@ -362,6 +367,8 @@ tbody tr:hover .go { color: var(--brand); }
 .person { display: flex; gap: 12px; align-items: center; background: #f8fafc; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
 .ava { width: 52px; height: 52px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--navy), var(--navy-2)); border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); font-size: 16px; overflow: hidden; }
 .ava img { width: 100%; height: 100%; object-fit: cover; }
+.ava.logo { background: #fff; border: 0; box-shadow: 0 0 0 1px var(--line), 0 2px 8px rgba(11,31,75,.10); }
+.ava.logo img { object-fit: contain; padding: 5px; }
 .person .nm b { display: block; color: var(--ink); font-size: 15px; }
 .person .nm span { display: block; color: var(--muted); font-size: 12.5px; }
 .person .cbtn { display: flex; gap: 6px; margin-top: 6px; }
@@ -401,6 +408,7 @@ tbody tr:hover .go { color: var(--brand); }
   .mb { grid-template-columns: 1fr; }
   .mleft { border-right: 0; border-bottom: 1px solid var(--line); padding: 12px; }
   .media { aspect-ratio: auto; height: min(118vw, 68vh); max-height: none; border-radius: 12px; }
+  .media .mlogo { top: 8px; left: 8px; padding: 5px 7px; border-radius: 10px; } .media .mlogo img { height: 32px; }
   .media.no-img { height: auto; aspect-ratio: 4 / 3; }
   .poster .code2 { font-size: 36px; } .poster { padding: 16px; }
   .quick b { font-size: 12.5px; } .quick span { font-size: 12.5px; }
@@ -1160,10 +1168,10 @@ tbody tr:hover .go { color: var(--brand); }
       return i < 0;
     }
     function contacts() {
-      var list = C.contacts && C.contacts.length ? C.contacts : [{ name: C.brandName, role: 'Tư vấn dự án ' + state.project.name, phone: C.hotline, phoneText: C.hotlineText, zalo: C.zalo }];
+      var list = C.contacts && C.contacts.length ? C.contacts : [{ name: C.brandName, avatar: /^https:\/\//.test(C.logoIcon || '') ? C.logoIcon : '', role: 'Tư vấn dự án ' + state.project.name, phone: C.hotline, phoneText: C.hotlineText, zalo: C.zalo }];
       return list.map(function (p) {
         var ini = String(p.name || '').split(/\s+/).filter(Boolean).slice(-2).map(function (w) { return w.charAt(0); }).join('').toUpperCase();
-        return '<div class="person"><div class="ava">' + (p.avatar ? '<img src="' + esc(p.avatar) + '" alt="">' : esc(ini)) + '</div><div class="nm"><b>' + esc(p.name) + '</b><span>' + esc(p.role || '') +
+        return '<div class="person"><div class="ava' + (p.avatar ? ' logo' : '') + '">' + (p.avatar ? '<img src="' + esc(p.avatar) + '" alt="' + esc(p.name || '') + '">' : esc(ini)) + '</div><div class="nm"><b>' + esc(p.name) + '</b><span>' + esc(p.role || '') +
           (p.phoneText ? ' · ' + esc(p.phoneText) : '') + '</span><div class="cbtn">' +
           (p.phone ? '<a class="ph" href="tel:' + esc(p.phone) + '" title="Gọi ' + esc(p.phoneText || p.phone) + '" aria-label="Gọi">' + ICON.phone + '</a>' : '') +
           (p.zalo ? '<a class="zl" href="' + esc(p.zalo) + '" target="_blank" rel="noopener" title="Nhắn Zalo" aria-label="Nhắn Zalo" data-zalo="1">' + ICON.chat + '</a>' : '') + '</div></div></div>';
@@ -1193,6 +1201,7 @@ tbody tr:hover .go { color: var(--brand); }
       // Cột trái: ảnh, thông tin nhanh, thao tác
       var img = unitImage(u);
       $('mLeft').innerHTML = '<div class="media' + (img ? ' has-img loading' : ' no-img') + '" id="mMedia">' + (img ? '<img id="mImg" src="' + esc(img) + '" alt="Ảnh chỉ căn ' + esc(u.code) + '">' +
+          (/^https:\/\//.test(C.logo || '') ? '<span class="mlogo"><img src="' + esc(C.logo) + '" alt="' + esc(C.brandName) + '"></span>' : '') +
           '<div class="mtools"><button id="mZoom" type="button">Phóng to</button></div><span class="hint">Bấm vào ảnh để xem toàn màn hình</span>' : posterHtml(u)) + '</div>' +
         '<div class="quick"><div><span>' + ICON.home + 'Loại hình</span><b>' + esc(u.type || '-') + '</b></div>' +
           (u.direction || !u.handover ? '<div><span>' + ICON.compass + 'Hướng</span><b>' + esc(u.direction || '-') + '</b></div>' : '<div><span>' + ICON.home + 'Bàn giao</span><b>' + esc(u.handover) + '</b></div>') +

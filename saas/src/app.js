@@ -767,6 +767,7 @@ export function createApp(db, opts = {}) {
     for (const p of projects) { if (p.page_url) links['P' + p.id] = p.page_url; news['P' + p.id] = [p.name]; }
     const cfg = {
       API_URL: `${base}/api/public/${ws.slug}`, brandName: ws.brand_name || ws.name, brandColor: ws.color,
+      logo: ws.logo_url || '', logoIcon: ws.logo_url || '',
       hotline: (ws.hotline || '').replace(/[^\d+]/g, ''), hotlineText: ws.hotline || '', zalo: ws.zalo || '',
       company: { name: ws.company_name || ws.name, address: ws.address, taxCode: ws.tax_code },
       projectOrder: projects.map((p) => 'P' + p.id), projectLinks: links, newsSearch: news, docs: {}, layouts: {}
