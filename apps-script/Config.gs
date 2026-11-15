@@ -62,6 +62,8 @@ var CONFIG = {
         { sheet: 'GIỎ HÀNG ĐỐI TÁC', label: 'Đối tác', kind: 'partner', editable: false, enabled: true }
         // Thêm public: false vào một nguồn để không đưa giỏ đó lên trang công khai.
       ],
+      // Phân khu theo dãy (mã đầu của mã căn, ví dụ AS47) lấy từ tab có cột "Mã đầu tên TM" và "Khu".
+      zoneMap: { sheet: 'LEAD BANK VHSGP', keyHeader: 'Mã đầu tên TM', valueHeader: 'Khu' },
       // Nhãn gắn cạnh mã căn trên bảng hàng công khai (giống nhãn ĐQ): căn có mã nằm trong tab này được gắn nhãn.
       tags: [
         { sheet: 'Quỹ VOS', label: 'VOS', title: 'Căn thuộc Quỹ VOS' }

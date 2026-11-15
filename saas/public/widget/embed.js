@@ -499,7 +499,6 @@ tbody tr:hover .go { color: var(--brand); }
       <label class="fld"><span>Loại hình</span><select id="fType"></select></label>
       <label class="fld"><span>Khoảng giá</span><select id="fPrice"></select></label>
       <label class="fld"><span>Diện tích đất</span><select id="fLand"></select></label>
-      <label class="fld"><span>Tình trạng</span><select id="fStatus"></select></label>
       <label class="fld"><span>Phân khu</span><select id="fZone"></select></label>
       <label class="fld"><span>Hướng</span><select id="fDirection"></select></label>
     </div>
@@ -573,7 +572,7 @@ tbody tr:hover .go { color: var(--brand); }
   }
   function cleanUnit(u) {
     return {
-      code: String(u.code || '').trim(), zone: blankish(u.zone) ? titleCase(blankish(u.zone)) : '', street: blankish(u.street),
+      code: String(u.code || '').trim(), zone: blankish(u.zone) ? titleCase(blankish(u.zone)).replace(/(^|\s)Cv(?=\s|$)/g, '$1CV') : '', street: blankish(u.street),
       type: cleanType(u.type), direction: blankish(u.direction) ? titleCase(blankish(u.direction)) : '',
       handover: cleanHandover(u.handover),
       land: u.land, build: u.build != null ? Math.round(u.build * 10) / 10 : u.build, price: u.price, status: viewStatus(u.status),
@@ -1009,7 +1008,6 @@ tbody tr:hover .go { color: var(--brand); }
     function inBucket(v, b, mul) { return v != null && v >= b[0] * mul && v < b[1] * mul; }
     var FIELDS = {
       fHandover: { k: 'handover' }, fType: { k: 'type', prefer: C.typeOrder || [] }, fZone: { k: 'zone' }, fDirection: { k: 'direction' },
-      fStatus: { k: 'status', order: ['Còn hàng', CHECK, 'Đã bán'] },
       fPrice: { k: 'price', buckets: PRICE_BUCKETS, mul: 1e9 }, fLand: { k: 'land', buckets: LAND_BUCKETS, mul: 1 }
     };
     function buildOptions() { renderFilters(); }
@@ -1066,7 +1064,7 @@ tbody tr:hover .go { color: var(--brand); }
       if (top < 0 || top > window.innerHeight) window.scrollBy({ top: top - 90, behavior: 'smooth' });
     };
     function reset() { state.page = 1; render(); }
-    function advCount() { var f = state.filter; return ['handover', 'type', 'price', 'land', 'status', 'zone', 'direction'].filter(function (k) { return f[k]; }).length; }
+    function advCount() { var f = state.filter; return ['handover', 'type', 'price', 'land', 'zone', 'direction'].filter(function (k) { return f[k]; }).length; }
     function anyFilter() { return !!(state.filter.q || advCount()); }
 
     function matches(u, skip) {

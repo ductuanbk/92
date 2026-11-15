@@ -63,7 +63,7 @@ var unmappedLog_ = {}; // trạng thái chưa nhận ra, chỉ ghi vào nhật k
 function publicData_() {
   var ps = CONFIG.publicSite || {};
   if (!ps.enabled) return { ok: false, error: 'Trang công khai đang tắt.' };
-  var cached = cacheGet_('pub_v3');
+  var cached = cacheGet_('pub_v4');
   if (cached) return cached;
   var labels = ps.statusLabels || {};
   var out = {
@@ -77,6 +77,7 @@ function publicData_() {
   CONFIG.projects.forEach(function (project) {
     var seen = {}, units = [], failed = 0, unmapped = {};
     var tagMap = readTagLists_(project, tagTitles);
+    var zoneMap = readZoneMap_(project);
     project.sources.filter(isEnabled_).filter(function (s) { return s.public !== false; }).forEach(function (source) {
       var res = guardSource_(project, source, readSource_(project, source));
       if (res.error) { failed++; return; }
@@ -92,6 +93,8 @@ function publicData_() {
         };
         if (source.kind === 'exclusive') item.dq = 1;
         if (tagMap[k]) item.tags = tagMap[k];
+        var zk = normalize_(codePrefix_(u.code) || u.street).replace(/\s/g, '');
+        if (zoneMap[zk]) item.zone = zoneMap[zk];
         if (ps.showLinks) {
           if (/^https:\/\//i.test(u.ptg)) item.ptg = u.ptg;
           if (/^https:\/\//i.test(u.unitLink)) item.unitLink = u.unitLink;
@@ -114,7 +117,7 @@ function publicData_() {
   out.tagTitles = tagTitles;
   // Có bật tự làm mới (batTuDongLamMoi) thì giữ cache lâu hơn chu kỳ làm mới để khách không bao giờ phải chờ Google đọc Sheet.
   var ttl = getProp_('PUBLIC_AUTO_REFRESH') === '1' ? (ps.autoRefreshCacheSeconds || 900) : (ps.cacheSeconds || 120);
-  cachePut_('pub_v3', out, ttl);
+  cachePut_('pub_v4', out, ttl);
   return out;
 }
 
@@ -147,6 +150,36 @@ function guardSource_(project, source, res) {
     cachePut_(key, slim, 6 * 3600);
   }
   return res;
+}
+
+/**
+ * Bảng dãy → phân khu (ví dụ tab LEAD BANK VHSGP: cột "Mã đầu tên TM" và cột "Khu" ngay sau đó).
+ * Một tab có thể có nhiều cặp cột như vậy. Tab thiếu hoặc lỗi thì bỏ qua.
+ */
+function readZoneMap_(project) {
+  var z = project.zoneMap, map = {};
+  if (!z) return map;
+  try {
+    var sh = SpreadsheetApp.openById(z.spreadsheetId || project.spreadsheetId).getSheetByName(z.sheet);
+    if (!sh) return map;
+    var rows = sh.getDataRange().getDisplayValues(), kh = normalize_(z.keyHeader), vh = normalize_(z.valueHeader);
+    for (var r = 0; r < Math.min(rows.length, 10); r++) {
+      var h = rows[r].map(normalize_), pairs = [];
+      h.forEach(function (x, i) {
+        if (x !== kh) return;
+        for (var j = i + 1; j < h.length && j <= i + 4; j++) if (h[j] === vh) { pairs.push([i, j]); break; }
+      });
+      if (!pairs.length) continue;
+      for (var i = r + 1; i < rows.length; i++) {
+        pairs.forEach(function (p) {
+          var k = normalize_(rows[i][p[0]]).replace(/\s/g, ''), v = String(rows[i][p[1]] || '').trim();
+          if (k && v && !map[k]) map[k] = v.replace(/\s+/g, ' ');
+        });
+      }
+      break;
+    }
+  } catch (e) { /* bỏ qua tab lỗi */ }
+  return map;
 }
 
 /**
@@ -195,7 +228,7 @@ function fundOf_(u) {
 /** Chạy một lần trong trình soạn thảo của dự án công khai để cấp quyền đọc Google Sheet và xem thử số căn. */
 /** Dựng lại dữ liệu công khai và lưu cache (trình kích hoạt theo thời gian gọi hàm này). */
 function lamMoiBangHangCongKhai() {
-  CacheService.getScriptCache().remove('pub_v3_n');
+  CacheService.getScriptCache().remove('pub_v4_n');
   publicData_();
 }
 
@@ -218,7 +251,7 @@ function tatTuDongLamMoi() {
 }
 
 function kiemTraBangHangCongKhai() {
-  CacheService.getScriptCache().remove('pub_v3_n');
+  CacheService.getScriptCache().remove('pub_v4_n');
   var d = publicData_();
   d.projects.forEach(function (p) {
     Logger.log(p.name + ': ' + p.units.length + ' căn' + (p.incomplete ? ' (có tab đọc lỗi)' : '') +
