@@ -9,7 +9,6 @@
  *   data-du-an="VHSGP"   chỉ hiện một dự án (VHSGP hoặc VHCG), ẩn nút chuyển dự án
  *   data-tieu-de="0"     ẩn khung tiêu đề dự án phía trên bảng
  *   data-lien-ket="0"    không ghi mã căn lên thanh địa chỉ
- *   data-gio="dq"        mở sẵn tab ĐQ (giỏ hàng độc quyền Á Đông Land)
  *   data-muc="tong-quan" mở sẵn tab thông tin khác (mặc định: quy-can). Các tab: tong-quan, vi-tri, phan-khu,
  *                        mat-bang, quy-can, chinh-sach, tai-lieu
  *
@@ -477,7 +476,7 @@ tbody tr:hover .go { color: var(--brand); }
     <div class="row1">
       <input class="search" id="q" type="search" placeholder="Tìm mã căn, ví dụ AS71-18" aria-label="Tìm mã căn">
       <label class="sort"><span>Sắp xếp</span><select id="sortSel">
-        <option value="default">Còn hàng trước, giá thấp trước</option>
+        <option value="default">ĐQ trước, còn hàng, giá thấp</option>
         <option value="price:1">Giá thấp đến cao</option><option value="price:-1">Giá cao đến thấp</option>
         <option value="perM2:1">Đơn giá thấp đến cao</option><option value="land:-1">Diện tích đất lớn đến nhỏ</option>
         <option value="code:1">Mã căn A đến Z</option><option value="custom" hidden>Theo cột đã chọn</option>
@@ -1068,7 +1067,8 @@ tbody tr:hover .go { color: var(--brand); }
     function renderTabs() {
       var cfg = dqCfg(), ndq = state.units.filter(function (u) { return u.dq; }).length;
       var nsaved = 0; // đã bỏ nút Quan tâm
-      var showDq = !!cfg && ndq > 0;
+      var showDq = false; // đã bỏ 2 tab Tất cả căn / ĐQ: căn ĐQ đứng đầu danh sách mặc định
+      void ndq; void cfg;
       if (!showDq) state.filter.dq = '';
       if (!nsaved) state.filter.saved = '';
       $('gtabs').hidden = !showDq && !nsaved;
@@ -1113,7 +1113,7 @@ tbody tr:hover .go { color: var(--brand); }
     function sortRows(rows) {
       var s = state.sort;
       return rows.slice().sort(function (a, b) {
-        if (s.key === 'default') return rank(a.status) - rank(b.status) || (a.price || Infinity) - (b.price || Infinity) || natural(a.code, b.code);
+        if (s.key === 'default') return (b.dq ? 1 : 0) - (a.dq ? 1 : 0) || rank(a.status) - rank(b.status) || (a.price || Infinity) - (b.price || Infinity) || natural(a.code, b.code);
         var x = s.key === 'perM2' ? perM2(a) : a[s.key], y = s.key === 'perM2' ? perM2(b) : b[s.key], r;
         if (s.key === 'status') r = rank(a.status) - rank(b.status);
         else if (typeof x === 'number' || typeof y === 'number') { r = (x == null ? Infinity : x) - (y == null ? Infinity : y); if (isNaN(r)) r = 0; }
