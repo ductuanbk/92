@@ -63,7 +63,7 @@ var unmappedLog_ = {}; // trạng thái chưa nhận ra, chỉ ghi vào nhật k
 function publicData_() {
   var ps = CONFIG.publicSite || {};
   if (!ps.enabled) return { ok: false, error: 'Trang công khai đang tắt.' };
-  var cached = cacheGet_('pub_v4');
+  var cached = cacheGet_('pub_v5');
   if (cached) return cached;
   var labels = ps.statusLabels || {};
   var out = {
@@ -95,6 +95,8 @@ function publicData_() {
         if (tagMap[k]) item.tags = tagMap[k];
         var zk = normalize_(codePrefix_(u.code) || u.street).replace(/\s/g, '');
         if (zoneMap[zk]) item.zone = zoneMap[zk];
+        var zp = zoneByPrefix_(project, u.code);
+        if (zp) item.zone = zp;
         if (ps.showLinks) {
           if (/^https:\/\//i.test(u.ptg)) item.ptg = u.ptg;
           if (/^https:\/\//i.test(u.unitLink)) item.unitLink = u.unitLink;
@@ -117,7 +119,7 @@ function publicData_() {
   out.tagTitles = tagTitles;
   // Có bật tự làm mới (batTuDongLamMoi) thì giữ cache lâu hơn chu kỳ làm mới để khách không bao giờ phải chờ Google đọc Sheet.
   var ttl = getProp_('PUBLIC_AUTO_REFRESH') === '1' ? (ps.autoRefreshCacheSeconds || 900) : (ps.cacheSeconds || 120);
-  cachePut_('pub_v4', out, ttl);
+  cachePut_('pub_v5', out, ttl);
   return out;
 }
 
@@ -150,6 +152,14 @@ function guardSource_(project, source, res) {
     cachePut_(key, slim, 6 * 3600);
   }
   return res;
+}
+
+/** Phân khu theo chữ đầu của mã căn (cấu hình zoneByPrefix); khớp tiền tố dài nhất. */
+function zoneByPrefix_(project, code) {
+  var map = project.zoneByPrefix; if (!map) return '';
+  var m = /^[^\d\s-]+/.exec(String(code || '').trim()), letters = m ? normalize_(m[0]) : '', best = '';
+  Object.keys(map).forEach(function (k) { var nk = normalize_(k); if (nk && letters === nk && nk.length > best.length) best = k; });
+  return best ? map[best] : '';
 }
 
 /**
@@ -228,7 +238,7 @@ function fundOf_(u) {
 /** Chạy một lần trong trình soạn thảo của dự án công khai để cấp quyền đọc Google Sheet và xem thử số căn. */
 /** Dựng lại dữ liệu công khai và lưu cache (trình kích hoạt theo thời gian gọi hàm này). */
 function lamMoiBangHangCongKhai() {
-  CacheService.getScriptCache().remove('pub_v4_n');
+  CacheService.getScriptCache().remove('pub_v5_n');
   publicData_();
 }
 
@@ -251,7 +261,7 @@ function tatTuDongLamMoi() {
 }
 
 function kiemTraBangHangCongKhai() {
-  CacheService.getScriptCache().remove('pub_v4_n');
+  CacheService.getScriptCache().remove('pub_v5_n');
   var d = publicData_();
   d.projects.forEach(function (p) {
     Logger.log(p.name + ': ' + p.units.length + ' căn' + (p.incomplete ? ' (có tab đọc lỗi)' : '') +
