@@ -163,6 +163,8 @@ tbody tr:last-child td { border-bottom: 0; }
 .code { display: inline-block; background: var(--brand-soft); color: var(--brand); font-weight: 700; padding: 3px 9px; border-radius: 6px; letter-spacing: .2px; font-size: 13.5px; }
 .price { font-weight: 700; color: var(--navy); font-size: 15px; }
 .unitp { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
+th .si { opacity: .45; } th .si.on { opacity: 1; }
+.col-perM2 { display: none; }
 .m2 { color: var(--muted); font-size: 12px; margin-left: 2px; }
 .dim { color: #b6bdc9; }
 .stt { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 600; white-space: nowrap; background: var(--cb); color: var(--c); }
@@ -397,7 +399,19 @@ tbody tr:hover .go { color: var(--brand); }
   .sort { flex: 1 1 0; min-width: 0; } .sort span { display: none; } .sort select { min-width: 0; width: 100%; }
 
   .adv { grid-template-columns: 1fr 1fr; gap: 10px; }
-  .tw { display: none; } .cards { display: block; }
+  /* Điện thoại: bảng cuộn ngang, cột mã căn cố định bên trái */
+  .tw { display: block; max-height: none; border-radius: 12px; -webkit-overflow-scrolling: touch; }
+  .cards { display: none; }
+  th, td { padding: 13px 12px; font-size: 14.5px; }
+  th { font-size: 11px; letter-spacing: .3px; }
+  .col-perM2, .col-zone, .col-direction, .col-build { display: table-cell; }
+  td.col-perM2, td.col-priceEarly { color: var(--ink-2); }
+  td.col-price .unitp { display: none; }
+  th.col-code, td.col-code { position: sticky; left: 0; z-index: 2; background: #fff; box-shadow: 1px 0 0 var(--line-2), 6px 0 8px -6px rgba(16,24,40,.18); }
+  th.col-code { z-index: 3; background: #f8fafc; }
+  tr:hover td.col-code { background: #fafbfd; }
+  td.col-code .dq { font-size: 9.5px; padding: 1px 4px; margin-left: 3px; }
+  th.go, td.go { display: none; }
   .mbg { padding: 0; align-items: stretch; }
   .modal { border-radius: 0; max-height: 100vh; height: 100%; }
   .mh { flex-wrap: wrap; padding: 12px 14px; }
@@ -1065,6 +1079,8 @@ tbody tr:hover .go { color: var(--brand); }
     var COLS = [
       { k: 'code', l: 'Mã căn', cell: function (u) { return '<span class="code">' + esc(u.code) + '</span>' + dqTag(u); } },
       { k: 'price', l: 'Giá niêm yết', title: 'Đã gồm VAT và kinh phí bảo trì', cell: function (u) { return '<span class="price">' + ty(u.price) + '</span>' + (perM2(u) ? '<span class="unitp">' + trieu(perM2(u)) + '</span>' : ''); } },
+      { k: 'priceEarly', l: 'Giá TTS', num: 1, cell: function (u) { return u.priceEarly ? ty(u.priceEarly) : '<span class="dim">-</span>'; } },
+      { k: 'perM2', l: 'Đơn giá', num: 1, cell: function (u) { return perM2(u) ? trieu(perM2(u)) : '<span class="dim">-</span>'; } },
       { k: 'type', l: 'Loại hình', cell: function (u) { return esc(u.type) || '<span class="dim">-</span>'; } },
       { k: 'land', l: 'DT đất', num: 1, cell: function (u) { return u.land != null ? m2(u.land) + '<span class="m2">m²</span>' : '<span class="dim">-</span>'; } },
       { k: 'build', l: 'DT xây dựng', num: 1, cell: function (u) { return u.build != null ? m2(u.build) + '<span class="m2">m²</span>' : '<span class="dim">-</span>'; } },
@@ -1075,7 +1091,8 @@ tbody tr:hover .go { color: var(--brand); }
     ];
     function cols() {
       return COLS.filter(function (c) {
-        if (['code', 'price', 'status'].indexOf(c.k) >= 0) return true;
+        if (['code', 'price', 'status', 'perM2'].indexOf(c.k) >= 0) return true;
+        if (c.k === 'priceEarly') return coverage(c.k) > 0;
         return coverage(c.k) >= 0.3;
       });
     }
@@ -1107,7 +1124,7 @@ tbody tr:hover .go { color: var(--brand); }
       $('thead').innerHTML = '<tr>' + cs.map(function (c) {
         var on = state.sort.key === c.k;
         return '<th data-k="' + c.k + '" class="col-' + c.k + (c.num ? ' num' : '') + '"' + (c.title ? ' title="' + esc(c.title) + '"' : '') + '>' +
-          esc(c.l) + '<span class="si">' + (on ? (state.sort.dir > 0 ? '↑' : '↓') : '') + '</span></th>';
+          esc(c.l) + '<span class="si' + (on ? ' on' : '') + '">' + (on ? (state.sort.dir > 0 ? '↑' : '↓') : '⇅') + '</span></th>';
       }).join('') + '<th class="go" aria-hidden="true"></th></tr>';
       if (!rows.length) {
         var msg = '<div class="empty">Không có căn phù hợp. Thử bỏ bớt bộ lọc, hoặc gọi <b>' + esc(C.hotlineText) + '</b> để được gợi ý căn tương tự.</div>';
