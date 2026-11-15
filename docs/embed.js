@@ -146,6 +146,8 @@ a { color: var(--brand); }
 /* Dòng kết quả */
 .resbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 4px 2px 10px; color: var(--ink-2); font-size: 13.5px; }
 .resbar b { color: var(--navy); }
+#resText { display: none; } /* đã bỏ dòng "Hiển thị 1–50 / … căn" */
+.resbar:has(#clearAll[hidden]) { display: none; }
 .link { background: none; border: 0; padding: 0; color: var(--brand); font-weight: 600; font-size: 13px; text-decoration: underline; text-underline-offset: 2px; }
 .spacer { flex: 1; }
 
@@ -1060,7 +1062,7 @@ tbody tr:hover .go { color: var(--brand); }
     $('more').onclick = function (e) {
       var b = e.target.closest('button[data-pg]'); if (!b || b.disabled) return;
       state.page = Number(b.dataset.pg); render();
-      var top = $('resText').getBoundingClientRect().top;
+      var top = $('pQuy').getBoundingClientRect().top;
       if (top < 0 || top > window.innerHeight) window.scrollBy({ top: top - 90, behavior: 'smooth' });
     };
     function reset() { state.page = 1; render(); }
