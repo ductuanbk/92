@@ -164,6 +164,7 @@ tbody tr:last-child td { border-bottom: 0; }
 .price { font-weight: 700; color: var(--navy); font-size: 15px; }
 .unitp { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
 th .si { opacity: .45; } th .si.on { opacity: 1; }
+td { font-variant-numeric: tabular-nums; }
 .col-perM2 { display: none; }
 .m2 { color: var(--muted); font-size: 12px; margin-left: 2px; }
 .dim { color: #b6bdc9; }
@@ -402,8 +403,12 @@ tbody tr:hover .go { color: var(--brand); }
   /* Điện thoại: bảng cuộn ngang, cột mã căn cố định bên trái */
   .tw { display: block; max-height: none; border-radius: 12px; -webkit-overflow-scrolling: touch; }
   .cards { display: none; }
-  th, td { padding: 13px 12px; font-size: 14.5px; }
-  th { font-size: 11px; letter-spacing: .3px; }
+  th, td { padding: 9px 10px; font-size: 13px; line-height: 1.35; }
+  th { font-size: 10.5px; letter-spacing: .2px; padding-top: 10px; padding-bottom: 10px; }
+  td .code { font-size: 12.5px; padding: 2px 7px; border-radius: 5px; }
+  td .price { font-size: 13.5px; }
+  td .stt { font-size: 11.5px; padding: 3px 8px; }
+  td .m2 { font-size: 10px; }
   .col-perM2, .col-zone, .col-direction, .col-build { display: table-cell; }
   td.col-perM2, td.col-priceEarly { color: var(--ink-2); }
   td.col-price .unitp { display: none; }
