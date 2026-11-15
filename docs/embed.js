@@ -1056,7 +1056,6 @@ tbody tr:hover .go { color: var(--brand); }
       var top = $('resText').getBoundingClientRect().top;
       if (top < 0 || top > window.innerHeight) window.scrollBy({ top: top - 90, behavior: 'smooth' });
     };
-    $('more').onchange = function (e) { if (e.target.tagName === 'SELECT') { state.per = Number(e.target.value); state.page = 1; render(); } };
     function reset() { state.page = 1; render(); }
     function advCount() { var f = state.filter; return ['handover', 'type', 'price', 'land', 'status', 'zone', 'direction'].filter(function (k) { return f[k]; }).length; }
     function anyFilter() { return !!(state.filter.q || advCount()); }
@@ -1190,8 +1189,7 @@ tbody tr:hover .go { color: var(--brand); }
       });
       el.innerHTML = '<span class="pg">' + btn(1, '«', 'nav', cur === 1, 'Trang đầu') + btn(cur - 1, '‹', 'nav', cur === 1, 'Trang trước') + html +
         btn(cur + 1, '›', 'nav', cur === pages, 'Trang sau') + btn(pages, '»', 'nav', cur === pages, 'Trang cuối') + '</span>' +
-        '<span class="per"><select aria-label="Số căn mỗi trang">' + [20, 50, 100].map(function (n) { return '<option value="' + n + '"' + (n === per ? ' selected' : '') + '>' + n + ' căn</option>'; }).join('') +
-        '</select>/ tổng ' + total + '</span>';
+        '<span class="per">Tổng ' + total + ' căn</span>';
     }
     $('thead').onclick = function (e) {
       var th = e.target.closest('th[data-k]'); if (!th) return;
