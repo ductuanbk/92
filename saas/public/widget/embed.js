@@ -51,6 +51,8 @@
       { id: 'tai-lieu', label: 'Tài liệu', icon: 'book', match: ['phap ly', 'tai lieu'] }
     ],
     defaultTab: 'quy-can',
+    // Thứ tự các lựa chọn trong ô lọc Loại hình (loại khác, ví dụ Đơn lập, xếp sau).
+    typeOrder: ['Liền kề', 'LK Xẻ khe', 'LK áp góc', 'Liền kề góc', 'Song lập', 'Song lập góc'],
     // Lựa chọn ghép thêm vào ô Bàn giao: bàn giao + nhãn, ví dụ "Thô VOS" = bàn giao Thô và thuộc Quỹ VOS.
     handoverCombos: [{ label: 'Thô VOS', handover: 'Thô', tag: 'VOS' }],
     // Tiêu đề chứa các cụm này không đưa vào tab (hỏi đáp, khung mời để lại thông tin...).
@@ -561,6 +563,12 @@ tbody tr:hover .go { color: var(--brand); }
     var x = lowerVi(t).replace(/[(),;]/g, ' ').replace(/\s*[-–—]\s*/g, ' ').replace(/\s+/g, ' ').trim();
     x = x.replace(/^lk\b/, 'liền kề').replace(/^sl\b/, 'song lập').replace(/^(đl|dl)\b/, 'đơn lập').replace(/^bt\b/, 'biệt thự').replace(/^sh\b/, 'shophouse');
     x = x.replace(/\bgốc\b/g, 'góc');
+    // Gộp về các nhóm loại hình chuẩn (thứ tự hiển thị ở typeOrder).
+    var hasLk = /liền kề|nhà phố/.test(x), goc = /\bgóc\b/.test(x);
+    if (/xẻ khe/.test(x)) return 'LK Xẻ khe';
+    if (/áp góc/.test(x)) return 'LK áp góc';
+    if (/song lập/.test(x)) return goc ? 'Song lập góc' : 'Song lập';
+    if (hasLk) return goc ? 'Liền kề góc' : 'Liền kề';
     return x.charAt(0).toLocaleUpperCase('vi-VN') + x.slice(1);
   }
   function cleanUnit(u) {
@@ -1000,7 +1008,7 @@ tbody tr:hover .go { color: var(--brand); }
     function coverage(k) { return state.units.length ? state.units.filter(function (u) { return u[k]; }).length / state.units.length : 0; }
     function inBucket(v, b, mul) { return v != null && v >= b[0] * mul && v < b[1] * mul; }
     var FIELDS = {
-      fHandover: { k: 'handover' }, fType: { k: 'type' }, fZone: { k: 'zone' }, fDirection: { k: 'direction' },
+      fHandover: { k: 'handover' }, fType: { k: 'type', prefer: C.typeOrder || [] }, fZone: { k: 'zone' }, fDirection: { k: 'direction' },
       fStatus: { k: 'status', order: ['Còn hàng', CHECK, 'Đã bán'] },
       fPrice: { k: 'price', buckets: PRICE_BUCKETS, mul: 1e9 }, fLand: { k: 'land', buckets: LAND_BUCKETS, mul: 1 }
     };
@@ -1014,6 +1022,7 @@ tbody tr:hover .go { color: var(--brand); }
         } else {
           var c = {}; pool.forEach(function (u) { if (u[d.k]) c[u[d.k]] = (c[u[d.k]] || 0) + 1; });
           var keys = d.order ? d.order.filter(function (x) { return c[x]; }) : Object.keys(c).sort(function (a, b) { return c[b] - c[a] || natural(a, b); });
+          if (d.prefer) keys = d.prefer.filter(function (x) { return c[x]; }).concat(keys.filter(function (x) { return d.prefer.indexOf(x) < 0; }));
           items = keys.map(function (x) { return { v: x, l: x, n: c[x] }; });
           // Ô Bàn giao: chèn lựa chọn ghép (ví dụ "Thô VOS") ngay sau lựa chọn bàn giao gốc.
           if (d.k === 'handover') combos().forEach(function (cb) {
