@@ -182,9 +182,17 @@ td.go { padding-left: 4px; padding-right: 10px; }
 .s-other { --c: var(--other); --cb: var(--other-bg); } .s-sold { --c: var(--sold); --cb: var(--sold-bg); }
 .go { color: #c3cad6; font-size: 18px; text-align: right; width: 24px; }
 tbody tr:hover .go { color: var(--brand); }
-.more { display: flex; justify-content: center; margin: 14px 0 4px; }
-.more button { border: 1px solid #dfe4ec; background: #fff; color: var(--navy); font-weight: 600; border-radius: 10px; padding: 10px 22px; }
-.more button:hover { border-color: var(--navy); }
+/* Phân trang */
+.pager { display: flex; justify-content: center; align-items: center; gap: 6px; flex-wrap: wrap; margin: 14px 0 4px; }
+.pager .pg { display: inline-flex; gap: 4px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.pager button { min-width: 38px; height: 38px; padding: 0 8px; border: 0; border-radius: 9px; background: transparent; color: var(--ink); font-weight: 600; font-size: 14px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.pager button:hover:not(:disabled):not(.on) { background: #eef2f7; }
+.pager button.nav { background: #fff; color: var(--ink-2); box-shadow: 0 0 0 1px var(--line); font-size: 16px; }
+.pager button.on { background: #eef3fb; color: #2f6fd6; }
+.pager button:disabled { color: #c3c9d4; cursor: default; box-shadow: 0 0 0 1px var(--line-2); }
+.pager .gap { min-width: 26px; text-align: center; color: var(--ink-2); font-weight: 600; }
+.pager .per { display: inline-flex; align-items: center; gap: 8px; margin-left: 8px; color: var(--muted); font-size: 13.5px; }
+.pager select { height: 38px; border: 1px solid #dfe4ec; border-radius: 9px; padding: 0 28px 0 12px; background: #fff; font-size: 14px; color: var(--ink); }
 .empty { padding: 44px 20px; text-align: center; color: var(--muted); white-space: normal; }
 .ptabs { display: flex; justify-content: center; gap: 0; margin: 0 0 16px; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .ptabs::-webkit-scrollbar { display: none; }
@@ -417,6 +425,7 @@ tbody tr:hover .go { color: var(--brand); }
   td .price { font-size: 13.5px; }
   td .stt { font-size: 11.5px; padding: 3px 8px; }
   td .m2 { font-size: 10px; }
+  .pager { gap: 8px; } .pager button { min-width: 32px; height: 34px; padding: 0 6px; font-size: 13.5px; } .pager .per { margin-left: 0; width: 100%; justify-content: center; } .pager select { height: 34px; }
   .col-perM2, .col-zone, .col-direction, .col-build { display: table-cell; }
   td.col-perM2, td.col-priceEarly { color: var(--ink-2); }
   td.col-price .unitp { display: none; }
@@ -497,7 +506,7 @@ tbody tr:hover .go { color: var(--brand); }
   <div class="resbar"><span id="resText">Đang tải...</span><button class="link" id="clearAll" hidden>Xóa bộ lọc</button></div>
   <div class="tw"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
   <div class="cards" id="cards"></div>
-  <div class="more" id="more" hidden><button id="moreBtn"></button></div>
+  <nav class="pager" id="more" aria-label="Phân trang" hidden></nav>
   <p class="legal" id="legal"></p>
   </div>
 
@@ -626,7 +635,7 @@ tbody tr:hover .go { color: var(--brand); }
     var useHash = host.getAttribute('data-lien-ket') !== '0';
     if (host.getAttribute('data-tieu-de') === '0') $('hero').hidden = true;
     var state = null;
-    state = { data: null, projects: [], project: null, units: [], filter: blank(), sort: { key: 'default', dir: 1 }, current: null, shown: C.pageSize };
+    state = { data: null, projects: [], project: null, units: [], filter: blank(), sort: { key: 'default', dir: 1 }, current: null, page: 1, per: C.pageSize };
     function blank() { return { q: '', zone: '', type: '', direction: '', handover: '', land: '', price: '', status: '', dq: state && state.filter ? state.filter.dq : (host.getAttribute('data-gio') === 'dq' ? '1' : '') }; }
     function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove('show'); }, 2600); }
 
@@ -671,7 +680,7 @@ tbody tr:hover .go { color: var(--brand); }
       var changed = !state.project || state.project.id !== id;
       state.project = state.projects.filter(function (p) { return p.id === id; })[0];
       state.units = state.project.units.map(cleanUnit);
-      if (changed && !keep) { state.filter = blank(); state.shown = C.pageSize; $('q').value = ''; }
+      if (changed && !keep) { state.filter = blank(); state.page = 1; $('q').value = ''; }
       Array.prototype.forEach.call($('projects').children, function (b) { b.classList.toggle('on', b.dataset.p === id); b.setAttribute('aria-selected', String(b.dataset.p === id)); });
       var upd = when(state.data.updatedAt);
       $('hName').textContent = state.project.name;
@@ -1040,8 +1049,15 @@ tbody tr:hover .go { color: var(--brand); }
     $('sortSel').onchange = function () { var v = this.value; state.sort = v === 'default' ? { key: 'default', dir: 1 } : { key: v.split(':')[0], dir: Number(v.split(':')[1]) }; reset(); };
     function clearFilters() { state.filter = blank(); $('q').value = ''; reset(); }
     $('clearAll').onclick = clearFilters;
-    $('moreBtn').onclick = function () { state.shown += C.pageSize; render(); };
-    function reset() { state.shown = C.pageSize; render(); }
+    // Phân trang: « ‹ 1 2 3 … 25 26 › » + số căn mỗi trang.
+    $('more').onclick = function (e) {
+      var b = e.target.closest('button[data-pg]'); if (!b || b.disabled) return;
+      state.page = Number(b.dataset.pg); render();
+      var top = $('resText').getBoundingClientRect().top;
+      if (top < 0 || top > window.innerHeight) window.scrollBy({ top: top - 90, behavior: 'smooth' });
+    };
+    $('more').onchange = function (e) { if (e.target.tagName === 'SELECT') { state.per = Number(e.target.value); state.page = 1; render(); } };
+    function reset() { state.page = 1; render(); }
     function advCount() { var f = state.filter; return ['handover', 'type', 'price', 'land', 'status', 'zone', 'direction'].filter(function (k) { return f[k]; }).length; }
     function anyFilter() { return !!(state.filter.q || advCount()); }
 
@@ -1128,10 +1144,12 @@ tbody tr:hover .go { color: var(--brand); }
       var n = advCount(); $('advCount').hidden = !n; $('advCount').textContent = n;
       var sv = state.sort.key === 'default' ? 'default' : state.sort.key + ':' + state.sort.dir;
       $('sortSel').value = Array.prototype.some.call($('sortSel').options, function (o) { return o.value === sv && !o.hidden; }) ? sv : 'custom';
-      var shown = rows.slice(0, state.shown);
+      var per = state.per || C.pageSize, pages = Math.max(1, Math.ceil(rows.length / per));
+      state.page = Math.min(Math.max(1, state.page || 1), pages);
+      var from = (state.page - 1) * per, shown = rows.slice(from, from + per);
       state.visible = rows;
       $('resText').innerHTML = rows.length
-        ? 'Hiển thị <b>' + shown.length + '</b> / <b>' + rows.length + '</b> căn' + (rows.length !== state.units.length ? ' phù hợp' : '')
+        ? 'Hiển thị <b>' + (rows.length > per ? (shown.length > 1 ? (from + 1) + '–' + (from + shown.length) : from + 1) : shown.length) + '</b> / <b>' + rows.length + '</b> căn' + (rows.length !== state.units.length ? ' phù hợp' : '')
         : 'Không có căn phù hợp';
       $('clearAll').hidden = !anyFilter();
       var cs = cols();
@@ -1154,9 +1172,26 @@ tbody tr:hover .go { color: var(--brand); }
           '<div class="r2"><span class="price">' + ty(u.price) + '</span>' + (perM2(u) ? '<span class="unitp">' + trieu(perM2(u)) + '</span>' : '') + '</div>' +
           '<div class="facts">' + facts.map(function (x) { return '<div><span>' + x[0] + '</span>' + esc(x[1]) + '</div>'; }).join('') + '</div></div>';
       }).join('');
-      var left = rows.length - shown.length;
-      $('more').hidden = left <= 0;
-      $('moreBtn').textContent = 'Xem thêm ' + Math.min(left, C.pageSize) + ' căn (còn ' + left + ')';
+      renderPager(rows.length, per, pages);
+    }
+    function renderPager(total, per, pages) {
+      var cur = state.page, el = $('more');
+      el.hidden = total <= 20;
+      if (el.hidden) return;
+      var want = {}; [1, 2, pages - 1, pages, cur - 1, cur, cur + 1].forEach(function (n) { if (n >= 1 && n <= pages) want[n] = 1; });
+      if (cur <= 3) [1, 2, 3].forEach(function (n) { if (n <= pages) want[n] = 1; });
+      if (cur >= pages - 2) [pages - 2, pages - 1, pages].forEach(function (n) { if (n >= 1) want[n] = 1; });
+      var nums = Object.keys(want).map(Number).sort(function (a, b) { return a - b; }), html = '', last = 0;
+      var btn = function (pg, label, cls, dis, aria) { return '<button type="button" data-pg="' + pg + '" class="' + cls + '"' + (dis ? ' disabled' : '') + ' aria-label="' + aria + '">' + label + '</button>'; };
+      nums.forEach(function (n) {
+        if (n - last > 1) html += '<span class="gap">…</span>';
+        html += '<button type="button" data-pg="' + n + '"' + (n === cur ? ' class="on" aria-current="page"' : '') + '>' + n + '</button>';
+        last = n;
+      });
+      el.innerHTML = '<span class="pg">' + btn(1, '«', 'nav', cur === 1, 'Trang đầu') + btn(cur - 1, '‹', 'nav', cur === 1, 'Trang trước') + html +
+        btn(cur + 1, '›', 'nav', cur === pages, 'Trang sau') + btn(pages, '»', 'nav', cur === pages, 'Trang cuối') + '</span>' +
+        '<span class="per"><select aria-label="Số căn mỗi trang">' + [20, 50, 100].map(function (n) { return '<option value="' + n + '"' + (n === per ? ' selected' : '') + '>' + n + ' căn</option>'; }).join('') +
+        '</select>/ tổng ' + total + '</span>';
     }
     $('thead').onclick = function (e) {
       var th = e.target.closest('th[data-k]'); if (!th) return;
