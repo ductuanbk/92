@@ -165,7 +165,16 @@ tbody tr:last-child td { border-bottom: 0; }
 .unitp { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
 th .si { opacity: .45; } th .si.on { opacity: 1; }
 td { font-variant-numeric: tabular-nums; }
-.col-perM2 { display: none; }
+/* Bảng gọn: mỗi căn một dòng, đơn giá là cột riêng */
+th, td { padding: 9px 12px; font-size: 13.5px; line-height: 1.35; }
+th { font-size: 11px; letter-spacing: .4px; padding-top: 11px; padding-bottom: 11px; }
+td .code { font-size: 12.5px; padding: 2px 8px; border-radius: 5px; }
+td .price { font-size: 14px; }
+td .stt { font-size: 12px; padding: 3px 9px; }
+td .m2 { font-size: 11px; }
+td.col-price .unitp { display: none; }
+td.col-perM2, td.col-priceEarly { color: var(--ink-2); }
+td.go { padding-left: 4px; padding-right: 10px; }
 .m2 { color: var(--muted); font-size: 12px; margin-left: 2px; }
 .dim { color: #b6bdc9; }
 .stt { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 600; white-space: nowrap; background: var(--cb); color: var(--c); }
