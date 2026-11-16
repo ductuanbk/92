@@ -136,7 +136,7 @@ Website chỉ có **một trang bảng hàng công khai cho khách**, chạy tr�
 - Nếu dùng WP Rocket, LiteSpeed Cache hoặc Autoptimize: loại trừ `adl-bang-hang` (từ khóa có trong đoạn mã) và `script.google.com` khỏi "Delay JavaScript execution", "Combine/Minify inline JS". Không loại trừ thì bảng chỉ hiện khi khách cuộn hoặc chạm.
 - Không cần xóa cache trang khi bảng hàng đổi: dữ liệu tải trong trình duyệt, trễ tối đa khoảng 2 phút.
 
-**Căn ĐQ:** căn thuộc tab giỏ có `kind: 'exclusive'` (ví dụ `GHĐQ ADL`, `GHĐQ`) có nhãn "ĐQ" cạnh mã căn và đứng đầu danh sách ở thứ tự mặc định (ĐQ trước, rồi còn hàng, giá thấp). Đã bỏ hai tab "Tất cả căn" / "ĐQ Á Đông Land". Đổi chữ nhãn trong `publicSite.exclusiveTab` (`Config.gs`).
+**Căn ĐQ:** căn thuộc tab giỏ có `kind: 'exclusive'` (ví dụ `GHĐQ ADL`, `GHĐQ`) có nhãn "HOT" cạnh mã căn (chữ đổi ở `dqShort` trong `docs/embed.js`) và đứng đầu danh sách ở thứ tự mặc định (HOT trước, rồi còn hàng, giá thấp). Đã bỏ hai tab "Tất cả căn" / "ĐQ Á Đông Land". Đổi chữ nhãn trong `publicSite.exclusiveTab` (`Config.gs`).
 
 **Khung chi tiết căn:** bấm vào một căn để xem các mục Giá (kèm nút **Phiếu tính giá** mở link PTG của đúng căn đó), Diện tích (kèm nút **Chỉ căn** nếu sheet có link), Thông tin căn, Trạng thái và liên hệ. Có nút chuyển sang căn trước/sau (hoặc phím mũi tên trái/phải). Link lấy từ cột `Link PTG` / `PTG + Chỉ căn` trong sheet; bật tắt bằng `publicSite.showLinks` trong `Config.gs`.
 

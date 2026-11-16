@@ -51,6 +51,9 @@
       { id: 'tai-lieu', label: 'Tài liệu', icon: 'book', match: ['phap ly', 'tai lieu'] }
     ],
     defaultTab: 'quy-can',
+    // Chữ trên nhãn căn thuộc giỏ độc quyền (để trống thì dùng chữ cấu hình trong Config.gs, mặc định ĐQ).
+    dqShort: 'HOT',
+    dqTitle: 'Căn HOT do Á Đông Land phân phối',
     // Thứ tự các lựa chọn trong ô lọc Loại hình (loại khác, ví dụ Đơn lập, xếp sau).
     typeOrder: ['Liền kề', 'LK Xẻ khe', 'LK áp góc', 'Liền kề góc', 'Song lập', 'Song lập góc'],
     // Lựa chọn ghép thêm vào ô Bàn giao: bàn giao + nhãn, ví dụ "Thô VOS" = bàn giao Thô và thuộc Quỹ VOS.
@@ -489,7 +492,7 @@ tbody tr:hover .go { color: var(--brand); }
     <div class="row1">
       <input class="search" id="q" type="search" placeholder="Tìm mã căn, ví dụ AS71-18" aria-label="Tìm mã căn">
       <label class="sort"><span>Sắp xếp</span><select id="sortSel">
-        <option value="default">ĐQ trước, còn hàng, giá thấp</option>
+        <option value="default">HOT trước, còn hàng, giá thấp</option>
         <option value="price:1">Giá thấp đến cao</option><option value="price:-1">Giá cao đến thấp</option>
         <option value="perM2:1">Đơn giá thấp đến cao</option><option value="land:-1">Diện tích đất lớn đến nhỏ</option>
         <option value="code:1">Mã căn A đến Z</option><option value="custom" hidden>Theo cột đã chọn</option>
@@ -1108,7 +1111,7 @@ tbody tr:hover .go { color: var(--brand); }
     function dqTag(u) {
       var c = dqCfg(), titles = (state.data && state.data.tagTitles) || {};
       // Nhãn ĐQ (giỏ độc quyền) và các nhãn danh sách khác, ví dụ VOS (căn thuộc Quỹ VOS).
-      return (u.dq && c ? '<span class="dq" title="' + esc(c.title || '') + '">' + esc(c.short || 'ĐQ') + '</span>' : '') +
+      return (u.dq && c ? '<span class="dq" title="' + esc(C.dqTitle || c.title || '') + '">' + esc(C.dqShort || c.short || 'ĐQ') + '</span>' : '') +
         (u.tags || []).map(function (t) { return '<span class="dq tg" title="' + esc(titles[t] || t) + '">' + esc(t) + '</span>'; }).join('');
     }
     function renderChips() { renderTabs(); renderFilters(); }

@@ -31,7 +31,7 @@ var CONFIG = {
     // Berjaya: CTCP Đô thị Đại học Quốc tế Berjaya là chủ đầu tư Vinhomes Saigon Park.
     primaryKeywords: ['cdt', 'chu dau tu', 'so cap', 'berjaya'],
     // Tab riêng cho căn thuộc giỏ có kind: 'exclusive' (GHĐQ). Đổi tên ở đây nếu cần.
-    exclusiveTab: { enabled: true, short: 'ĐQ', label: 'ĐQ Á Đông Land', title: 'Giỏ hàng độc quyền Á Đông Land' },
+    exclusiveTab: { enabled: true, short: 'HOT', label: 'HOT Á Đông Land', title: 'Căn HOT do Á Đông Land phân phối' },
     // Trạng thái nội bộ → chữ hiển thị cho khách. Trạng thái khác hiện "Liên hệ".
     statusLabels: { 'Còn hàng': 'Còn hàng', 'Check admin': 'Đang giữ chỗ', 'Đang lock': 'Đang giữ chỗ', 'Đã cọc': 'Đang giữ chỗ', 'Đã bán': 'Đã bán' }
   },
