@@ -117,8 +117,8 @@ a { color: var(--brand); }
 .gtabs button.on { color: var(--navy); border-bottom-color: var(--brand); }
 .gtabs button.on b { background: var(--brand); color: #fff; }
 .gtabs .dqmark { background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .5px; padding: 2px 7px; border-radius: 5px; }
-.dq { display: inline-block; vertical-align: 1px; margin-left: 6px; background: linear-gradient(135deg, #f0b429, #d98c00); color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: .5px; padding: 2px 6px; border-radius: 4px; }
-.dq.tg { background: linear-gradient(135deg, #1aa3a3, #0d7377); margin-left: 4px; }
+.dq { display: inline-block; vertical-align: 1px; margin-left: 6px; background: linear-gradient(135deg, #ff8a00 0%, #ff3d00 45%, #d50000 100%); color: #fff; font-size: 10.5px; font-weight: 800; letter-spacing: .6px; padding: 2px 6px; border-radius: 4px; box-shadow: 0 0 0 1px rgba(213,0,0,.15), 0 2px 7px rgba(255,61,0,.45); text-shadow: 0 1px 1px rgba(120,0,0,.35); }
+.dq.tg { background: linear-gradient(135deg, #1aa3a3, #0d7377); margin-left: 4px; box-shadow: none; text-shadow: none; font-weight: 700; }
 .dq + .dq { margin-left: 4px; }
 
 .plink { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; padding: 7px 14px; border-radius: 999px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28); color: #fff; font-weight: 600; font-size: 13px; text-decoration: none; }
