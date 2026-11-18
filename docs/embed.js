@@ -66,6 +66,18 @@
     tabPriority: ['mat-bang', 'phan-khu', 'chinh-sach', 'tai-lieu', 'vi-tri', 'tong-quan'],
     // Tin tức: tìm bài trên website theo các cụm này (bài có cụm trong tiêu đề xếp trước).
     newsSearch: { VHSGP: ['Vinhomes Saigon Park', 'Vinhomes Hóc Môn'], VHCG: ['Vinhomes Green Paradise', 'Vinhomes Cần Giờ'] },
+    // Tab Tài liệu dạng nút bấm (thư mục Google Drive) cho từng dự án. Dự án có danh sách này thì tab chỉ hiện các nút.
+    // icon: doc, calc, cap, key, scale, pen; color: màu nhấn của nút.
+    docButtons: {
+      VHSGP: [
+        { label: 'CSBH', sub: 'Chính sách bán hàng', icon: 'doc', color: '#d32f2f', url: 'https://drive.google.com/drive/folders/1mZi4NKb8XarJYoJku5ynfHl7D5NHe5j8?usp=drive_link' },
+        { label: 'Phiếu tính giá', sub: 'Bảng tính giá từng căn', icon: 'calc', color: '#1f6feb', url: 'https://drive.google.com/drive/folders/1bsa7NUkA3M7T3eN8jrZBKUfbtjFwq6eV?usp=drive_link' },
+        { label: 'Training', sub: 'Tài liệu đào tạo sản phẩm', icon: 'cap', color: '#7c3aed', url: 'https://drive.google.com/drive/folders/1sz6LSYzTwAePNAKQdI6M7HsofegR0BxU?usp=drive_link' },
+        { label: 'Tiêu chuẩn bàn giao', sub: 'Thô, giãn xây, hoàn thiện', icon: 'key', color: '#0d9488', url: 'https://drive.google.com/drive/folders/17GqDdwTBwCtFGw3E_kFjTGKOUmARuXUq?usp=drive_link' },
+        { label: 'Pháp lý', sub: 'Hồ sơ pháp lý dự án', icon: 'scale', color: '#b45309', url: 'https://drive.google.com/drive/folders/1XDpJxvj7aECPugLwFOTR23mKU5XV9wrF?usp=drive_link' },
+        { label: 'Hợp đồng mẫu', sub: 'HĐMB, HĐCN mẫu', icon: 'pen', color: '#0b1f4b', url: 'https://drive.google.com/drive/folders/1kgQHm0rTLI87kagN5WzQmnQLQ_w41gC_?usp=drive_link' }
+      ]
+    },
     // Tài liệu tải về thêm tay cho từng dự án: [{ label: 'Tên tài liệu', url: 'https://...' }]
     docs: { VHSGP: [], VHCG: [] },
     // Tab Mặt bằng Layout: tự gom ảnh trong mục Mặt bằng, Phân khu của trang dự án và ảnh có chú thích (alt) chứa các cụm này.
@@ -269,6 +281,18 @@ tbody tr:hover .go { color: var(--brand); }
 .lact button, .doc .lact a { flex: 1; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #dfe4ec; background: #f8fafc; color: var(--navy); }
 .lact button:hover, .doc .lact a:hover { border-color: var(--navy-2); background: #fff; }
 .docs { display: grid; gap: 8px; margin: 4px 0 16px; }
+.dbtns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 8px 0 4px; }
+.doc a.dbtn { position: relative; display: flex; align-items: center; gap: 14px; padding: 18px 16px; border-radius: 14px; background: #fff; border: 1px solid var(--line); text-decoration: none; color: var(--ink); font-weight: 400; box-shadow: 0 1px 2px rgba(16,24,40,.05); transition: transform .15s, box-shadow .15s, border-color .15s; overflow: hidden; }
+.doc a.dbtn::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); }
+.doc a.dbtn:hover { transform: translateY(-2px); border-color: var(--c); box-shadow: 0 12px 26px rgba(16,24,40,.12); }
+.dbtn .di { flex: none; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #fff; background: var(--c); box-shadow: 0 6px 14px -4px var(--c); }
+.dbtn .di svg { width: 24px; height: 24px; }
+.dbtn .dt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.dbtn .dt b { font-size: 15px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; color: var(--navy); line-height: 1.3; }
+.dbtn .dt small { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.dbtn .da { flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: 999px; background: #f3f6fb; color: var(--navy-2); font-size: 12px; font-weight: 700; }
+.dbtn .da svg { width: 14px; height: 14px; } .dbtn .da i { font-style: normal; }
+.doc a.dbtn:hover .da { background: var(--c); color: #fff; }
 .docs a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; text-decoration: none; color: var(--ink); font-weight: 600; background: #f8fafc; }
 .docs a:hover { border-color: var(--navy-2); background: #fff; }
 .docs a svg { width: 20px; height: 20px; color: var(--brand); flex: none; } .docs a span { flex: 1; } .docs a i { font-style: normal; color: var(--muted); }
@@ -281,7 +305,7 @@ tbody tr:hover .go { color: var(--brand); }
 .post b { font-size: 15.5px; line-height: 1.45; color: var(--navy); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .post p { margin: 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .iload { padding: 40px 20px; text-align: center; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 16px; }
-@container (max-width: 980px) { .news, .lgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .info { grid-template-columns: minmax(0, 1fr); } .toc { display: none; } }
+@container (max-width: 980px) { .news, .lgrid, .dbtns { grid-template-columns: repeat(2, minmax(0, 1fr)); } .info { grid-template-columns: minmax(0, 1fr); } .toc { display: none; } }
 .legal { color: var(--muted); font-size: 12px; margin: 12px 2px 0; line-height: 1.6; }
 .skel td span { display: block; height: 12px; border-radius: 6px; background: linear-gradient(90deg, #eef1f5 25%, #f6f8fb 50%, #eef1f5 75%); background-size: 200% 100%; animation: sh 1.2s infinite; }
 @keyframes sh { from { background-position: 200% 0; } to { background-position: -200% 0; } }
@@ -466,6 +490,7 @@ tbody tr:hover .go { color: var(--brand); }
   .doc .gal { grid-template-columns: 1fr 1fr; gap: 6px; }
   .news { grid-template-columns: 1fr; }
   .lgrid { grid-template-columns: 1fr; gap: 12px; }
+  .dbtns { grid-template-columns: 1fr; gap: 10px; } .doc a.dbtn { padding: 14px; } .dbtn .di { width: 42px; height: 42px; } .dbtn .dt b { font-size: 14px; }
   .lchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -16px; padding-right: 16px; } .lchips button { flex: none; }
   .cta { padding: 18px 16px 16px; gap: 14px; border-radius: 16px; }
   .cta b { font-size: 17px; line-height: 1.35; } .cta span { font-size: 13.5px; }
@@ -720,7 +745,13 @@ tbody tr:hover .go { color: var(--brand); }
       cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
       book: '<path d="M12 6c-2-1.5-5-2-8-2v14c3 0 6 .5 8 2 2-1.5 5-2 8-2V4c-3 0-6 .5-8 2z"/><path d="M12 6v14"/>',
       news: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/>',
-      file: '<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/>'
+      file: '<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/>',
+      calc: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15v3M8 18h.01M12 18h.01"/>',
+      cap: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5M22 9v6"/>',
+      key: '<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M14 9l2 2"/>',
+      scale: '<path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/>',
+      pen: '<path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 17l1-3 5-5 2 2-5 5z"/>',
+      drive: '<path d="M8 3h8l6 10-4 7H6l-4-7z"/><path d="M8 3l6 10h8M6 20l6-10"/>'
     };
     function ticon(n) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + (TICON[n] || '') + '</svg>'; }
     var TABS = (C.tabs || []).filter(function (t) { return t && t.id; });
@@ -962,7 +993,18 @@ tbody tr:hover .go { color: var(--brand); }
           secs = secs.map(function (sec) { return { id: sec.id, title: sec.title, blocks: sec.blocks.filter(function (b) { return b.t !== 'img'; }) }; })
             .filter(function (sec) { return sec.blocks.some(function (b) { return b.t === 'p' || b.t === 'ul' || b.t === 'ol' || b.t === 'table'; }); });
         }
-        if (tab.id === 'tai-lieu') {
+        var btns = tab.id === 'tai-lieu' && ((C.docButtons || {})[pid] || []).filter(function (d) { return d && /^https:\/\//i.test(d.url); });
+        if (btns && btns.length) {
+          // Tab Tài liệu dạng nút bấm: chỉ hiện các nút mở thư mục Google Drive.
+          pre = '<div class="sec"><h2>Tài liệu dự án</h2><p>Bấm vào từng mục để mở thư mục tài liệu trên Google Drive (mở tab mới, không cần đăng nhập).</p><div class="dbtns">' +
+            btns.map(function (d) {
+              var col = /^#[0-9a-f]{6}$/i.test(d.color || '') ? d.color : '#0b1f4b';
+              return '<a class="dbtn" href="' + esc(d.url) + '" target="_blank" rel="noopener" style="--c:' + col + '" data-track="tai_lieu">' +
+                '<span class="di">' + ticon(d.icon || 'file') + '</span><span class="dt"><b>' + esc(d.label) + '</b>' + (d.sub ? '<small>' + esc(d.sub) + '</small>' : '') + '</span>' +
+                '<span class="da" aria-hidden="true">' + ticon('drive') + '<i>Mở</i></span></a>';
+            }).join('') + '</div></div>';
+          secs = [];
+        } else if (tab.id === 'tai-lieu') {
           var docs = ((C.docs || {})[pid] || []).concat(info.docs), seenU = {};
           docs = docs.filter(function (d) { if (!d || !/^https:\/\//i.test(d.url) || seenU[d.url]) return false; seenU[d.url] = 1; return true; });
           pre = '<div class="sec"><h2>Tài liệu dự án</h2>' + (docs.length ? '<div class="docs">' + docs.map(function (d) { return '<a href="' + esc(d.url) + '" target="_blank" rel="noopener">' + ticon('file') + '<span>' + esc(d.label) + '</span><i>↗</i></a>'; }).join('') + '</div>'
