@@ -155,6 +155,12 @@ Phía trên bảng hàng có thanh tab: **Quỹ căn** (bảng hàng, đứng đ
 - **Tin tức**: tự lấy bài viết trên website theo cụm từ trong `newsSearch` (bài có tên dự án trong tiêu đề xếp trước).
 - Đổi tên, thứ tự hoặc bỏ tab: sửa danh sách `tabs` trong `docs/embed.js` rồi tạo lại đoạn mã WordPress (`node tools/build-wordpress.mjs`).
 
+### Các khối "Skin" trên trang Bảng hàng (thêm ngày 13/11/2026)
+
+Trang https://adongland.vn/bang-hang/ có thêm 3 khối mã vẽ lại giao diện một số tab (không phải mã trong `docs/embed.js`): Skin tab Tổng quan, Skin tab Mặt bằng Layout, Skin tab Chính sách bán hàng. Khi dán lại mã bảng hàng thì giữ nguyên các khối này.
+
+- `wordpress/skin-tab-mat-bang-v1.5.html`: bản sửa của khối Skin tab Mặt bằng, chỉ dựng tab Mặt bằng; tab Tài liệu dùng 6 nút thư mục Drive (`docButtons`). Bản v1.4 cũ vẽ đè lên tab Tài liệu.
+
 ### Giá TTS, Giá TTTĐ, Quỹ căn
 
 - Thêm cột tiêu đề bắt đầu bằng **"Giá TTS"** hoặc **"Giá TTTĐ"** vào tab giỏ hàng là bảng hàng tự hiện các giá này, không cần sửa mã.
