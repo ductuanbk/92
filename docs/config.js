@@ -14,6 +14,6 @@ window.ADL_SITE = {
   },
   // Thứ tự dự án hiển thị; id trùng với Config.gs
   projectOrder: ['VHSGP', 'VHCG'],
-  projectLinks: { VHSGP: 'https://adongland.vn/vinhomes-saigon-park/', VHCG: 'https://adongland.vn/vinhomes-green-paradise/' },
+  projectLinks: { VHSGP: 'https://adongland.vn/vinhomes-saigon-park/', VHCG: 'https://vinhomesgreensparadise.vn/' },
   refreshSeconds: 120
 };

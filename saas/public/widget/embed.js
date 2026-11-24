@@ -34,6 +34,10 @@
     // Trang thông tin từng dự án trên adongland.vn (nút "Thông tin dự án")
     projectLinks: {
       VHSGP: 'https://adongland.vn/vinhomes-saigon-park/',
+      VHCG: 'https://vinhomesgreensparadise.vn/'
+    },
+    // Trang WordPress lấy nội dung các tab thông tin (Tổng quan, Vị trí, Phân khu...). Không khai báo thì dùng projectLinks.
+    infoPages: {
       VHCG: 'https://adongland.vn/vinhomes-green-paradise/'
     },
     refreshSeconds: 120,
@@ -785,7 +789,7 @@ tbody tr:hover .go { color: var(--brand); }
       var key = 'adl_info_v1_' + pid, cached = null;
       try { cached = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { cached = null; }
       var fresh = cached && Date.now() - cached.t < 30 * 60 * 1000;
-      var url = pageApi((C.projectLinks || {})[pid]);
+      var url = pageApi((C.infoPages || {})[pid] || (C.projectLinks || {})[pid]);
       var net = !url ? Promise.reject(new Error('nolink')) : getJSON(url).then(function (arr) {
         if (!arr || !arr[0] || !arr[0].content) throw new Error('nopage');
         var d = { t: Date.now(), modified: arr[0].modified, link: arr[0].link, html: arr[0].content.rendered };
