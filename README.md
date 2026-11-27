@@ -174,6 +174,13 @@ Trang https://adongland.vn/bang-hang/ có thêm 3 khối mã vẽ lại giao di�
 
 Bảng hàng đẩy sự kiện `adl_bang_hang` vào `dataLayer` nếu website có cài Google Tag Manager. Biến `adl_action` cho biết khách làm gì: `xem_can`, `goi`, `zalo`, `phieu_tinh_gia`, `chi_can`, `thong_tin_du_an`, `chia_se`, `gui_thong_tin`; kèm `adl_project`, `adl_unit` (mã căn), `adl_price`. Trong GTM: tạo trigger Custom Event tên `adl_bang_hang`, tạo các biến Data Layer tương ứng, rồi gửi sự kiện GA4. Website chưa cài GTM thì bảng hàng vẫn chạy bình thường.
 
+## Ảnh thư mục phiếu tính giá trong chi tiết căn
+
+- Khung ảnh trong chi tiết căn là slide lướt ngang các ảnh trong thư mục phiếu tính giá (cột PTG) của căn: ảnh vẽ căn đứng đầu (file trùng link ảnh chỉ căn, hoặc tên bắt đầu "VẼ CĂN" hay chứa mã căn), tiếp theo là phiếu giá thanh toán chuẩn (TTC), thanh toán sớm (TTS), vay theo số tháng (VAY 30TH...), rồi các ảnh khác. Bấm ảnh để xem toàn màn hình; file PDF mở trên Drive.
+- Danh sách file lấy qua `?api=ptg&f=<id thư mục>` của Apps Script công khai (`ptgResponse_`): chỉ trả thư mục có trong link PTG của bảng hàng công khai, lưu tạm 30 phút; trình duyệt nhớ thêm 3 giờ.
+- Cần quyền **Drive chỉ đọc** (`drive.readonly`, khai báo trong `appsscript.json`). Sau khi đẩy mã lên, mở dự án công khai trong trình soạn thảo Apps Script, chọn hàm `capQuyenAnhPTG`, bấm **Chạy** và cho phép, rồi mới triển khai bản mới (triển khai trước khi cấp quyền thì web app báo lỗi).
+- Ảnh tải từ `lh3.googleusercontent.com` với `referrerpolicy="no-referrer"` (Google chặn ảnh khi trang gửi kèm địa chỉ website). Thư mục và ảnh cần chia sẻ "Bất kỳ ai có đường liên kết".
+
 ## Bản đang chạy
 
 - Dự án Apps Script: **Giỏ hàng Á Đông Land**, tạo ngày 04/11/2026 trên tài khoản `tranductuan06@gmail.com`. Mở để sửa tại `https://script.google.com/d/1dQF-b0wb7FiatIk102i5If10gvQzCI4WYGik-AG23-wN_89Q0IamweX6/edit`.

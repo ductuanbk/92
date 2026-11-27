@@ -12,6 +12,7 @@
 function doGet(e) {
   var p = (e && e.parameter) || {};
   if (p.api === 'public') return publicResponse_(p);
+  if (p.api === 'ptg') return ptgResponse_(p);
   // Dự án công khai (có file PublicOnly.gs) chỉ phục vụ dữ liệu công khai, không mở app nội bộ.
   if (isPublicOnly_()) return ContentService.createTextOutput('Bảng hàng Á Đông Land: dùng ?api=public');
   return HtmlService.createHtmlOutputFromFile('Index')
@@ -50,12 +51,64 @@ function publicResponse_(p) {
   } catch (e) {
     body = { ok: false, error: 'Bảng hàng tạm thời chưa tải được.' };
   }
+  return jsonOut_(body, p);
+}
+
+/** JSON, hoặc JSONP khi có ?callback= hợp lệ. */
+function jsonOut_(body, p) {
   var json = JSON.stringify(body);
   var cb = String(p.callback || '');
   if (cb && /^[A-Za-z_$][\w$.]{0,60}$/.test(cb)) {
     return ContentService.createTextOutput(cb + '(' + json + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
   return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Danh sách ảnh (và PDF) trong thư mục phiếu tính giá của một căn: ?api=ptg&f=<id thư mục>.
+ * Chỉ trả thư mục có trong bảng hàng công khai (link PTG của các căn), không dò được thư mục khác.
+ * Cần quyền Drive chỉ đọc: chạy capQuyenAnhPTG một lần trong trình soạn thảo trước khi triển khai.
+ */
+function ptgResponse_(p) {
+  var id = String(p.f || ''), body = { ok: false, files: [] };
+  try {
+    if (!/^[\w-]{20,80}$/.test(id)) throw new Error('bad id');
+    var cache = CacheService.getScriptCache(), key = 'ptg_' + id, hit = cache.get(key);
+    if (hit) body = JSON.parse(hit);
+    else {
+      if (!ptgAllowed_(id)) throw new Error('not listed');
+      var files = [], it = DriveApp.getFolderById(id).getFiles();
+      while (it.hasNext() && files.length < 40) {
+        var f = it.next(), m = f.getMimeType();
+        if (/^image\//.test(m) || m === 'application/pdf') files.push({ id: f.getId(), n: f.getName(), m: m });
+      }
+      files.sort(function (a, b) { return a.n < b.n ? -1 : a.n > b.n ? 1 : 0; });
+      body = { ok: true, files: files };
+      cache.put(key, JSON.stringify(body), 1800);
+    }
+  } catch (e) {
+    body = { ok: false, files: [] };
+  }
+  return jsonOut_(body, p);
+}
+
+function ptgAllowed_(id) {
+  var d = publicData_();
+  return !!(d && d.projects) && d.projects.some(function (pr) {
+    return (pr.units || []).some(function (u) { return u.ptg && u.ptg.indexOf('/folders/' + id) >= 0; });
+  });
+}
+
+/** Chạy MỘT LẦN trong trình soạn thảo Apps Script để cấp quyền đọc ảnh trong thư mục phiếu tính giá (Drive chỉ đọc). */
+function capQuyenAnhPTG() {
+  var d = publicData_(), id = '';
+  (d.projects || []).some(function (pr) {
+    return (pr.units || []).some(function (u) { var m = /\/folders\/([\w-]{20,})/.exec(u.ptg || ''); if (m) id = m[1]; return !!id; });
+  });
+  if (!id) { Logger.log('Chưa có căn nào có link thư mục phiếu tính giá.'); return; }
+  var n = 0, it = DriveApp.getFolderById(id).getFiles();
+  while (it.hasNext()) { it.next(); n++; }
+  Logger.log('Đã cấp quyền. Thư mục mẫu ' + id + ' có ' + n + ' file.');
 }
 
 var unmappedLog_ = {}; // trạng thái chưa nhận ra, chỉ ghi vào nhật ký khi chạy kiemTraBangHangCongKhai

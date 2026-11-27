@@ -416,6 +416,20 @@ tbody tr:hover .go { color: var(--brand); }
 .media .mtools a, .media .mtools button { background: rgba(255,255,255,.95); color: var(--navy); border: 0; border-radius: 999px; padding: 7px 12px; font-size: 11.5px; font-weight: 600; text-decoration: none; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
 .media .hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); background: rgba(11,31,75,.72); color: #fff; font-size: 11px; padding: 5px 12px; border-radius: 999px; white-space: nowrap; pointer-events: none; }
 .media .poster { border-radius: 0; }
+.media.slider { cursor: default; }
+.strack { position: absolute; inset: 0; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+.strack::-webkit-scrollbar { display: none; }
+.strack .slide { flex: 0 0 100%; height: 100%; scroll-snap-align: center; scroll-snap-stop: always; display: flex; align-items: center; justify-content: center; cursor: zoom-in; }
+.strack .slide.err::after { content: "Không tải được ảnh"; color: var(--muted); font-size: 12px; }
+.strack .slide.err img { display: none; }
+.media .snav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(255,255,255,.95); color: var(--navy); font-size: 24px; line-height: 1; padding: 0 0 3px; display: grid; place-items: center; cursor: pointer; box-shadow: 0 2px 8px rgba(16,24,40,.25); transition: opacity .2s; }
+.media .snav.prev { left: 10px; } .media .snav.next { right: 10px; }
+.media .snav:disabled { opacity: 0; pointer-events: none; }
+.media .sbar { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 2; display: flex; align-items: center; gap: 8px; max-width: calc(100% - 20px); background: rgba(11,31,75,.8); color: #fff; font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 999px; white-space: nowrap; }
+.media .sbar .scap { overflow: hidden; text-overflow: ellipsis; }
+.media .sdots { display: flex; gap: 4px; flex: none; }
+.media .sdots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.4); cursor: pointer; }
+.media .sdots i.on { background: #fff; }
 .zoom { position: fixed; inset: 0; z-index: 2147483002; background: #050c1e; display: none; overflow: auto; -webkit-overflow-scrolling: touch; }
 .zoom.open { display: flex; flex-direction: column; justify-content: center; }
 .zoom img { display: block; width: 100%; max-width: 1100px; height: auto; margin: auto; padding: 58px 0 20px; touch-action: pinch-zoom; }
@@ -620,7 +634,7 @@ tbody tr:hover .go { color: var(--brand); }
       <div class="mright" id="mRight"></div>
     </div>
   </div></div>
-  <div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Xem ảnh"><div class="zbar"><span id="zTitle"></span><span><a id="zOrig" target="_blank" rel="noopener">Ảnh gốc ↗</a> <button id="zClose" aria-label="Đóng">Đóng ×</button></span></div><img id="zImg" alt=""></div>
+  <div class="zoom" id="zoom" role="dialog" aria-modal="true" aria-label="Xem ảnh"><div class="zbar"><span id="zTitle"></span><span><a id="zOrig" target="_blank" rel="noopener">Ảnh gốc ↗</a> <button id="zClose" aria-label="Đóng">Đóng ×</button></span></div><img id="zImg" referrerpolicy="no-referrer" alt=""></div>
   <div class="toast" id="toast" role="status"></div>
 </div>`;
 
@@ -689,7 +703,7 @@ tbody tr:hover .go { color: var(--brand); }
 
   // ─── Tải dữ liệu: một lần dùng chung cho mọi khối trên trang ───
   var shared = null;
-  function jsonp(url) {
+  function jsonp(url, api) {
     return new Promise(function (resolve, reject) {
       var cb = '__adlcb' + Date.now() + Math.floor(Math.random() * 1000);
       var s = document.createElement('script');
@@ -700,7 +714,7 @@ tbody tr:hover .go { color: var(--brand); }
       s.onerror = function () { cleanup(); reject(new Error('network')); };
       // Tải xong mà không gọi lại: máy chủ trả trang đăng nhập/lỗi thay vì dữ liệu (chưa cấp quyền, sai link).
       s.onload = function () { setTimeout(function () { if (!done) { cleanup(); reject(new Error('invalid')); } }, 50); };
-      s.src = url + (url.indexOf('?') < 0 ? '?' : '&') + 'api=public&callback=' + cb + '&t=' + Date.now();
+      s.src = url + (url.indexOf('?') < 0 ? '?' : '&') + 'api=' + (api || 'public') + '&callback=' + cb + '&t=' + Date.now();
       document.head.appendChild(s);
     });
   }
@@ -1723,7 +1737,80 @@ tbody tr:hover .go { color: var(--brand); }
       var l = u.unitLink || '';
       if (/\.(webp|jpe?g|png|gif)(\?|$)/i.test(l)) return l;
       var m = l.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=)([\w-]{20,})/);
-      return m ? 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w1400' : '';
+      return m ? 'https://lh3.googleusercontent.com/d/' + m[1] + '=w1400' : '';
+    }
+    // ─── Ảnh trong thư mục phiếu tính giá (PTG) của căn: slide lướt ngang, ảnh vẽ căn đứng đầu ───
+    var ptgCache = {};
+    function ptgFolder(u) { var m = String(u.ptg || '').match(/drive\.google\.com\/drive\/(?:u\/\d+\/)?folders\/([\w-]{20,})/); return m ? m[1] : ''; }
+    function driveThumb(id, w) { return 'https://lh3.googleusercontent.com/d/' + id + '=w' + w; }
+    function loadPtg(fid) {
+      if (ptgCache[fid]) return ptgCache[fid];
+      var key = 'adl_ptg_v1_' + fid, c = null;
+      try { c = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) { c = null; }
+      if (c && c.files && Date.now() - c.t < 3 * 3600 * 1000) return (ptgCache[fid] = Promise.resolve(c.files));
+      return (ptgCache[fid] = jsonp(C.API_URL + '?f=' + encodeURIComponent(fid), 'ptg').then(function (d) {
+        var files = (d && d.ok && Array.isArray(d.files)) ? d.files.filter(function (f) { return f && /^[\w-]{20,}$/.test(f.id); }) : [];
+        if (d && d.ok) { try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), files: files })); } catch (e) { /* bỏ qua */ } }
+        else delete ptgCache[fid];
+        return files;
+      }).catch(function () { delete ptgCache[fid]; return []; }));
+    }
+    function ptgCaption(n, code) {
+      var b = String(n || '').replace(/\.[a-z0-9]{2,5}$/i, '').trim(), k = norm(b), v;
+      if (/^ve can|vi tri can|chi can/.test(k) || (code && k.replace(/\s+/g, '').indexOf(norm(code).replace(/\s+/g, '')) >= 0)) return 'Vị trí căn';
+      if (/^ttc\b|thanh toan chuan/.test(k)) return 'Phiếu giá thanh toán chuẩn';
+      if (/^tts\b|thanh toan som/.test(k)) return 'Phiếu giá thanh toán sớm';
+      if ((v = /vay\s*(\d+)/.exec(k))) return 'Phiếu giá vay ' + v[1] + ' tháng';
+      return /^\d{8,}/.test(b) ? '' : b;
+    }
+    function ptgSlides(u, files, img) {
+      var uid = (String(u.unitLink || '').match(/[\w-]{25,}/) || [''])[0];
+      var rank = function (s) { return s.id === uid ? 0 : s.cap === 'Vị trí căn' ? 1 : /chuẩn/.test(s.cap) ? 2 : /sớm/.test(s.cap) ? 3 : /vay/.test(s.cap) ? 4 : 5; };
+      var sl = files.map(function (f) { return { id: f.id, n: f.n || '', cap: ptgCaption(f.n, u.code), pdf: f.m === 'application/pdf' }; });
+      if (uid && !sl.some(function (s) { return s.id === uid; }) && img) sl.push({ id: uid, n: '', cap: 'Vị trí căn' });
+      sl.sort(function (a, b) { return rank(a) - rank(b) || a.n.localeCompare(b.n, 'vi', { numeric: true }); });
+      return sl.map(function (s) {
+        var direct = s.id === uid && img && !/drive\.google\.com\/thumbnail|lh3\.googleusercontent\.com\/d\//.test(img) ? img : '';
+        return { cap: s.cap, src: direct || driveThumb(s.id, 1400), alt: 'https://drive.google.com/thumbnail?id=' + s.id + '&sz=w1400', big: direct || driveThumb(s.id, 2400), orig: 'https://drive.google.com/file/d/' + s.id + '/view', pdf: s.pdf };
+      });
+    }
+    function buildSlider(u, sl) {
+      var m = $('mMedia'); if (!m || !sl.length) return;
+      var logo = /^https:\/\//.test(C.logo || '') ? '<span class="mlogo"><img src="' + esc(C.logo) + '" alt="' + esc(C.brandName) + '"></span>' : '';
+      m.className = 'media has-img slider loading';
+      m.innerHTML = '<div class="strack">' + sl.map(function (s, i) {
+        return '<div class="slide" data-i="' + i + '"><img referrerpolicy="no-referrer" ' + (i > 1 ? 'loading="lazy" ' : '') + 'src="' + esc(s.src) + '" alt="' + esc(u.code + (s.cap ? ' · ' + s.cap : '')) + '" draggable="false"></div>';
+      }).join('') + '</div>' + logo +
+        '<div class="mtools"><button id="mZoom" type="button">Phóng to</button></div>' +
+        (sl.length > 1 ? '<button class="snav prev" type="button" aria-label="Ảnh trước">‹</button><button class="snav next" type="button" aria-label="Ảnh sau">›</button>' : '') +
+        '<div class="sbar"><span class="scap"></span>' + (sl.length > 1 ? '<span class="sdots">' + sl.map(function () { return '<i></i>'; }).join('') + '</span>' : '') + '</div>';
+      var tr = m.querySelector('.strack'), cur = 0;
+      Array.prototype.forEach.call(tr.querySelectorAll('img'), function (im, i) {
+        im.onload = function () { im.classList.add('ok'); if (i === 0) m.classList.remove('loading'); };
+        im.onerror = function () {
+          // Thử lại một lần qua đường ảnh thu nhỏ của Drive trước khi báo lỗi.
+          if (sl[i].alt && im.src !== sl[i].alt) { im.src = sl[i].alt; return; }
+          if (i === 0) m.classList.remove('loading'); im.parentNode.classList.add('err');
+        };
+      });
+      function sync() {
+        var i = Math.max(0, Math.min(sl.length - 1, Math.round(tr.scrollLeft / Math.max(1, tr.clientWidth))));
+        cur = i;
+        m.querySelector('.scap').textContent = (sl.length > 1 ? (i + 1) + '/' + sl.length + (sl[i].cap ? ' · ' : '') : '') + (sl[i].cap || '');
+        Array.prototype.forEach.call(m.querySelectorAll('.sdots i'), function (d, k) { d.classList.toggle('on', k === i); });
+        var pv = m.querySelector('.snav.prev'), nx = m.querySelector('.snav.next');
+        if (pv) pv.disabled = i === 0; if (nx) nx.disabled = i === sl.length - 1;
+      }
+      var st = 0; tr.addEventListener('scroll', function () { cancelAnimationFrame(st); st = requestAnimationFrame(sync); }, { passive: true });
+      function go(i) { tr.scrollTo({ left: Math.max(0, Math.min(sl.length - 1, i)) * tr.clientWidth, behavior: 'smooth' }); }
+      function zoom() { var s = sl[cur]; if (s.pdf) window.open(s.orig, '_blank', 'noopener'); else openZoom(s.big, u.code + (s.cap ? ' · ' + s.cap : ''), s.orig); }
+      m.onclick = function (e) {
+        if (e.target.closest('a')) return;
+        var nb = e.target.closest('.snav'); if (nb) { go(cur + (nb.classList.contains('next') ? 1 : -1)); return; }
+        var dt = e.target.closest('.sdots i'); if (dt) { go(Array.prototype.indexOf.call(dt.parentNode.children, dt)); return; }
+        if (e.target.closest('.slide') || e.target.id === 'mZoom') zoom();
+      };
+      sync();
     }
     function posterHtml(u) {
       return '<div class="poster"><div class="brand"><b>' + esc(C.brandName) + '</b><span>' + esc(state.project.name) + '</span></div>' +
@@ -1776,7 +1863,7 @@ tbody tr:hover .go { color: var(--brand); }
       $('mPrice').innerHTML = '<div class="row"><span class="k">Giá NY:</span><span class="v">' + ty(u.price) + '</span></div><div class="k2">(Gồm VAT và kinh phí bảo trì)</div>';
       // Cột trái: ảnh, thông tin nhanh, thao tác
       var img = unitImage(u);
-      $('mLeft').innerHTML = '<div class="media' + (img ? ' has-img loading' : ' no-img') + '" id="mMedia">' + (img ? '<img id="mImg" src="' + esc(img) + '" alt="Ảnh chỉ căn ' + esc(u.code) + '">' +
+      $('mLeft').innerHTML = '<div class="media' + (img ? ' has-img loading' : ' no-img') + '" id="mMedia">' + (img ? '<img id="mImg" referrerpolicy="no-referrer" src="' + esc(img) + '" alt="Ảnh chỉ căn ' + esc(u.code) + '">' +
           (/^https:\/\//.test(C.logo || '') ? '<span class="mlogo"><img src="' + esc(C.logo) + '" alt="' + esc(C.brandName) + '"></span>' : '') +
           '<div class="mtools"><button id="mZoom" type="button">Phóng to</button></div><span class="hint">Bấm vào ảnh để xem toàn màn hình</span>' : posterHtml(u)) + '</div>' +
         '<div class="quick"><div><span>' + ICON.home + 'Loại hình</span><b>' + esc(u.type || '-') + '</b></div>' +
@@ -1786,10 +1873,14 @@ tbody tr:hover .go { color: var(--brand); }
       var im = $('mImg');
       if (im) {
         var showZoom = function () { openZoom(img, u.code, u.unitLink || img); };
-        im.onload = function () { im.classList.add('ok'); $('mMedia').classList.remove('loading'); };
-        im.onerror = function () { var m = $('mMedia'); m.className = 'media no-img'; m.innerHTML = posterHtml(u); };
+        im.onload = function () { im.classList.add('ok'); if (im.isConnected) $('mMedia').classList.remove('loading'); };
+        // Ảnh đã được thay bằng slide thì bỏ qua, không ghi đè khung ảnh.
+        im.onerror = function () { if (!im.isConnected) return; var m = $('mMedia'); m.className = 'media no-img'; m.innerHTML = posterHtml(u); };
         $('mMedia').onclick = function (e) { if (!e.target.closest('a')) showZoom(); };
       }
+      // Ảnh trong thư mục phiếu tính giá: hiện ảnh vẽ căn trước, tải xong danh sách thì đổi thành slide lướt ngang.
+      var fid = ptgFolder(u);
+      if (fid) loadPtg(fid).then(function (files) { if (state.current === u && files.length) buildSlider(u, ptgSlides(u, files, img)); });
       // Cột phải: các mục thông tin
       function lk(url, label, id) { return url ? '<a class="lk" href="' + esc(url) + '" target="_blank" rel="noopener">' + label + '<span class="ar">↗</span></a>' : (id ? '<button class="lk" id="' + id + '">' + label + '</button>' : ''); }
       function tile(k, v, cls) { return v ? '<div class="tile' + (cls ? ' ' + cls : '') + '"><span>' + k + '</span><b>' + v + '</b></div>' : ''; }
