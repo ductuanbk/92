@@ -98,6 +98,13 @@
           'https://cdn.jsdelivr.net/gh/ductuanbk/92@cfd536d409d3d16786ea92bc7df4502fc3ee7a23/docs/map/vhsgp/',
           'https://raw.githubusercontent.com/ductuanbk/92/cfd536d409d3d16786ea92bc7df4502fc3ee7a23/docs/map/vhsgp/'
         ]
+      },
+      VHCG: {
+        title: 'Tổng mặt bằng Phân khu A The Haven Bay',
+        base: [
+          'https://cdn.jsdelivr.net/gh/ductuanbk/92@d46d591679c67aa0aafa99bdff36fd4e4bc6be15/docs/map/vhcg/',
+          'https://raw.githubusercontent.com/ductuanbk/92/d46d591679c67aa0aafa99bdff36fd4e4bc6be15/docs/map/vhcg/'
+        ]
       }
     }
   };
@@ -1119,7 +1126,7 @@ tbody tr:hover .go { color: var(--brand); }
     function unitMapCfg(pid) { var m = (C.unitMaps || {})[pid]; return m && m.base ? m : null; }
     // Mã căn dạng DÃY-SỐ: bỏ khoảng trắng, chữ đuôi (VOS, ký hiệu) và số 0 đầu để khớp mã trên mặt bằng.
     function mapKey(code) {
-      var m = /^([A-ZĐ]+\d+[A-Z]?)-(\d+)([A-Z](?![A-Z]))?(?![0-9])/.exec(String(code || '').toUpperCase().replace(/\s+/g, ''));
+      var m = /^([A-ZĐ]+\d*[A-Z]?)-(\d+)([A-Z](?![A-Z]))?(?![0-9])/.exec(String(code || '').toUpperCase().replace(/\s+/g, ''));
       return m ? m[1] + '-' + (+m[2]) + (m[3] || '') : '';
     }
     function loadUnitMap(pid) {
@@ -1134,9 +1141,11 @@ tbody tr:hover .go { color: var(--brand); }
             var inf = ri[row], ang = inf ? +inf[0] : 0, pitch = inf ? +inf[1] : 0;
             if (ang > 90) ang -= 180; else if (ang < -90) ang += 180; // chữ luôn đứng chiều đọc được
             String(j.pos[row]).split(';').forEach(function (it) {
-              var a = it.split(/[:,]/); if (a.length !== 3) return;
+              var a = it.split(/[:,]/); if (a.length < 3) return;
               idx[mapKey(row + '-' + a[0])] = [+a[1], +a[2]];
-              if (pitch) labs.push({ x: +a[1], y: +a[2], t: row + '-' + a[0], a: ang * Math.PI / 180, p: pitch });
+              // Dãy cong: mỗi căn có góc chữ riêng (phần tử thứ 4).
+              var an = a.length > 3 ? +a[3] : ang; if (an > 90) an -= 180; else if (an < -90) an += 180;
+              if (pitch) labs.push({ x: +a[1], y: +a[2], t: row + '-' + a[0], a: an * Math.PI / 180, p: pitch });
             });
           });
           var lv = (j.levels || []).filter(function (l) { return l && l.d && l.k > 1; }).map(function (l) { var hv = {}; String(l.have || '').split(';').forEach(function (t) { if (t) hv[t] = 1; }); return { d: l.d, k: +l.k, have: hv }; }).sort(function (a, b) { return a.k - b.k; });
@@ -1173,7 +1182,7 @@ tbody tr:hover .go { color: var(--brand); }
       collect();
       var SV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
       function bar() {
-        return CATS.map(function (c) { return '<button type="button" class="umchip' + (P[c[0]] ? '' : ' off') + '" data-cat="' + c[0] + '" style="--c:' + c[2] + '" aria-pressed="' + !!P[c[0]] + '" title="' + cnt[c[0]] + ' căn"><i></i>' + esc(c[1]) + '</button>'; }).join('');
+        return CATS.filter(function (c) { return cnt[c[0]] || c[0] === 'std'; }).map(function (c) { return '<button type="button" class="umchip' + (P[c[0]] ? '' : ' off') + '" data-cat="' + c[0] + '" style="--c:' + c[2] + '" aria-pressed="' + !!P[c[0]] + '" title="' + cnt[c[0]] + ' căn"><i></i>' + esc(c[1]) + '</button>'; }).join('');
       }
       box.innerHTML = '<div class="umap">' +
         '<div class="umhead"><h2>Mặt bằng quỹ căn</h2><p>' + esc(cfg.title || state.project.name) + '. Bấm vào căn để xem chi tiết, phiếu tính giá.</p></div>' +
