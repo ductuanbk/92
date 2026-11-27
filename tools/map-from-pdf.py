@@ -26,7 +26,7 @@ import pymupdf
 from PIL import Image
 
 Image.MAX_IMAGE_PIXELS = None
-CODE = re.compile(r'^([A-ZĐ]{1,5}\d+[A-Z]?)-(\d+[A-Z]?)$')
+CODE = re.compile(r'^([A-ZĐ]{1,5}\d*[A-Z]?)-(\d+[A-Z]?)$')
 
 
 def main():
