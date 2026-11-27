@@ -297,21 +297,21 @@ tbody tr:hover .go { color: var(--brand); }
 .lact button, .doc .lact a { flex: 1; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #dfe4ec; background: #f8fafc; color: var(--navy); }
 .lact button:hover, .doc .lact a:hover { border-color: var(--navy-2); background: #fff; }
 .docs { display: grid; gap: 8px; margin: 4px 0 16px; }
-.umap { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-.umhead h2 { margin: 0; font-size: 19px; color: var(--navy); letter-spacing: -.01em; }
-.umhead p { margin: 3px 0 0; font-size: 13px; color: var(--ink-2); }
-.umbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
+.umap { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; font-family: 'Be Vietnam Pro', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+.umhead h2 { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.3; color: var(--navy); letter-spacing: -.01em; }
+.umhead p { margin: 2px 0 0; font-size: 12.5px; line-height: 1.45; color: var(--ink-2); }
+.umbar { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; justify-content: space-between; }
 .umchips { display: flex; flex-wrap: wrap; gap: 6px; }
-.umchip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid #dfe4ec; border-radius: 999px; background: #fff; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink); cursor: pointer; }
-.umchip i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--c); margin-right: 2px; }
+.umchip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px 0 9px; border: 1px solid #dfe4ec; border-radius: 999px; background: #fff; font: inherit; font-size: 12px; font-weight: 600; letter-spacing: .02em; color: var(--ink); cursor: pointer; }
+.umchip i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--c); margin-right: 2px; }
 .umchip b { font-weight: 600; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 .umchip.off { color: var(--muted); background: var(--bg); }
 .umchip.off i { background: #c9d0db; box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px #c9d0db; }
 .umchip.tg.on { background: var(--navy); border-color: var(--navy); color: #fff; }
-.umfind { display: flex; align-items: center; height: 34px; border: 1px solid #dfe4ec; border-radius: 999px; background: var(--bg); padding: 0 4px 0 12px; min-width: 0; flex: 0 1 260px; }
-.umfind input { flex: 1; min-width: 0; border: 0; background: none; font: inherit; font-size: 13px; color: var(--ink); outline: 0; }
-.umfind button { width: 28px; height: 28px; border: 0; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; }
-.umfind button svg { width: 15px; height: 15px; }
+.umfind { display: flex; align-items: center; height: 30px; border: 1px solid #dfe4ec; border-radius: 999px; background: var(--bg); padding: 0 4px 0 12px; min-width: 0; flex: 0 1 260px; }
+.umfind input { flex: 1; min-width: 0; border: 0; background: none; font: inherit; font-size: 12.5px; color: var(--ink); outline: 0; }
+.umfind button { width: 24px; height: 24px; border: 0; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; }
+.umfind button svg { width: 13px; height: 13px; }
 .umv { position: relative; height: min(74vh, 780px); min-height: 360px; overflow: hidden; border-radius: 14px; border: 1px solid var(--line); background: #e9eef1; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; outline: 0; }
 .umv:focus-visible { box-shadow: 0 0 0 3px rgba(22,58,122,.35); }
 .umv.drag { cursor: grabbing; }
@@ -326,10 +326,10 @@ tbody tr:hover .go { color: var(--brand); }
 .upin.dot { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--g); box-shadow: 0 0 0 1.5px #fff, 0 1px 3px rgba(0,0,0,.4); z-index: 1; }
 .upin.dot span { display: none; }
 .upin.lab { width: 0; height: 0; z-index: 2; }
-.upin.lab span { position: absolute; left: 0; bottom: 5px; transform: translateX(-50%); display: block; padding: 3px 6px; border-radius: 6px; background: var(--g); color: #fff; font-size: 11px; font-weight: 700; line-height: 13px; white-space: nowrap; text-align: center; font-variant-numeric: tabular-nums; box-shadow: 0 2px 6px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.7); }
+.upin.lab span { position: absolute; left: 0; bottom: 5px; transform: translateX(-50%); display: block; padding: 2px 5px; border-radius: 5px; background: var(--g); color: #fff; font-size: 10.5px; font-weight: 700; line-height: 13px; letter-spacing: .01em; white-space: nowrap; text-align: center; font-variant-numeric: tabular-nums; box-shadow: 0 2px 6px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.7); }
 .upin.lab span::after { content: ''; position: absolute; left: 50%; top: 100%; margin-left: -4px; border: 4px solid transparent; border-top-color: var(--c); border-bottom: 0; }
 .upin.lab::before { content: ''; position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 1.5px #fff; }
-.upin.lab small { display: block; font-size: 9.5px; font-weight: 600; line-height: 11px; opacity: .92; letter-spacing: .01em; }
+.upin.lab small { display: block; font-size: 9px; font-weight: 500; line-height: 11px; opacity: .92; letter-spacing: .01em; }
 .upin.held { opacity: .55; }
 .upin.held.lab span { background: #fff; color: var(--c); box-shadow: inset 0 0 0 1.5px var(--c), 0 2px 6px rgba(0,0,0,.2); }
 .upin.held.dot { background: #fff; box-shadow: inset 0 0 0 2px var(--c), 0 1px 3px rgba(0,0,0,.35); }
@@ -348,7 +348,7 @@ tbody tr:hover .go { color: var(--brand); }
 .umap.umfull { position: fixed; inset: 0; z-index: 2147482000; background: #fff; margin: 0; padding: 10px 10px calc(10px + env(safe-area-inset-bottom)); }
 .umap.umfull .umv { flex: 1 1 auto; height: auto; min-height: 0; }
 .umap.umfull .umnote { display: none; }
-@container (max-width: 640px) { .umfind { flex: 1 1 100%; order: -1; } .umv { height: 64vh; min-height: 320px; border-radius: 12px; } .umhead h2 { font-size: 17px; } .umchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 0 2px; } .umchip { flex: 0 0 auto; height: 30px; padding: 0 10px; font-size: 12.5px; } }
+@container (max-width: 640px) { .umfind { flex: 1 1 100%; order: -1; } .umv { height: 64vh; min-height: 320px; border-radius: 12px; } .umhead h2 { font-size: 16px; } .umhead p { font-size: 12px; } .umchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 0 2px; } .umchip { flex: 0 0 auto; } }
 .dbtns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 8px 0 4px; }
 .doc a.dbtn { position: relative; display: flex; align-items: center; gap: 14px; padding: 18px 16px; border-radius: 14px; background: #fff; border: 1px solid var(--line); text-decoration: none; color: var(--ink); font-weight: 400; box-shadow: 0 1px 2px rgba(16,24,40,.05); transition: transform .15s, box-shadow .15s, border-color .15s; overflow: hidden; }
 .doc a.dbtn::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); }
@@ -1103,7 +1103,7 @@ tbody tr:hover .go { color: var(--brand); }
       });
     }
     // ─── Tab Mặt bằng quỹ căn: ảnh tổng mặt bằng (ô ảnh tải dần khi phóng to) và ghim giá trên từng căn ───
-    var mapCache = {}, mapView = null, mapPrefs = { hot: 1, vos: 1, std: 1, avail: 0 };
+    var mapCache = {}, mapView = null, mapPrefs = { hot: 1, vos: 1, std: 1 };
     function unitMapCfg(pid) { var m = (C.unitMaps || {})[pid]; return m && m.base ? m : null; }
     // Mã căn dạng DÃY-SỐ: bỏ khoảng trắng, chữ đuôi (VOS, ký hiệu) và số 0 đầu để khớp mã trên mặt bằng.
     function mapKey(code) {
@@ -1139,7 +1139,7 @@ tbody tr:hover .go { color: var(--brand); }
       });
     }
     function buildMap(box, M, pid) {
-      var cfg = unitMapCfg(pid), P = mapPrefs, items = [], miss = [], cnt = {}, nHeld = 0;
+      var cfg = unitMapCfg(pid), P = mapPrefs, items = [], miss = [], cnt = {};
       var CATS = [['hot', C.dqShort || 'HOT', '#d50000'], ['vos', 'VOS', '#ff2a2a'], ['std', 'Thường', '#f97316']], RANK = { hot: 0, vos: 1, std: 2 };
       function collect() {
         items = []; miss = []; cnt = { hot: 0, vos: 0, std: 0 };
@@ -1150,14 +1150,11 @@ tbody tr:hover .go { color: var(--brand); }
         });
         items.sort(function (a, b) { return RANK[a.c] - RANK[b.c] || a.held - b.held || (a.u.price || 9e12) - (b.u.price || 9e12); });
         items.forEach(function (it) { cnt[it.c]++; });
-        nHeld = items.filter(function (it) { return it.held; }).length;
       }
       collect();
       var SV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
       function bar() {
-        return CATS.map(function (c) { return '<button type="button" class="umchip' + (P[c[0]] ? '' : ' off') + '" data-cat="' + c[0] + '" style="--c:' + c[2] + '" aria-pressed="' + !!P[c[0]] + '"><i></i>' + esc(c[1]) + '<b>' + cnt[c[0]] + '</b></button>'; }).join('') +
-          (nHeld ? '<button type="button" class="umchip tg' + (P.avail ? ' on' : '') + '" data-opt="avail" aria-pressed="' + !!P.avail + '">Chỉ căn còn hàng</button>' : '') +
-          '';
+        return CATS.map(function (c) { return '<button type="button" class="umchip' + (P[c[0]] ? '' : ' off') + '" data-cat="' + c[0] + '" style="--c:' + c[2] + '" aria-pressed="' + !!P[c[0]] + '" title="' + cnt[c[0]] + ' căn"><i></i>' + esc(c[1]) + '</button>'; }).join('');
       }
       function note() {
         return 'Có ' + items.length + ' / ' + state.units.length + ' căn của giỏ hàng trên mặt bằng.' +
@@ -1191,7 +1188,7 @@ tbody tr:hover .go { color: var(--brand); }
       }
       function zoomAt(f, cx, cy) { var s0 = V.s; V.s = clampS(V.s * f); var k = V.s / s0; V.x = cx - (cx - V.x) * k; V.y = cy - (cy - V.y) * k; clamp(); draw(); }
       function centerOn(px, py, s) { V.s = clampS(s); V.x = V.w / 2 - px * V.s; V.y = V.h / 2 - py * V.s; clamp(); draw(); }
-      function shown(it) { return P[it.c] && !(P.avail && it.held); }
+      function shown(it) { return !!P[it.c]; }
       function fitPins() {
         var vis = items.filter(shown), x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
         if (!vis.length) vis = [{ x: 0, y: 0 }, { x: M.w, y: M.h }];
@@ -1221,7 +1218,7 @@ tbody tr:hover .go { color: var(--brand); }
       function priceOf(it) { var p = it.u.price; return p ? num(p / 1e9, 2) : 'LH'; }
       function pins() {
         // Đặt nhãn giá theo thứ tự ưu tiên (HOT, VOS, Thường; còn hàng trước), nhãn chồng lên nhãn đã đặt thì căn đó chỉ hiện chấm màu.
-        var big = V.s >= 1.25, H = big ? 31 : 19, G = 90, grid = {};
+        var big = V.s >= 1.25, H = big ? 28 : 17, G = 90, grid = {};
         function cells(r, fn) { for (var gx = Math.floor(r[0] / G); gx <= Math.floor(r[2] / G); gx++) for (var gy = Math.floor(r[1] / G); gy <= Math.floor(r[3] / G); gy++) if (fn(gx + ',' + gy)) return true; return false; }
         function hit(r) { return cells(r, function (k) { return (grid[k] || []).some(function (q) { return r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1]; }); }); }
         function add(r) { cells(r, function (k) { (grid[k] = grid[k] || []).push(r); }); }
@@ -1233,7 +1230,7 @@ tbody tr:hover .go { color: var(--brand); }
             el.title = it.u.code + ' · ' + ty(it.u.price) + (it.u.status ? ' · ' + it.u.status : '');
             layer.appendChild(el);
           }
-          var t = priceOf(it), w = Math.max(t.length * 6.3, big ? it.u.code.length * 5.6 : 0) + 13, r = [sx - w / 2, sy - H - 6, sx + w / 2, sy - 2];
+          var t = priceOf(it), w = Math.max(t.length * 6, big ? it.u.code.length * 5.3 : 0) + 11, r = [sx - w / 2, sy - H - 6, sx + w / 2, sy - 2];
           var lab = !hit(r); if (lab) add(r);
           var html = '<span>' + (big ? '<small>' + esc(it.u.code) + '</small>' : '') + t + '</span>';
           if (el._h !== html) { el.innerHTML = html; el._h = html; }
@@ -1316,7 +1313,7 @@ tbody tr:hover .go { color: var(--brand); }
       var chips = box.querySelector('.umchips');
       chips.addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return;
-        var k = b.dataset.cat || b.dataset.opt; P[k] = P[k] ? 0 : 1;
+        var k = b.dataset.cat; if (!k) return; P[k] = P[k] ? 0 : 1;
         chips.innerHTML = bar(); draw();
       });
       box.querySelector('.umfind').addEventListener('submit', function (e) {
@@ -1328,7 +1325,7 @@ tbody tr:hover .go { color: var(--brand); }
         if (!p) { toast('Không tìm thấy căn ' + q.toUpperCase() + ' trên mặt bằng'); return; }
         inp.blur(); hideHint();
         focus = { i: i, x: p[0], y: p[1] };
-        if (i >= 0 && !shown(items[i])) { P[items[i].c] = 1; P.avail = items[i].held ? 0 : P.avail; chips.innerHTML = bar(); }
+        if (i >= 0 && !shown(items[i])) { P[items[i].c] = 1; chips.innerHTML = bar(); }
         centerOn(p[0], p[1], Math.max(V.s, 1.3));
         if (i < 0) toast('Căn ' + q.toUpperCase() + ' hiện không có trong giỏ hàng');
       });
