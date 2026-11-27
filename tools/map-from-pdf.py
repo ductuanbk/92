@@ -26,7 +26,7 @@ import pymupdf
 from PIL import Image
 
 Image.MAX_IMAGE_PIXELS = None
-CODE = re.compile(r'^((?:TL|ĐLCV|AS|[A-Z]{1,4})\d+[A-Z]?)-(\d+[A-Z]?)$')
+CODE = re.compile(r'^([A-ZĐ]{1,5}\d+[A-Z]?)-(\d+[A-Z]?)$')
 
 
 def main():
@@ -90,21 +90,29 @@ def main():
             Image.frombytes('RGB', (pm.width, pm.height), pm.samples).save(os.path.join(out, d, '%d_%d.webp' % (gx, gy)), 'WEBP', quality=70, method=4)
         levels.append({'d': d, 'k': k, 'have': ';'.join('%d_%d' % t for t in sorted(have))})
         print('tầng x%d: %d ô' % (k, len(have)))
-    pos = {k: ';'.join('%s:%d,%d' % (n, x, y) for n, (x, y) in sorted(v.items())) for k, v in sorted(groups.items())}
     # Mỗi dãy: góc chữ mã căn (độ, theo hướng lô) và bề ngang lô (pixel ảnh gốc), để bảng hàng vẽ mã căn cỡ lớn khi phóng.
-    ang = {}
+    ang, one = {}, {}
     for b in page.get_text('rawdict')['blocks']:
         for ln in b.get('lines', []):
             t = ''.join(c['c'] for s in ln['spans'] for c in s['chars']).strip()
             mm = CODE.match(t)
             if mm:
                 v = pymupdf.Point(*ln['dir']) * pymupdf.Matrix(rot.a, rot.b, rot.c, rot.d, 0, 0)
-                ang.setdefault(mm.group(1), []).append(math.degrees(math.atan2(v.y, v.x)))
+                a = math.degrees(math.atan2(v.y, v.x))
+                ang.setdefault(mm.group(1), []).append(a)
+                one.setdefault((mm.group(1), mm.group(2)), a)
     rowinfo = {}
     for row, g in groups.items():
         P = list(g.values())
         nn = [min((math.hypot(x - a, y - b) for k, (a, b) in enumerate(P) if k != i), default=0) for i, (x, y) in enumerate(P)]
         rowinfo[row] = [round(statistics.median(ang.get(row, [0]))), round(statistics.median(nn), 1)]
+    # Dãy cong (góc chữ khác nhau giữa các lô): ghi thêm góc riêng của từng căn, dạng số:x,y,góc.
+    def entry(row, n, x, y):
+        a = [one.get((row, k)) for k in groups[row]]
+        a = [v for v in a if v is not None]
+        bent = len(a) > 1 and max(a) - min(a) > 4
+        return '%s:%d,%d' % (n, x, y) + (',%d' % round(one[(row, n)]) if bent and (row, n) in one else '')
+    pos = {k: ';'.join(entry(k, n, x, y) for n, (x, y) in sorted(v.items())) for k, v in sorted(groups.items())}
     with open(os.path.join(out, 'map.json'), 'w', encoding='utf-8') as f:
         json.dump({'w': w, 'h': h, 'tile': tile, 'cols': cols, 'rows': rows, 'levels': levels, 'rowinfo': rowinfo, 'pos': pos}, f, ensure_ascii=False, separators=(',', ':'))
     print('ảnh %dx%d, %d ô, %d mã căn' % (w, h, cols * rows, sum(len(v) for v in groups.values())))
