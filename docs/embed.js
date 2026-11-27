@@ -312,7 +312,7 @@ tbody tr:hover .go { color: var(--brand); }
 .umfind input { flex: 1; min-width: 0; border: 0; background: none; font: inherit; font-size: 11.5px; color: var(--ink); outline: 0; }
 .umfind button { width: 24px; height: 24px; border: 0; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; }
 .umfind button svg { width: 13px; height: 13px; }
-.umv { position: relative; height: min(74vh, 780px); min-height: 360px; overflow: hidden; border-radius: 14px; border: 1px solid var(--line); background: #e9eef1; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; outline: 0; }
+.umv { position: relative; height: min(74vh, 780px); min-height: 360px; overflow: hidden; border-radius: 14px; border: 1px solid var(--line); background: #e9eef1; touch-action: pan-x pan-y; cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; outline: 0; }
 .umv:focus-visible { box-shadow: 0 0 0 3px rgba(22,58,122,.35); }
 .umv.drag { cursor: grabbing; }
 .umst { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
@@ -330,9 +330,6 @@ tbody tr:hover .go { color: var(--brand); }
 .upin.lab span::after { content: ''; position: absolute; left: 50%; top: 100%; margin-left: -4px; border: 4px solid transparent; border-top-color: var(--c); border-bottom: 0; }
 .upin.lab::before { content: ''; position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 1.5px #fff; }
 .upin.lab small { display: block; font-size: 9px; font-weight: 500; line-height: 11px; opacity: .92; letter-spacing: .01em; }
-.upin.held { opacity: .55; }
-.upin.held.lab span { background: #fff; color: var(--c); box-shadow: inset 0 0 0 1.5px var(--c), 0 2px 6px rgba(0,0,0,.2); }
-.upin.held.dot { background: #fff; box-shadow: inset 0 0 0 2px var(--c), 0 1px 3px rgba(0,0,0,.35); }
 .upin:hover, .upin:focus-visible { z-index: 4; opacity: 1; outline: 0; }
 .upin:hover span, .upin:focus-visible span { filter: brightness(1.08); }
 .upin.hit { z-index: 5; opacity: 1; }
@@ -344,9 +341,10 @@ tbody tr:hover .go { color: var(--brand); }
 .umctl svg { width: 18px; height: 18px; }
 .umhint { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); background: rgba(11,31,75,.82); color: #fff; font-size: 11px; padding: 6px 12px; border-radius: 999px; white-space: nowrap; pointer-events: none; transition: opacity .4s; z-index: 6; max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis; }
 .umap.used .umhint { opacity: 0; }
+.umap.flash .umhint { opacity: 1; }
 .umnote { margin: 0; font-size: 11px; color: var(--muted); line-height: 1.5; }
 .umap.umfull { position: fixed; inset: 0; z-index: 2147482000; background: #fff; margin: 0; padding: 10px 10px calc(10px + env(safe-area-inset-bottom)); }
-.umap.umfull .umv { flex: 1 1 auto; height: auto; min-height: 0; }
+.umap.umfull .umv { flex: 1 1 auto; height: auto; min-height: 0; touch-action: none; }
 .umap.umfull .umnote { display: none; }
 @container (max-width: 640px) { .umfind { flex: 1 1 100%; order: -1; } .umv { height: 64vh; min-height: 320px; border-radius: 12px; } .umhead h2 { font-size: 14.5px; } .umhead p { font-size: 11px; } .umchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 0 2px; } .umchip { flex: 0 0 auto; } }
 .dbtns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 8px 0 4px; }
@@ -1170,7 +1168,7 @@ tbody tr:hover .go { color: var(--brand); }
           '<button type="button" data-z="out" title="Thu nhỏ" aria-label="Thu nhỏ">' + SV + '<path d="M5 12h14"/></svg></button>' +
           '<button type="button" data-z="fit" title="Xem toàn bộ quỹ căn" aria-label="Xem toàn bộ quỹ căn">' + SV + '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>' +
           '<button type="button" data-z="full" title="Toàn màn hình" aria-label="Toàn màn hình">' + SV + '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></svg></button></div>' +
-          '<div class="umhint">Kéo để di chuyển · cuộn chuột hoặc chụm hai ngón để phóng to</div>' +
+          '<div class="umhint">' + (window.matchMedia && matchMedia('(pointer: coarse)').matches ? 'Hai ngón tay để di chuyển, phóng to · nút ⛶ để xem toàn màn hình' : 'Kéo để di chuyển · ' + (/Mac/.test(navigator.platform || '') ? '⌘' : 'Ctrl') + ' + cuộn chuột để phóng to') + '</div>' +
         '</div><p class="umnote">' + note() + '</p></div>' + ctaHtml('Mặt bằng quỹ căn');
       wireInfo();
       var wrap = box.querySelector('.umap'), vp = box.querySelector('.umv'), stage = box.querySelector('.umst'), layer = box.querySelector('.umpins');
@@ -1238,7 +1236,7 @@ tbody tr:hover .go { color: var(--brand); }
           var lab = !hit(r); if (lab) add(r);
           var html = '<span>' + (big ? '<small>' + esc(it.u.code) + '</small>' : '') + t + '</span>';
           if (el._h !== html) { el.innerHTML = html; el._h = html; }
-          el.className = 'upin c-' + it.c + (it.held ? ' held' : '') + (lab ? ' lab' : ' dot') + (focus && focus.i === i ? ' hit' : '');
+          el.className = 'upin c-' + it.c + (lab ? ' lab' : ' dot') + (focus && focus.i === i ? ' hit' : '');
           el.style.display = ''; el.style.transform = 'translate(' + sx.toFixed(1) + 'px,' + sy.toFixed(1) + 'px)';
         });
         if (focus) {
@@ -1246,23 +1244,39 @@ tbody tr:hover .go { color: var(--brand); }
           ring.style.transform = 'translate(' + (V.x + focus.x * V.s).toFixed(1) + 'px,' + (V.y + focus.y * V.s).toFixed(1) + 'px)';
         }
       }
-      // Kéo, chụm hai ngón, chạm đúp
-      var ptr = {}, moved = 0, last = null, pinch = null, tapT = 0;
+      // Thao tác bản đồ, tránh di chuyển ngoài ý muốn:
+      // - Chuột: giữ nút trái và kéo quá 6 px mới di chuyển; nhả chuột ở đâu (kể cả ngoài khung) cũng dừng ngay.
+      // - Cuộn chuột trong trang: trang cuộn bình thường; giữ Ctrl (⌘ trên Mac) khi cuộn để phóng to. Ở chế độ toàn màn hình cuộn là phóng to.
+      // - Điện thoại: một ngón cuộn trang như bình thường, hai ngón để di chuyển, phóng to. Ở chế độ toàn màn hình một ngón kéo bản đồ.
+      var ptr = {}, moved = 0, dragging = false, last = null, pinch = null, tapT = 0, hintT = 0, TH = 6;
+      var MAC = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
+      var hintEl = box.querySelector('.umhint');
+      function isFull() { return wrap.classList.contains('umfull'); }
+      function hideHint() { wrap.classList.add('used'); }
+      function flash(msg) {
+        hintEl.textContent = msg; wrap.classList.remove('used'); wrap.classList.add('flash');
+        clearTimeout(hintT); hintT = setTimeout(function () { wrap.classList.remove('flash'); wrap.classList.add('used'); }, 1800);
+      }
       function pts() { return Object.keys(ptr).map(function (k) { return ptr[k]; }); }
       function pinchOf(a) { var r = vp.getBoundingClientRect(); return { d: Math.max(1, Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y)), cx: (a[0].x + a[1].x) / 2 - r.left, cy: (a[0].y + a[1].y) / 2 - r.top }; }
-      function hideHint() { wrap.classList.add('used'); }
+      function pinchTo(p2) { if (!pinch) pinch = p2; V.x += p2.cx - pinch.cx; V.y += p2.cy - pinch.cy; zoomAt(p2.d / pinch.d, p2.cx, p2.cy); pinch = p2; moved = 99; }
+      function endDrag() {
+        ptr = {}; pinch = null; dragging = false; vp.classList.remove('drag');
+        window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onUp); window.removeEventListener('blur', endDrag);
+      }
       function onMove(e) {
         if (!ptr[e.pointerId]) return;
-        ptr[e.pointerId] = { x: e.clientX, y: e.clientY };
+        // Nút chuột đã nhả mà không nhận được sự kiện nhả (nhả ngoài trình duyệt...): dừng kéo.
+        if (e.pointerType === 'mouse' && !(e.buttons & 1)) { endDrag(); return; }
+        var P0 = ptr[e.pointerId]; P0.x = e.clientX; P0.y = e.clientY;
         var a = pts();
-        if (a.length >= 2) {
-          var p2 = pinchOf(a); if (!pinch) pinch = p2;
-          V.x += p2.cx - pinch.cx; V.y += p2.cy - pinch.cy;
-          zoomAt(p2.d / pinch.d, p2.cx, p2.cy); pinch = p2; moved = 99; return;
+        if (a.length >= 2) { pinchTo(pinchOf(a)); return; }
+        var dx = e.clientX - last.x, dy = e.clientY - last.y;
+        if (!dragging) {
+          if (Math.abs(e.clientX - P0.sx) + Math.abs(e.clientY - P0.sy) < TH) return;
+          dragging = true; vp.classList.add('drag'); hideHint();
         }
-        var dx = e.clientX - last.x, dy = e.clientY - last.y; last = { x: e.clientX, y: e.clientY };
-        moved += Math.abs(dx) + Math.abs(dy);
-        if (moved > 5) vp.classList.add('drag');
+        last = { x: e.clientX, y: e.clientY }; moved = 99;
         V.x += dx; V.y += dy; clamp(); draw();
       }
       function onUp(e) {
@@ -1270,24 +1284,52 @@ tbody tr:hover .go { color: var(--brand); }
         delete ptr[e.pointerId]; pinch = null;
         var a = pts();
         if (a.length) { last = { x: a[0].x, y: a[0].y }; return; }
-        window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onUp);
-        vp.classList.remove('drag');
-        if (moved < 6 && e.type === 'pointerup' && !(e.target.closest && e.target.closest('.upin, .umctl'))) {
+        var wasTap = !dragging && moved < TH;
+        endDrag();
+        if (wasTap && e.type === 'pointerup' && !(e.target.closest && e.target.closest('.upin, .umctl'))) {
           var now = Date.now(), r = vp.getBoundingClientRect();
           if (now - tapT < 330) { zoomAt(2, e.clientX - r.left, e.clientY - r.top); tapT = 0; } else tapT = now;
         }
       }
       vp.addEventListener('pointerdown', function (e) {
         if (e.target.closest('.umctl') || (e.pointerType === 'mouse' && e.button !== 0)) return;
-        hideHint();
-        if (!pts().length) { moved = 0; window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp); window.addEventListener('pointercancel', onUp); }
-        ptr[e.pointerId] = { x: e.clientX, y: e.clientY }; last = { x: e.clientX, y: e.clientY };
-        if (pts().length === 2) { pinch = pinchOf(pts()); moved = 99; }
+        if (e.pointerType === 'touch' && !isFull()) return; // cảm ứng ngoài toàn màn hình: xử lý bằng sự kiện chạm bên dưới
+        if (!pts().length) {
+          moved = 0; dragging = false;
+          window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp); window.addEventListener('pointercancel', onUp); window.addEventListener('blur', endDrag);
+        }
+        ptr[e.pointerId] = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY }; last = { x: e.clientX, y: e.clientY };
+        if (pts().length === 2) { pinch = pinchOf(pts()); moved = 99; dragging = true; }
       });
+      // Cảm ứng khi bản đồ nằm trong trang: hai ngón di chuyển, phóng to; một ngón để trang cuộn.
+      var tPinch = false, oneT = null;
+      function touchPts(e) { return [].map.call(e.touches, function (t) { return { x: t.clientX, y: t.clientY }; }); }
+      vp.addEventListener('touchstart', function (e) {
+        if (isFull() || e.target.closest('.umctl')) return;
+        if (e.touches.length >= 2) { tPinch = true; pinch = pinchOf(touchPts(e)); moved = 99; hideHint(); e.preventDefault(); }
+        else { oneT = { x: e.touches[0].clientX, y: e.touches[0].clientY }; moved = 0; }
+      }, { passive: false });
+      vp.addEventListener('touchmove', function (e) {
+        if (isFull()) return;
+        if (e.touches.length >= 2) {
+          e.preventDefault();
+          if (!tPinch) { tPinch = true; pinch = pinchOf(touchPts(e)); moved = 99; hideHint(); return; }
+          pinchTo(pinchOf(touchPts(e))); return;
+        }
+        if (oneT && e.touches.length === 1) {
+          var d = Math.abs(e.touches[0].clientX - oneT.x) + Math.abs(e.touches[0].clientY - oneT.y);
+          if (d > 12) { moved = 99; if (!wrap.classList.contains('flash')) flash('Dùng hai ngón tay để di chuyển bản đồ, hoặc bấm nút toàn màn hình'); oneT = null; }
+        }
+      }, { passive: false });
+      vp.addEventListener('touchend', function (e) { if (e.touches.length < 2) { tPinch = false; pinch = null; } if (!e.touches.length) oneT = null; });
       vp.addEventListener('wheel', function (e) {
+        if (!e.ctrlKey && !e.metaKey && !isFull()) {
+          flash((MAC ? 'Giữ ⌘' : 'Giữ Ctrl') + ' và cuộn chuột để phóng to bản đồ');
+          return; // để trang cuộn bình thường
+        }
         e.preventDefault(); hideHint();
         var r = vp.getBoundingClientRect(), d = e.deltaMode ? e.deltaY * 33 : e.deltaY;
-        zoomAt(Math.exp(-Math.max(-300, Math.min(300, d)) * 0.0019), e.clientX - r.left, e.clientY - r.top);
+        zoomAt(Math.exp(-Math.max(-300, Math.min(300, d)) * (e.ctrlKey && !e.deltaMode && Math.abs(d) < 50 ? 0.01 : 0.0019)), e.clientX - r.left, e.clientY - r.top);
       }, { passive: false });
       vp.addEventListener('keydown', function (e) {
         var k = e.key, st = 90;
@@ -1298,13 +1340,13 @@ tbody tr:hover .go { color: var(--brand); }
         e.preventDefault();
       });
       layer.addEventListener('click', function (e) {
-        var b = e.target.closest('.upin'); if (!b || moved > 6) return;
+        var b = e.target.closest('.upin'); if (!b || moved > TH) return;
         var it = items[+b.dataset.i]; if (it) openUnit(it.u);
       });
       function onEsc(e) { if (e.key === 'Escape' && !root.querySelector('.mbg.open, .zoom.open')) full(false); }
       function full(on) {
         var cx = (V.w / 2 - V.x) / V.s, cy = (V.h / 2 - V.y) / V.s;
-        wrap.classList.toggle('umfull', on); document.documentElement.style.overflow = on ? 'hidden' : '';
+        endDrag(); wrap.classList.toggle('umfull', on); document.documentElement.style.overflow = on ? 'hidden' : '';
         document[on ? 'addEventListener' : 'removeEventListener']('keydown', onEsc, true);
         size(); centerOn(cx, cy, V.s);
       }
