@@ -176,7 +176,7 @@ Bảng hàng đẩy sự kiện `adl_bang_hang` vào `dataLayer` nếu website c
 
 ## Ảnh thư mục phiếu tính giá trong chi tiết căn
 
-- Khung ảnh trong chi tiết căn là slide lướt ngang các ảnh trong thư mục phiếu tính giá (cột PTG) của căn: ảnh vẽ căn đứng đầu (file trùng link ảnh chỉ căn, hoặc tên bắt đầu "VẼ CĂN" hay chứa mã căn), tiếp theo là phiếu giá thanh toán chuẩn (TTC), thanh toán sớm (TTS), vay theo số tháng (VAY 30TH...), rồi các ảnh khác. Bấm ảnh để xem toàn màn hình; file PDF mở trên Drive.
+- Khung ảnh trong chi tiết căn là slide lướt ngang các ảnh trong thư mục phiếu tính giá (cột PTG) của căn: ảnh vẽ căn đứng đầu (file trùng link ảnh chỉ căn, hoặc tên bắt đầu "VẼ CĂN" hay chứa mã căn), tiếp theo là phiếu giá thanh toán chuẩn (TTC hoặc "CHUẨN"), thanh toán sớm (TTS hoặc "SỚM"), vay ("VAY 30TH" = vay 30 tháng, "VAY 70 18" = vay 70% trong 18 tháng), rồi các ảnh khác. Bấm ảnh để xem toàn màn hình; file PDF mở trên Drive.
 - Danh sách file lấy qua `?api=ptg&f=<id thư mục>` của Apps Script công khai (`ptgResponse_`): chỉ trả thư mục có trong link PTG của bảng hàng công khai, lưu tạm 30 phút; trình duyệt nhớ thêm 3 giờ.
 - Cần quyền **Drive chỉ đọc** (`drive.readonly`, khai báo trong `appsscript.json`). Sau khi đẩy mã lên, mở dự án công khai trong trình soạn thảo Apps Script, chọn hàm `capQuyenAnhPTG`, bấm **Chạy** và cho phép, rồi mới triển khai bản mới (triển khai trước khi cấp quyền thì web app báo lỗi).
 - Ảnh tải từ `lh3.googleusercontent.com` với `referrerpolicy="no-referrer"` (Google chặn ảnh khi trang gửi kèm địa chỉ website). Thư mục và ảnh cần chia sẻ "Bất kỳ ai có đường liên kết".
@@ -185,7 +185,7 @@ Bảng hàng đẩy sự kiện `adl_bang_hang` vào `dataLayer` nếu website c
 
 - Dự án Apps Script: **Giỏ hàng Á Đông Land**, tạo ngày 04/11/2026 trên tài khoản `tranductuan06@gmail.com`. Mở để sửa tại `https://script.google.com/d/1dQF-b0wb7FiatIk102i5If10gvQzCI4WYGik-AG23-wN_89Q0IamweX6/edit`.
 - Lần triển khai nội bộ hiện tại: @6 "Giá TTS, TTTĐ, Quỹ căn, hotline mới" (cùng link với @1). Web app chạy dưới tài khoản trên, người dùng cần đăng nhập Google để mở.
-- Dự án công khai: **Bảng hàng công khai Á Đông Land**, script ID `112W2VPk53f-7NyYsZva1mFYMXcEnNESx7s-nMiRcp8NBqpP1bGMhCj2K`, triển khai @8 truy cập ẩn danh. Link `/exec` của dự án này nằm trong `docs/config.js` (chỉ trả dữ liệu đã lọc nên để công khai được).
+- Dự án công khai: **Bảng hàng công khai Á Đông Land**, script ID `112W2VPk53f-7NyYsZva1mFYMXcEnNESx7s-nMiRcp8NBqpP1bGMhCj2K`, triển khai @9 truy cập ẩn danh (có quyền Drive chỉ đọc cho ảnh thư mục phiếu tính giá). Link `/exec` của dự án này nằm trong `docs/config.js` (chỉ trả dữ liệu đã lọc nên để công khai được).
 - Link web app (`.../exec`) xem trong dự án: **Triển khai → Quản lý các lần triển khai**. Không ghi link vào repo để tránh lộ giỏ hàng.
 - Cập nhật bản mới bằng clasp: tạo `apps-script/.clasp.json` với `{"scriptId": "1dQF-b0wb7FiatIk102i5If10gvQzCI4WYGik-AG23-wN_89Q0IamweX6", "rootDir": "."}`, chạy `clasp push`, rồi `clasp update-deployment <deploymentId>` để giữ nguyên link.
 

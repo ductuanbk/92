@@ -1758,9 +1758,11 @@ tbody tr:hover .go { color: var(--brand); }
     function ptgCaption(n, code) {
       var b = String(n || '').replace(/\.[a-z0-9]{2,5}$/i, '').trim(), k = norm(b), v;
       if (/^ve can|vi tri can|chi can/.test(k) || (code && k.replace(/\s+/g, '').indexOf(norm(code).replace(/\s+/g, '')) >= 0)) return 'Vị trí căn';
-      if (/^ttc\b|thanh toan chuan/.test(k)) return 'Phiếu giá thanh toán chuẩn';
-      if (/^tts\b|thanh toan som/.test(k)) return 'Phiếu giá thanh toán sớm';
-      if ((v = /vay\s*(\d+)/.exec(k))) return 'Phiếu giá vay ' + v[1] + ' tháng';
+      if (/^ttc\b|\bchuan\b/.test(k)) return 'Phiếu giá thanh toán chuẩn';
+      if (/^tts\b|\bsom\b/.test(k)) return 'Phiếu giá thanh toán sớm';
+      if (/tu tra lai/.test(k)) return 'Phiếu giá khách tự trả lãi';
+      // "VAY 30TH" = vay 30 tháng; "VAY 70 18" = vay 70% trong 18 tháng.
+      if ((v = /vay\s*(\d+)\s*%?\s*(\d+)?/.exec(k))) return 'Phiếu giá vay ' + (v[2] ? v[1] + '%, ' + v[2] + ' tháng' : v[1] + ' tháng');
       return /^\d{8,}/.test(b) ? '' : b;
     }
     function ptgSlides(u, files, img) {
