@@ -95,8 +95,8 @@
       VHSGP: {
         title: 'Tổng mặt bằng Khu 1 Ivy Park và Khu 2 Global Park',
         base: [
-          'https://cdn.jsdelivr.net/gh/ductuanbk/92@77ddc8cf99d18db5a7ab4690cc89d1cf26c03afe/docs/map/vhsgp/',
-          'https://raw.githubusercontent.com/ductuanbk/92/77ddc8cf99d18db5a7ab4690cc89d1cf26c03afe/docs/map/vhsgp/'
+          'https://cdn.jsdelivr.net/gh/ductuanbk/92@cfd536d409d3d16786ea92bc7df4502fc3ee7a23/docs/map/vhsgp/',
+          'https://raw.githubusercontent.com/ductuanbk/92/cfd536d409d3d16786ea92bc7df4502fc3ee7a23/docs/map/vhsgp/'
         ]
       }
     }
@@ -320,6 +320,7 @@ tbody tr:hover .go { color: var(--brand); }
 .umst img { position: absolute; left: 0; top: 0; display: block; max-width: none; pointer-events: none; -webkit-user-drag: none; }
 .umst .umt, .umst .umbig { opacity: 0; transition: opacity .25s; }
 .umst .umt.ok, .umst .umbig.ok { opacity: 1; }
+.umlab { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; }
 .umpins { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .upin { position: absolute; left: 0; top: 0; padding: 0; margin: 0; border: 0; background: none; font: inherit; cursor: pointer; pointer-events: auto; --c: #f97316; --g: var(--c); -webkit-tap-highlight-color: transparent; }
 .upin.c-hot { --c: #d50000; --g: linear-gradient(135deg, #ff1f1f, #d50000 55%, #a00000); }
@@ -1114,12 +1115,18 @@ tbody tr:hover .go { color: var(--brand); }
         if (i >= bases.length) return Promise.reject(new Error('nomap'));
         return getJSON(bases[i] + 'map.json').then(function (j) {
           if (!j || !j.w || !j.h || !j.pos) throw new Error('bad');
-          var idx = {};
+          var idx = {}, labs = [], ri = j.rowinfo || {};
           Object.keys(j.pos).forEach(function (row) {
-            String(j.pos[row]).split(';').forEach(function (it) { var a = it.split(/[:,]/); if (a.length === 3) idx[mapKey(row + '-' + a[0])] = [+a[1], +a[2]]; });
+            var inf = ri[row], ang = inf ? +inf[0] : 0, pitch = inf ? +inf[1] : 0;
+            if (ang > 90) ang -= 180; else if (ang < -90) ang += 180; // chữ luôn đứng chiều đọc được
+            String(j.pos[row]).split(';').forEach(function (it) {
+              var a = it.split(/[:,]/); if (a.length !== 3) return;
+              idx[mapKey(row + '-' + a[0])] = [+a[1], +a[2]];
+              if (pitch) labs.push({ x: +a[1], y: +a[2], t: row + '-' + a[0], a: ang * Math.PI / 180, p: pitch });
+            });
           });
           var lv = (j.levels || []).filter(function (l) { return l && l.d && l.k > 1; }).map(function (l) { var hv = {}; String(l.have || '').split(';').forEach(function (t) { if (t) hv[t] = 1; }); return { d: l.d, k: +l.k, have: hv }; }).sort(function (a, b) { return a.k - b.k; });
-          return { levels: lv, bases: bases.slice(i).concat(bases.slice(0, i)), w: j.w, h: j.h, tile: j.tile || 512, cols: j.cols || Math.ceil(j.w / (j.tile || 512)), rows: j.rows || Math.ceil(j.h / (j.tile || 512)), idx: idx };
+          return { labs: labs, levels: lv, bases: bases.slice(i).concat(bases.slice(0, i)), w: j.w, h: j.h, tile: j.tile || 512, cols: j.cols || Math.ceil(j.w / (j.tile || 512)), rows: j.rows || Math.ceil(j.h / (j.tile || 512)), idx: idx };
         }).catch(function () { return at(i + 1); });
       }
       return (mapCache[pid] = at(0).catch(function (e) { delete mapCache[pid]; throw e; }));
@@ -1158,7 +1165,7 @@ tbody tr:hover .go { color: var(--brand); }
         '<div class="umhead"><h2>Mặt bằng quỹ căn</h2><p>' + esc(cfg.title || state.project.name) + '. Bấm vào căn để xem chi tiết, phiếu tính giá.</p></div>' +
         '<div class="umbar"><div class="umchips">' + bar() + '</div><form class="umfind" role="search"><input type="search" placeholder="Tìm mã căn, ví dụ TL28-05" enterkeyhint="search" aria-label="Tìm mã căn trên mặt bằng"><button type="submit" aria-label="Tìm">' + SV + '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button></form></div>' +
         '<div class="umv" tabindex="0" aria-label="Mặt bằng quỹ căn: kéo để di chuyển, cuộn chuột hoặc chụm hai ngón để phóng to">' +
-          '<div class="umst"><img class="umov" alt="" draggable="false" style="width:' + M.w + 'px;height:' + M.h + 'px"><img class="umov umbig" alt="" draggable="false" style="width:' + M.w + 'px;height:' + M.h + 'px"></div><div class="umpins"></div>' +
+          '<div class="umst"><img class="umov" alt="" draggable="false" style="width:' + M.w + 'px;height:' + M.h + 'px"><img class="umov umbig" alt="" draggable="false" style="width:' + M.w + 'px;height:' + M.h + 'px"></div><canvas class="umlab" aria-hidden="true"></canvas><div class="umpins"></div>' +
           '<div class="umctl"><button type="button" data-z="in" title="Phóng to" aria-label="Phóng to">' + SV + '<path d="M12 5v14M5 12h14"/></svg></button>' +
           '<button type="button" data-z="out" title="Thu nhỏ" aria-label="Thu nhỏ">' + SV + '<path d="M5 12h14"/></svg></button>' +
           '<button type="button" data-z="fit" title="Xem toàn bộ quỹ căn" aria-label="Xem toàn bộ quỹ căn">' + SV + '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>' +
@@ -1174,7 +1181,33 @@ tbody tr:hover .go { color: var(--brand); }
       setSrc(ovs[0], 'overview-s.jpg');
       ovs[1].onload = function () { this.classList.add('ok'); };
       setSrc(ovs[1], 'overview.jpg');
-      function size() { var r = vp.getBoundingClientRect(); V.w = r.width; V.h = r.height; }
+      var cv = box.querySelector('.umlab'), cx2 = cv.getContext && cv.getContext('2d'), cdpr = 1;
+      function size() {
+        var r = vp.getBoundingClientRect(); V.w = r.width; V.h = r.height;
+        cdpr = Math.min(3, window.devicePixelRatio || 1); cv.width = Math.round(V.w * cdpr); cv.height = Math.round(V.h * cdpr);
+      }
+      // Mã căn cỡ lớn, xoay theo hướng lô: chữ trong bản vẽ gốc rất nhỏ, phóng vừa vẫn đọc được mã căn.
+      // Phóng đủ gần thì chữ trong bản vẽ đã rõ, lớp này ẩn đi.
+      function drawLabels() {
+        if (!cx2) return;
+        cx2.setTransform(cdpr, 0, 0, cdpr, 0, 0); cx2.clearRect(0, 0, V.w, V.h);
+        if (V.s >= 3.8 || !M.labs.length) return;
+        var font = '', L = M.labs, x0 = -V.x / V.s - 40, y0 = -V.y / V.s - 40, x1 = (V.w - V.x) / V.s + 40, y1 = (V.h - V.y) / V.s + 40;
+        cx2.textAlign = 'center'; cx2.textBaseline = 'middle'; cx2.lineJoin = 'round';
+        cx2.strokeStyle = 'rgba(255,255,255,.92)'; cx2.fillStyle = '#16213a';
+        for (var i = 0; i < L.length; i++) {
+          var l = L[i]; if (l.x < x0 || l.x > x1 || l.y < y0 || l.y > y1) continue;
+          // Chữ không dài quá chiều sâu lô (khoảng 2 lần bề ngang): đủ chỗ ghi cả mã, không thì chỉ ghi số lô.
+          // Phóng xa: số lô; phóng vừa: cả mã căn (cỡ vừa chiều sâu lô); phóng gần: chữ của bản vẽ gốc.
+          var ps = l.p * V.s, room = ps * 1.7, txt = l.t, f = Math.min(14, room / (0.6 * txt.length));
+          if (f < 8) { txt = l.t.slice(l.t.lastIndexOf('-') + 1); f = Math.min(14, ps * 0.7, room / (0.6 * txt.length)); }
+          if (f < 7) continue;
+          f = Math.round(f * 2) / 2;
+          var fs = '600 ' + f + 'px Inter, Arial, sans-serif'; if (fs !== font) { cx2.font = fs; font = fs; cx2.lineWidth = Math.max(2, f * 0.28); }
+          cx2.save(); cx2.translate(V.x + l.x * V.s, V.y + l.y * V.s); if (l.a) cx2.rotate(l.a);
+          cx2.strokeText(txt, 0, 0); cx2.fillText(txt, 0, 0); cx2.restore();
+        }
+      }
       function minS() { return Math.min(V.w / M.w, V.h / M.h) * 0.9; }
       function clampS(s) { return Math.max(minS(), Math.min(MAXS, s)); }
       function clamp() {
@@ -1226,6 +1259,7 @@ tbody tr:hover .go { color: var(--brand); }
         if (!stage.classList.contains('mv')) stage.classList.add('mv');
         clearTimeout(mvT); mvT = setTimeout(function () { stage.classList.remove('mv'); }, 180);
         loadTiles();
+        drawLabels();
         pins();
       }
       // Ô ảnh theo tầng: tầng gốc (t/) khi phóng quá ảnh toàn cảnh; tầng nét gấp k (t2/, t4/...) khi phóng đủ gần, chỉ ở vùng có lô đất.
@@ -1245,7 +1279,7 @@ tbody tr:hover .go { color: var(--brand); }
         if (dens > 0.22) for (r = g[2]; r <= Math.min(M.rows - 1, g[3]); r++) for (c = g[0]; c <= Math.min(M.cols - 1, g[1]); c++)
           addTile(c + '_' + r, 't/' + c + '_' + r + '.jpg', 1, c * T, r * T, Math.min(T, M.w - c * T), Math.min(T, M.h - r * T));
         M.levels.forEach(function (lv, li) {
-          if (dens <= lv.k * 0.5) return;
+          if (dens <= lv.k * 0.32) return;
           var sp = T / lv.k, q = tileRange(sp);
           for (var rr = q[2]; rr <= q[3]; rr++) for (var cc = q[0]; cc <= q[1]; cc++) {
             var k = cc + '_' + rr; if (!lv.have[k]) continue;
@@ -1256,8 +1290,8 @@ tbody tr:hover .go { color: var(--brand); }
       function priceOf(it) { var p = it.u.price; return p ? num(p / 1e9, 2) : 'LH'; }
       function pins() {
         // Đặt nhãn giá theo thứ tự ưu tiên (HOT, VOS, Thường; còn hàng trước), nhãn chồng lên nhãn đã đặt thì căn đó chỉ hiện chấm màu.
-        // Phóng rất gần thì mã căn đã đọc được trên bản vẽ, nhãn chỉ ghi giá.
-        var big = V.s >= 1.25 && V.s < 2.2, H = big ? 28 : 17, G = 90, grid = {};
+        // Nhãn ghim chỉ ghi giá; mã căn đã vẽ trên bản đồ.
+        var big = false, H = 17, G = 90, grid = {};
         function cells(r, fn) { for (var gx = Math.floor(r[0] / G); gx <= Math.floor(r[2] / G); gx++) for (var gy = Math.floor(r[1] / G); gy <= Math.floor(r[3] / G); gy++) if (fn(gx + ',' + gy)) return true; return false; }
         function hit(r) { return cells(r, function (k) { return (grid[k] || []).some(function (q) { return r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1]; }); }); }
         function add(r) { cells(r, function (k) { (grid[k] = grid[k] || []).push(r); }); }
