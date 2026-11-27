@@ -343,11 +343,9 @@ tbody tr:hover .go { color: var(--brand); }
 .umhint { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); background: rgba(11,31,75,.82); color: #fff; font-size: 11px; padding: 6px 12px; border-radius: 999px; white-space: nowrap; pointer-events: none; transition: opacity .4s; z-index: 6; max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis; }
 .umap.used .umhint { opacity: 0; }
 .umap.flash .umhint { opacity: 1; }
-.umnote { margin: 0; font-size: 11px; color: var(--muted); line-height: 1.5; }
 .umap.umfull { position: fixed; inset: 0; z-index: 2147482000; background: #fff; margin: 0; padding: 10px 10px calc(10px + env(safe-area-inset-bottom)); }
 .umap.umfull .umv { flex: 1 1 auto; height: auto; min-height: 0; touch-action: none; }
-.umap.umfull .umnote { display: none; }
-@container (max-width: 640px) { .umfind { flex: 1 1 100%; order: -1; } .umv { height: 64vh; min-height: 320px; border-radius: 12px; } .umhead h2 { font-size: 14.5px; } .umhead p { font-size: 11px; } .umchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 0 2px; } .umchip { flex: 0 0 auto; } }
+.umap.umfull @container (max-width: 640px) { .umfind { flex: 1 1 100%; order: -1; } .umv { height: 64vh; min-height: 320px; border-radius: 12px; } .umhead h2 { font-size: 14.5px; } .umhead p { font-size: 11px; } .umchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 0 2px; } .umchip { flex: 0 0 auto; } }
 .dbtns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 8px 0 4px; }
 .doc a.dbtn { position: relative; display: flex; align-items: center; gap: 14px; padding: 18px 16px; border-radius: 14px; background: #fff; border: 1px solid var(--line); text-decoration: none; color: var(--ink); font-weight: 400; box-shadow: 0 1px 2px rgba(16,24,40,.05); transition: transform .15s, box-shadow .15s, border-color .15s; overflow: hidden; }
 .doc a.dbtn::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); }
@@ -1156,11 +1154,6 @@ tbody tr:hover .go { color: var(--brand); }
       function bar() {
         return CATS.map(function (c) { return '<button type="button" class="umchip' + (P[c[0]] ? '' : ' off') + '" data-cat="' + c[0] + '" style="--c:' + c[2] + '" aria-pressed="' + !!P[c[0]] + '" title="' + cnt[c[0]] + ' căn"><i></i>' + esc(c[1]) + '</button>'; }).join('');
       }
-      function note() {
-        return 'Có ' + items.length + ' / ' + state.units.length + ' căn của giỏ hàng trên mặt bằng.' +
-          (miss.length ? ' ' + miss.length + ' căn chưa xác định được vị trí (' + esc(miss.slice(0, 5).join(', ')) + (miss.length > 5 ? '…' : '') + '), xem ở tab Quỹ căn.' : '') +
-          ' Giá ghim là giá niêm yết (tỷ đồng), LH là liên hệ. Vị trí căn theo tổng mặt bằng của chủ đầu tư, chỉ để tham khảo.';
-      }
       box.innerHTML = '<div class="umap">' +
         '<div class="umhead"><h2>Mặt bằng quỹ căn</h2><p>' + esc(cfg.title || state.project.name) + '. Bấm vào căn để xem chi tiết, phiếu tính giá.</p></div>' +
         '<div class="umbar"><div class="umchips">' + bar() + '</div><form class="umfind" role="search"><input type="search" placeholder="Tìm mã căn, ví dụ TL28-05" enterkeyhint="search" aria-label="Tìm mã căn trên mặt bằng"><button type="submit" aria-label="Tìm">' + SV + '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button></form></div>' +
@@ -1171,7 +1164,7 @@ tbody tr:hover .go { color: var(--brand); }
           '<button type="button" data-z="fit" title="Xem toàn bộ quỹ căn" aria-label="Xem toàn bộ quỹ căn">' + SV + '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>' +
           '<button type="button" data-z="full" title="Toàn màn hình" aria-label="Toàn màn hình">' + SV + '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></svg></button></div>' +
           '<div class="umhint">' + (window.matchMedia && matchMedia('(pointer: coarse)').matches ? 'Hai ngón tay để di chuyển, phóng to · nút ⛶ để xem toàn màn hình' : 'Kéo để di chuyển · cuộn chuột để phóng to, phóng gần để xem mã căn') + '</div>' +
-        '</div><p class="umnote">' + note() + '</p></div>' + ctaHtml('Mặt bằng quỹ căn');
+        '</div></div>' + ctaHtml('Mặt bằng quỹ căn');
       wireInfo();
       var wrap = box.querySelector('.umap'), vp = box.querySelector('.umv'), stage = box.querySelector('.umst'), layer = box.querySelector('.umpins');
       var mvT = 0, V = { s: 1, x: 0, y: 0, w: 0, h: 0 }, tiles = {}, els = [], raf = 0, focus = null, ring = null, MAXS = M.levels.length ? Math.min(6, M.levels[M.levels.length - 1].k * 1.4) : 2;
@@ -1247,11 +1240,12 @@ tbody tr:hover .go { color: var(--brand); }
         setSrc(im, path); stage.appendChild(im); tiles[key] = im;
       }
       function loadTiles() {
-        var T = M.tile, g = tileRange(T), r, c;
-        if (V.s * M.w > 2100) for (r = g[2]; r <= Math.min(M.rows - 1, g[3]); r++) for (c = g[0]; c <= Math.min(M.cols - 1, g[1]); c++)
+        // Mật độ điểm ảnh màn hình trên mỗi điểm ảnh gốc; tải tầng nét hơn ngay khi tầng đang có không đủ nét.
+        var T = M.tile, g = tileRange(T), r, c, dens = V.s * Math.min(3, window.devicePixelRatio || 1);
+        if (dens > 0.22) for (r = g[2]; r <= Math.min(M.rows - 1, g[3]); r++) for (c = g[0]; c <= Math.min(M.cols - 1, g[1]); c++)
           addTile(c + '_' + r, 't/' + c + '_' + r + '.jpg', 1, c * T, r * T, Math.min(T, M.w - c * T), Math.min(T, M.h - r * T));
         M.levels.forEach(function (lv, li) {
-          if (V.s * (window.devicePixelRatio > 1 ? 1.5 : 1) < lv.k * 0.6) return;
+          if (dens <= lv.k * 0.5) return;
           var sp = T / lv.k, q = tileRange(sp);
           for (var rr = q[2]; rr <= q[3]; rr++) for (var cc = q[0]; cc <= q[1]; cc++) {
             var k = cc + '_' + rr; if (!lv.have[k]) continue;
@@ -1453,7 +1447,7 @@ tbody tr:hover .go { color: var(--brand); }
           if (!vp.isConnected) { stop(); return; }
           collect(); els.forEach(function (el) { if (el) el.remove(); }); els = [];
           if (focus && focus.i >= 0) focus = null;
-          chips.innerHTML = bar(); box.querySelector('.umnote').innerHTML = note(); draw();
+          chips.innerHTML = bar(); draw();
         }
       };
     }
