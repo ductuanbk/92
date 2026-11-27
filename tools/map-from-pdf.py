@@ -8,6 +8,7 @@ x0 y0 x1 y1: vùng cắt, tính bằng point trên trang PDF đã xoay đúng ch
 của file 260918_TMB-Tien-ich_Khu-12-DA-VH-Sagon-Park-Update-2.pdf).
 
 Kết quả:
+    overview-s.jpg ảnh xem trước (rộng 720 px), hiện ngay khi mở tab
     overview.jpg   ảnh xem toàn cảnh (rộng 1800 px)
     t/<cột>_<hàng>.jpg   ô ảnh 512 px ở độ phân giải gốc, tải khi phóng to
     map.json       kích thước ảnh gốc và toạ độ (pixel ảnh gốc) của từng mã căn đọc được trong PDF
@@ -53,6 +54,7 @@ def main():
             box = (tx * tile, ty * tile, min(w, tx * tile + tile), min(h, ty * tile + tile))
             im.crop(box).save(os.path.join(out, 't', '%d_%d.jpg' % (tx, ty)), quality=74, optimize=True, progressive=True)
     im.resize((1800, round(h * 1800 / w)), Image.LANCZOS).save(os.path.join(out, 'overview.jpg'), quality=78, optimize=True, progressive=True)
+    im.resize((720, round(h * 720 / w)), Image.LANCZOS).save(os.path.join(out, 'overview-s.jpg'), quality=68, optimize=True, progressive=True)
 
     groups = {}
     for word in page.get_text('words'):
