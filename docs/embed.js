@@ -10,7 +10,7 @@
  *   data-tieu-de="0"     ẩn khung tiêu đề dự án phía trên bảng
  *   data-lien-ket="0"    không ghi mã căn lên thanh địa chỉ
  *   data-muc="tong-quan" mở sẵn tab thông tin khác (mặc định: quy-can). Các tab: tong-quan, vi-tri, phan-khu,
- *                        mat-bang, quy-can, chinh-sach, tai-lieu
+ *                        mat-bang (Mặt bằng quỹ căn), quy-can, chinh-sach, tai-lieu
  *
  * Khối chạy trong Shadow DOM: CSS của theme không ảnh hưởng tới bảng và ngược lại.
  * Dữ liệu chỉ gồm trường công khai (xem Code.gs › publicData_).
@@ -50,7 +50,7 @@
       { id: 'tong-quan', label: 'Tổng quan', icon: 'globe', match: ['tong quan', 'chu dau tu', 'tien ich', 'ly do', 'co nen', 'so sanh', 'gioi thieu'] },
       { id: 'vi-tri', label: 'Vị trí', icon: 'pin', match: ['vi tri', 'ket noi'] },
       { id: 'phan-khu', label: 'Phân khu', icon: 'grid', match: ['phan khu'] },
-      { id: 'mat-bang', label: 'Mặt bằng Layout', icon: 'map', match: ['mat bang', 'layout'] },
+      { id: 'mat-bang', label: 'Mặt bằng quỹ căn', icon: 'map', match: ['mat bang', 'layout'] },
       { id: 'chinh-sach', label: 'Chính sách bán hàng', icon: 'doc', match: ['gia ban', 'chinh sach', 'bang gia', 'uu dai', 'thanh toan'] },
       { id: 'tai-lieu', label: 'Tài liệu', icon: 'book', match: ['phap ly', 'tai lieu'] }
     ],
@@ -87,7 +87,19 @@
     // Tab Mặt bằng Layout: tự gom ảnh trong mục Mặt bằng, Phân khu của trang dự án và ảnh có chú thích (alt) chứa các cụm này.
     layoutWords: ['mat bang', 'layout', 'so do', 'thiet ke', 'kien truc', 'mau nha', 'tmb', 'quy hoach'],
     // File mặt bằng thêm tay (ảnh, PDF, Google Drive): [{ title: 'Mặt bằng phân khu A', url: 'https://...', group: 'Phân khu, tiện ích' }]
-    layouts: { VHSGP: [], VHCG: [] }
+    layouts: { VHSGP: [], VHCG: [] },
+    // Tab Mặt bằng quỹ căn: ảnh tổng mặt bằng chia ô và toạ độ từng mã căn (tạo bằng tools/map-from-pdf.py).
+    // base: thư mục chứa map.json, overview.jpg, t/; nhiều địa chỉ thì dùng lần lượt khi địa chỉ trước lỗi.
+    // Dự án không có mục này: tab hiện thư viện ảnh mặt bằng lấy từ trang dự án như trước.
+    unitMaps: {
+      VHSGP: {
+        title: 'Tổng mặt bằng Khu 1 Ivy Park và Khu 2 Global Park',
+        base: [
+          'https://cdn.jsdelivr.net/gh/ductuanbk/92@3ca6562c616c53a2a5e2e2ecdcb7b3b19133ef9c/docs/map/vhsgp/',
+          'https://raw.githubusercontent.com/ductuanbk/92/3ca6562c616c53a2a5e2e2ecdcb7b3b19133ef9c/docs/map/vhsgp/'
+        ]
+      }
+    }
   };
   var C = Object.assign({}, DEFAULTS, window.ADL_SITE || {});
 
@@ -285,6 +297,58 @@ tbody tr:hover .go { color: var(--brand); }
 .lact button, .doc .lact a { flex: 1; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 9px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #dfe4ec; background: #f8fafc; color: var(--navy); }
 .lact button:hover, .doc .lact a:hover { border-color: var(--navy-2); background: #fff; }
 .docs { display: grid; gap: 8px; margin: 4px 0 16px; }
+.umap { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.umhead h2 { margin: 0; font-size: 19px; color: var(--navy); letter-spacing: -.01em; }
+.umhead p { margin: 3px 0 0; font-size: 13px; color: var(--ink-2); }
+.umbar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; }
+.umchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.umchip { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid #dfe4ec; border-radius: 999px; background: #fff; font: inherit; font-size: 13px; font-weight: 600; color: var(--ink); cursor: pointer; }
+.umchip i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--c); margin-right: 2px; }
+.umchip b { font-weight: 600; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.umchip.off { color: var(--muted); background: var(--bg); }
+.umchip.off i { background: #c9d0db; box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px #c9d0db; }
+.umchip.tg.on { background: var(--navy); border-color: var(--navy); color: #fff; }
+.umfind { display: flex; align-items: center; height: 34px; border: 1px solid #dfe4ec; border-radius: 999px; background: var(--bg); padding: 0 4px 0 12px; min-width: 0; flex: 0 1 260px; }
+.umfind input { flex: 1; min-width: 0; border: 0; background: none; font: inherit; font-size: 13px; color: var(--ink); outline: 0; }
+.umfind button { width: 28px; height: 28px; border: 0; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; }
+.umfind button svg { width: 15px; height: 15px; }
+.umv { position: relative; height: min(74vh, 780px); min-height: 360px; overflow: hidden; border-radius: 14px; border: 1px solid var(--line); background: #e9eef1; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; outline: 0; }
+.umv:focus-visible { box-shadow: 0 0 0 3px rgba(22,58,122,.35); }
+.umv.drag { cursor: grabbing; }
+.umst { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.umst img { position: absolute; left: 0; top: 0; display: block; max-width: none; pointer-events: none; -webkit-user-drag: none; }
+.umst .umt { opacity: 0; transition: opacity .25s; }
+.umst .umt.ok { opacity: 1; }
+.umpins { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.upin { position: absolute; left: 0; top: 0; padding: 0; margin: 0; border: 0; background: none; font: inherit; cursor: pointer; pointer-events: auto; --c: #16a34a; --g: var(--c); -webkit-tap-highlight-color: transparent; }
+.upin.c-hot { --c: #e3170a; --g: linear-gradient(135deg, #ff8a00, #ff3d00 45%, #d50000); }
+.upin.c-vos { --c: #0d9488; }
+.upin.dot { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--g); box-shadow: 0 0 0 1.5px #fff, 0 1px 3px rgba(0,0,0,.4); z-index: 1; }
+.upin.dot span { display: none; }
+.upin.lab { width: 0; height: 0; z-index: 2; }
+.upin.lab span { position: absolute; left: 0; bottom: 5px; transform: translateX(-50%); display: block; padding: 3px 6px; border-radius: 6px; background: var(--g); color: #fff; font-size: 11px; font-weight: 700; line-height: 13px; white-space: nowrap; text-align: center; font-variant-numeric: tabular-nums; box-shadow: 0 2px 6px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.7); }
+.upin.lab span::after { content: ''; position: absolute; left: 50%; top: 100%; margin-left: -4px; border: 4px solid transparent; border-top-color: var(--c); border-bottom: 0; }
+.upin.lab::before { content: ''; position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 1.5px #fff; }
+.upin.lab small { display: block; font-size: 9.5px; font-weight: 600; line-height: 11px; opacity: .92; letter-spacing: .01em; }
+.upin.held { opacity: .55; }
+.upin.held.lab span { background: #fff; color: var(--c); box-shadow: inset 0 0 0 1.5px var(--c), 0 2px 6px rgba(0,0,0,.2); }
+.upin.held.dot { background: #fff; box-shadow: inset 0 0 0 2px var(--c), 0 1px 3px rgba(0,0,0,.35); }
+.upin:hover, .upin:focus-visible { z-index: 4; opacity: 1; outline: 0; }
+.upin:hover span, .upin:focus-visible span { filter: brightness(1.08); }
+.upin.hit { z-index: 5; opacity: 1; }
+.umring { position: absolute; left: -14px; top: -14px; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #ffb300; box-shadow: 0 0 0 3px rgba(255,179,0,.35); pointer-events: none; z-index: 3; animation: umpulse 1.4s ease-out 3; }
+@keyframes umpulse { 0% { box-shadow: 0 0 0 0 rgba(255,179,0,.7); } 100% { box-shadow: 0 0 0 16px rgba(255,179,0,0); } }
+.umctl { position: absolute; right: 10px; top: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 6; }
+.umctl button { width: 36px; height: 36px; border: 0; border-radius: 10px; background: #fff; color: var(--navy); display: grid; place-items: center; cursor: pointer; padding: 0; box-shadow: 0 2px 8px rgba(16,24,40,.2); }
+.umctl button:hover { background: var(--bg); }
+.umctl svg { width: 18px; height: 18px; }
+.umhint { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); background: rgba(11,31,75,.82); color: #fff; font-size: 12px; padding: 6px 12px; border-radius: 999px; white-space: nowrap; pointer-events: none; transition: opacity .4s; z-index: 6; max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis; }
+.umap.used .umhint { opacity: 0; }
+.umnote { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.umap.umfull { position: fixed; inset: 0; z-index: 2147482000; background: #fff; margin: 0; padding: 10px 10px calc(10px + env(safe-area-inset-bottom)); }
+.umap.umfull .umv { flex: 1 1 auto; height: auto; min-height: 0; }
+.umap.umfull .umnote { display: none; }
+@container (max-width: 640px) { .umfind { flex: 1 1 100%; order: -1; } .umv { height: 64vh; min-height: 320px; border-radius: 12px; } .umhead h2 { font-size: 17px; } .umchips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 0 2px; } .umchip { flex: 0 0 auto; height: 30px; padding: 0 10px; font-size: 12.5px; } }
 .dbtns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 8px 0 4px; }
 .doc a.dbtn { position: relative; display: flex; align-items: center; gap: 14px; padding: 18px 16px; border-radius: 14px; background: #fff; border: 1px solid var(--line); text-decoration: none; color: var(--ink); font-weight: 400; box-shadow: 0 1px 2px rgba(16,24,40,.05); transition: transform .15s, box-shadow .15s, border-color .15s; overflow: hidden; }
 .doc a.dbtn::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); }
@@ -733,6 +797,7 @@ tbody tr:hover .go { color: var(--brand); }
       host.dispatchEvent(new CustomEvent('adl:update', { bubbles: true, detail: { project: { id: state.project.id, name: state.project.name }, updatedAt: state.data.updatedAt, demo: !!state.data.demo } }));
       buildOptions(); render();
       if (!keep || changed) showTab(curTab, false);
+      else if (mapView && mapView.pid === id) mapView.update();
     }
 
     function projectLink() { var l = (C.projectLinks || {})[state.project && state.project.id]; return /^https:\/\//i.test(l || '') ? l : ''; }
@@ -987,6 +1052,7 @@ tbody tr:hover .go { color: var(--brand); }
         });
         return;
       }
+      if (tab.id === 'mat-bang' && unitMapCfg(pid)) { renderUnitMap(box, pid, seq); return; }
       if (!infoCache[pid]) box.innerHTML = '<div class="iload">Đang tải nội dung ' + esc(tab.label.toLowerCase()) + '...</div>';
       loadInfo(pid).then(function (info) {
         if (seq !== infoSeq) return;
@@ -1035,6 +1101,255 @@ tbody tr:hover .go { color: var(--brand); }
         box.innerHTML = '<div class="iload">Chưa tải được nội dung. ' + (pl ? '<a href="' + esc(pl) + '" target="_blank" rel="noopener">Xem trang ' + esc(state.project.name) + ' ↗</a>' : '') + '</div>' + ctaHtml(tab.label);
         wireInfo();
       });
+    }
+    // ─── Tab Mặt bằng quỹ căn: ảnh tổng mặt bằng (ô ảnh tải dần khi phóng to) và ghim giá trên từng căn ───
+    var mapCache = {}, mapView = null, mapPrefs = { hot: 1, vos: 1, std: 1, avail: 0, tts: 0 };
+    function unitMapCfg(pid) { var m = (C.unitMaps || {})[pid]; return m && m.base ? m : null; }
+    // Mã căn dạng DÃY-SỐ: bỏ khoảng trắng, chữ đuôi (VOS, ký hiệu) và số 0 đầu để khớp mã trên mặt bằng.
+    function mapKey(code) {
+      var m = /^([A-ZĐ]+\d+[A-Z]?)-(\d+)([A-Z](?![A-Z]))?(?![0-9])/.exec(String(code || '').toUpperCase().replace(/\s+/g, ''));
+      return m ? m[1] + '-' + (+m[2]) + (m[3] || '') : '';
+    }
+    function loadUnitMap(pid) {
+      if (mapCache[pid]) return mapCache[pid];
+      var bases = [].concat(unitMapCfg(pid).base).filter(function (b) { return /^https?:\/\//i.test(b || ''); });
+      function at(i) {
+        if (i >= bases.length) return Promise.reject(new Error('nomap'));
+        return getJSON(bases[i] + 'map.json').then(function (j) {
+          if (!j || !j.w || !j.h || !j.pos) throw new Error('bad');
+          var idx = {};
+          Object.keys(j.pos).forEach(function (row) {
+            String(j.pos[row]).split(';').forEach(function (it) { var a = it.split(/[:,]/); if (a.length === 3) idx[mapKey(row + '-' + a[0])] = [+a[1], +a[2]]; });
+          });
+          return { bases: bases.slice(i).concat(bases.slice(0, i)), w: j.w, h: j.h, tile: j.tile || 512, cols: j.cols || Math.ceil(j.w / (j.tile || 512)), rows: j.rows || Math.ceil(j.h / (j.tile || 512)), idx: idx };
+        }).catch(function () { return at(i + 1); });
+      }
+      return (mapCache[pid] = at(0).catch(function (e) { delete mapCache[pid]; throw e; }));
+    }
+    function renderUnitMap(box, pid, seq) {
+      box.innerHTML = '<div class="iload">Đang tải mặt bằng quỹ căn...</div>';
+      loadUnitMap(pid).then(function (M) {
+        if (seq !== infoSeq) return;
+        mapView = buildMap(box, M, pid);
+        track('xem_muc', { code: 'mat-bang' });
+      }).catch(function () {
+        if (seq !== infoSeq) return;
+        box.innerHTML = '<div class="iload">Chưa tải được mặt bằng quỹ căn, vui lòng tải lại trang.</div>' + ctaHtml('Mặt bằng quỹ căn');
+        wireInfo();
+      });
+    }
+    function buildMap(box, M, pid) {
+      var cfg = unitMapCfg(pid), P = mapPrefs, items = [], miss = [], cnt = {}, nHeld = 0, hasTts = false;
+      var CATS = [['hot', C.dqShort || 'HOT', '#e3170a'], ['vos', 'VOS', '#0d9488'], ['std', 'Thường', '#16a34a']], RANK = { hot: 0, vos: 1, std: 2 };
+      function collect() {
+        items = []; miss = []; cnt = { hot: 0, vos: 0, std: 0 };
+        state.units.forEach(function (u) {
+          var p = M.idx[mapKey(u.code)];
+          if (!p) { miss.push(u.code); return; }
+          items.push({ u: u, x: p[0], y: p[1], c: u.dq ? 'hot' : ((u.tags || []).indexOf('VOS') >= 0 ? 'vos' : 'std'), held: /giữ|lock|cọc|bán|khóa/i.test(u.status || '') ? 1 : 0 });
+        });
+        items.sort(function (a, b) { return RANK[a.c] - RANK[b.c] || a.held - b.held || (a.u.price || 9e12) - (b.u.price || 9e12); });
+        items.forEach(function (it) { cnt[it.c]++; });
+        nHeld = items.filter(function (it) { return it.held; }).length;
+        hasTts = items.some(function (it) { return it.u.priceEarly; });
+      }
+      collect();
+      var SV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
+      function bar() {
+        return CATS.map(function (c) { return '<button type="button" class="umchip' + (P[c[0]] ? '' : ' off') + '" data-cat="' + c[0] + '" style="--c:' + c[2] + '" aria-pressed="' + !!P[c[0]] + '"><i></i>' + esc(c[1]) + '<b>' + cnt[c[0]] + '</b></button>'; }).join('') +
+          (nHeld ? '<button type="button" class="umchip tg' + (P.avail ? ' on' : '') + '" data-opt="avail" aria-pressed="' + !!P.avail + '">Chỉ căn còn hàng</button>' : '') +
+          (hasTts ? '<button type="button" class="umchip tg' + (P.tts ? ' on' : '') + '" data-opt="tts" aria-pressed="' + !!P.tts + '">Giá TTS</button>' : '');
+      }
+      function note() {
+        return 'Có ' + items.length + ' / ' + state.units.length + ' căn của giỏ hàng trên mặt bằng.' +
+          (miss.length ? ' ' + miss.length + ' căn chưa xác định được vị trí (' + esc(miss.slice(0, 5).join(', ')) + (miss.length > 5 ? '…' : '') + '), xem ở tab Quỹ căn.' : '') +
+          ' Giá ghim là giá niêm yết (tỷ đồng)' + (hasTts ? ', bấm "Giá TTS" để xem giá thanh toán sớm' : '') + '. Vị trí căn theo tổng mặt bằng của chủ đầu tư, chỉ để tham khảo.';
+      }
+      box.innerHTML = '<div class="umap">' +
+        '<div class="umhead"><h2>Mặt bằng quỹ căn</h2><p>' + esc(cfg.title || state.project.name) + '. Bấm vào căn để xem chi tiết, phiếu tính giá.</p></div>' +
+        '<div class="umbar"><div class="umchips">' + bar() + '</div><form class="umfind" role="search"><input type="search" placeholder="Tìm mã căn, ví dụ TL28-05" enterkeyhint="search" aria-label="Tìm mã căn trên mặt bằng"><button type="submit" aria-label="Tìm">' + SV + '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button></form></div>' +
+        '<div class="umv" tabindex="0" aria-label="Mặt bằng quỹ căn: kéo để di chuyển, cuộn chuột hoặc chụm hai ngón để phóng to">' +
+          '<div class="umst"><img class="umov" alt="" draggable="false" style="width:' + M.w + 'px;height:' + M.h + 'px"></div><div class="umpins"></div>' +
+          '<div class="umctl"><button type="button" data-z="in" title="Phóng to" aria-label="Phóng to">' + SV + '<path d="M12 5v14M5 12h14"/></svg></button>' +
+          '<button type="button" data-z="out" title="Thu nhỏ" aria-label="Thu nhỏ">' + SV + '<path d="M5 12h14"/></svg></button>' +
+          '<button type="button" data-z="fit" title="Xem toàn bộ quỹ căn" aria-label="Xem toàn bộ quỹ căn">' + SV + '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>' +
+          '<button type="button" data-z="full" title="Toàn màn hình" aria-label="Toàn màn hình">' + SV + '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></svg></button></div>' +
+          '<div class="umhint">Kéo để di chuyển · cuộn chuột hoặc chụm hai ngón để phóng to</div>' +
+        '</div><p class="umnote">' + note() + '</p></div>' + ctaHtml('Mặt bằng quỹ căn');
+      wireInfo();
+      var wrap = box.querySelector('.umap'), vp = box.querySelector('.umv'), stage = box.querySelector('.umst'), layer = box.querySelector('.umpins');
+      var V = { s: 1, x: 0, y: 0, w: 0, h: 0 }, tiles = {}, els = [], raf = 0, focus = null, ring = null, MAXS = 2;
+      function setSrc(im, path) { var i = 0; im.onerror = function () { if (++i < M.bases.length) im.src = M.bases[i] + path; }; im.src = M.bases[0] + path; }
+      setSrc(stage.querySelector('.umov'), 'overview.jpg');
+      function size() { var r = vp.getBoundingClientRect(); V.w = r.width; V.h = r.height; }
+      function minS() { return Math.min(V.w / M.w, V.h / M.h) * 0.9; }
+      function clampS(s) { return Math.max(minS(), Math.min(MAXS, s)); }
+      function clamp() {
+        V.s = clampS(V.s);
+        var sw = M.w * V.s, sh = M.h * V.s;
+        V.x = sw <= V.w ? (V.w - sw) / 2 : Math.min(0, Math.max(V.w - sw, V.x));
+        V.y = sh <= V.h ? (V.h - sh) / 2 : Math.min(0, Math.max(V.h - sh, V.y));
+      }
+      function zoomAt(f, cx, cy) { var s0 = V.s; V.s = clampS(V.s * f); var k = V.s / s0; V.x = cx - (cx - V.x) * k; V.y = cy - (cy - V.y) * k; clamp(); draw(); }
+      function centerOn(px, py, s) { V.s = clampS(s); V.x = V.w / 2 - px * V.s; V.y = V.h / 2 - py * V.s; clamp(); draw(); }
+      function shown(it) { return P[it.c] && !(P.avail && it.held); }
+      function fitPins() {
+        var vis = items.filter(shown), x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+        if (!vis.length) vis = [{ x: 0, y: 0 }, { x: M.w, y: M.h }];
+        vis.forEach(function (it) { x0 = Math.min(x0, it.x); y0 = Math.min(y0, it.y); x1 = Math.max(x1, it.x); y1 = Math.max(y1, it.y); });
+        var pad = 70;
+        centerOn((x0 + x1) / 2, (y0 + y1) / 2, Math.min(V.w / (x1 - x0 + pad * 2), V.h / (y1 - y0 + pad * 2)));
+      }
+      function draw() { if (!raf) raf = (window.requestAnimationFrame || setTimeout)(paint); }
+      function paint() {
+        raf = 0;
+        if (!vp.isConnected) { stop(); return; }
+        stage.style.transform = 'translate(' + V.x + 'px,' + V.y + 'px) scale(' + V.s + ')';
+        if (V.s * M.w > 2100) loadTiles();
+        pins();
+      }
+      function loadTiles() {
+        var T = M.tile, c0 = Math.max(0, Math.floor(-V.x / V.s / T)), c1 = Math.min(M.cols - 1, Math.floor((V.w - V.x) / V.s / T)),
+          r0 = Math.max(0, Math.floor(-V.y / V.s / T)), r1 = Math.min(M.rows - 1, Math.floor((V.h - V.y) / V.s / T));
+        for (var r = r0; r <= r1; r++) for (var c = c0; c <= c1; c++) {
+          var k = c + '_' + r; if (tiles[k]) continue;
+          var im = document.createElement('img'); im.alt = ''; im.className = 'umt'; im.draggable = false;
+          im.style.cssText = 'left:' + c * T + 'px;top:' + r * T + 'px;width:' + (Math.min(T, M.w - c * T) + 0.6) + 'px;height:' + (Math.min(T, M.h - r * T) + 0.6) + 'px';
+          im.onload = function () { this.classList.add('ok'); };
+          setSrc(im, 't/' + k + '.jpg'); stage.appendChild(im); tiles[k] = im;
+        }
+      }
+      function priceOf(it) { var p = P.tts && it.u.priceEarly ? it.u.priceEarly : it.u.price; return p ? num(p / 1e9, 2) : 'Liên hệ'; }
+      function pins() {
+        // Đặt nhãn giá theo thứ tự ưu tiên (HOT, VOS, Thường; còn hàng trước), nhãn chồng lên nhãn đã đặt thì căn đó chỉ hiện chấm màu.
+        var big = V.s >= 1.25, H = big ? 31 : 19, G = 90, grid = {};
+        function cells(r, fn) { for (var gx = Math.floor(r[0] / G); gx <= Math.floor(r[2] / G); gx++) for (var gy = Math.floor(r[1] / G); gy <= Math.floor(r[3] / G); gy++) if (fn(gx + ',' + gy)) return true; return false; }
+        function hit(r) { return cells(r, function (k) { return (grid[k] || []).some(function (q) { return r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1]; }); }); }
+        function add(r) { cells(r, function (k) { (grid[k] = grid[k] || []).push(r); }); }
+        items.forEach(function (it, i) {
+          var el = els[i], sx = V.x + it.x * V.s, sy = V.y + it.y * V.s;
+          if (!shown(it) || sx < -80 || sx > V.w + 80 || sy < -10 || sy > V.h + 50) { if (el) el.style.display = 'none'; return; }
+          if (!el) {
+            el = els[i] = document.createElement('button'); el.type = 'button'; el.dataset.i = i;
+            el.title = it.u.code + ' · ' + ty(it.u.price) + (it.u.status ? ' · ' + it.u.status : '');
+            layer.appendChild(el);
+          }
+          var t = priceOf(it), w = Math.max(t.length * 6.3, big ? it.u.code.length * 5.6 : 0) + 13, r = [sx - w / 2, sy - H - 6, sx + w / 2, sy - 2];
+          var lab = !hit(r); if (lab) add(r);
+          var html = '<span>' + (big ? '<small>' + esc(it.u.code) + '</small>' : '') + t + '</span>';
+          if (el._h !== html) { el.innerHTML = html; el._h = html; }
+          el.className = 'upin c-' + it.c + (it.held ? ' held' : '') + (lab ? ' lab' : ' dot') + (focus && focus.i === i ? ' hit' : '');
+          el.style.display = ''; el.style.transform = 'translate(' + sx.toFixed(1) + 'px,' + sy.toFixed(1) + 'px)';
+        });
+        if (focus) {
+          if (!ring) { ring = document.createElement('i'); ring.className = 'umring'; layer.appendChild(ring); }
+          ring.style.transform = 'translate(' + (V.x + focus.x * V.s).toFixed(1) + 'px,' + (V.y + focus.y * V.s).toFixed(1) + 'px)';
+        }
+      }
+      // Kéo, chụm hai ngón, chạm đúp
+      var ptr = {}, moved = 0, last = null, pinch = null, tapT = 0;
+      function pts() { return Object.keys(ptr).map(function (k) { return ptr[k]; }); }
+      function pinchOf(a) { var r = vp.getBoundingClientRect(); return { d: Math.max(1, Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y)), cx: (a[0].x + a[1].x) / 2 - r.left, cy: (a[0].y + a[1].y) / 2 - r.top }; }
+      function hideHint() { wrap.classList.add('used'); }
+      function onMove(e) {
+        if (!ptr[e.pointerId]) return;
+        ptr[e.pointerId] = { x: e.clientX, y: e.clientY };
+        var a = pts();
+        if (a.length >= 2) {
+          var p2 = pinchOf(a); if (!pinch) pinch = p2;
+          V.x += p2.cx - pinch.cx; V.y += p2.cy - pinch.cy;
+          zoomAt(p2.d / pinch.d, p2.cx, p2.cy); pinch = p2; moved = 99; return;
+        }
+        var dx = e.clientX - last.x, dy = e.clientY - last.y; last = { x: e.clientX, y: e.clientY };
+        moved += Math.abs(dx) + Math.abs(dy);
+        if (moved > 5) vp.classList.add('drag');
+        V.x += dx; V.y += dy; clamp(); draw();
+      }
+      function onUp(e) {
+        if (!ptr[e.pointerId]) return;
+        delete ptr[e.pointerId]; pinch = null;
+        var a = pts();
+        if (a.length) { last = { x: a[0].x, y: a[0].y }; return; }
+        window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp); window.removeEventListener('pointercancel', onUp);
+        vp.classList.remove('drag');
+        if (moved < 6 && e.type === 'pointerup' && !(e.target.closest && e.target.closest('.upin, .umctl'))) {
+          var now = Date.now(), r = vp.getBoundingClientRect();
+          if (now - tapT < 330) { zoomAt(2, e.clientX - r.left, e.clientY - r.top); tapT = 0; } else tapT = now;
+        }
+      }
+      vp.addEventListener('pointerdown', function (e) {
+        if (e.target.closest('.umctl') || (e.pointerType === 'mouse' && e.button !== 0)) return;
+        hideHint();
+        if (!pts().length) { moved = 0; window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp); window.addEventListener('pointercancel', onUp); }
+        ptr[e.pointerId] = { x: e.clientX, y: e.clientY }; last = { x: e.clientX, y: e.clientY };
+        if (pts().length === 2) { pinch = pinchOf(pts()); moved = 99; }
+      });
+      vp.addEventListener('wheel', function (e) {
+        e.preventDefault(); hideHint();
+        var r = vp.getBoundingClientRect(), d = e.deltaMode ? e.deltaY * 33 : e.deltaY;
+        zoomAt(Math.exp(-Math.max(-300, Math.min(300, d)) * 0.0019), e.clientX - r.left, e.clientY - r.top);
+      }, { passive: false });
+      vp.addEventListener('keydown', function (e) {
+        var k = e.key, st = 90;
+        if (k === '+' || k === '=') zoomAt(1.5, V.w / 2, V.h / 2); else if (k === '-') zoomAt(1 / 1.5, V.w / 2, V.h / 2);
+        else if (k === 'ArrowLeft') { V.x += st; clamp(); draw(); } else if (k === 'ArrowRight') { V.x -= st; clamp(); draw(); }
+        else if (k === 'ArrowUp') { V.y += st; clamp(); draw(); } else if (k === 'ArrowDown') { V.y -= st; clamp(); draw(); }
+        else return;
+        e.preventDefault();
+      });
+      layer.addEventListener('click', function (e) {
+        var b = e.target.closest('.upin'); if (!b || moved > 6) return;
+        var it = items[+b.dataset.i]; if (it) openUnit(it.u);
+      });
+      function onEsc(e) { if (e.key === 'Escape' && !root.querySelector('.mbg.open, .zoom.open')) full(false); }
+      function full(on) {
+        var cx = (V.w / 2 - V.x) / V.s, cy = (V.h / 2 - V.y) / V.s;
+        wrap.classList.toggle('umfull', on); document.documentElement.style.overflow = on ? 'hidden' : '';
+        document[on ? 'addEventListener' : 'removeEventListener']('keydown', onEsc, true);
+        size(); centerOn(cx, cy, V.s);
+      }
+      box.querySelector('.umctl').addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return; hideHint();
+        var z = b.dataset.z;
+        if (z === 'in') zoomAt(1.6, V.w / 2, V.h / 2); else if (z === 'out') zoomAt(1 / 1.6, V.w / 2, V.h / 2);
+        else if (z === 'fit') fitPins(); else if (z === 'full') full(!wrap.classList.contains('umfull'));
+      });
+      var chips = box.querySelector('.umchips');
+      chips.addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b) return;
+        var k = b.dataset.cat || b.dataset.opt; P[k] = P[k] ? 0 : 1;
+        chips.innerHTML = bar(); draw();
+      });
+      box.querySelector('.umfind').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var inp = box.querySelector('.umfind input'), q = inp.value.trim(), k = mapKey(q);
+        if (!k) { toast('Nhập mã căn, ví dụ TL28-05'); return; }
+        var i = -1; items.forEach(function (it, j) { if (mapKey(it.u.code) === k) i = j; });
+        var p = i >= 0 ? [items[i].x, items[i].y] : M.idx[k];
+        if (!p) { toast('Không tìm thấy căn ' + q.toUpperCase() + ' trên mặt bằng'); return; }
+        inp.blur(); hideHint();
+        focus = { i: i, x: p[0], y: p[1] };
+        if (i >= 0 && !shown(items[i])) { P[items[i].c] = 1; P.avail = items[i].held ? 0 : P.avail; chips.innerHTML = bar(); }
+        centerOn(p[0], p[1], Math.max(V.s, 1.3));
+        if (i < 0) toast('Căn ' + q.toUpperCase() + ' hiện không có trong giỏ hàng');
+      });
+      var ro = window.ResizeObserver ? new ResizeObserver(function () {
+        if (!vp.isConnected) { stop(); return; }
+        var w0 = V.w, cx = (V.w / 2 - V.x) / V.s, cy = (V.h / 2 - V.y) / V.s; size();
+        if (!w0 && V.w) fitPins(); else if (V.w) centerOn(cx, cy, V.s);
+      }) : null;
+      function stop() { if (ro) ro.disconnect(); if (wrap.classList.contains('umfull')) full(false); if (mapView && mapView.vp === vp) mapView = null; }
+      if (ro) ro.observe(vp);
+      size(); if (V.w) fitPins();
+      return {
+        pid: pid, vp: vp,
+        update: function () {
+          if (!vp.isConnected) { stop(); return; }
+          collect(); els.forEach(function (el) { if (el) el.remove(); }); els = [];
+          if (focus && focus.i >= 0) focus = null;
+          chips.innerHTML = bar(); box.querySelector('.umnote').innerHTML = note(); draw();
+        }
+      };
     }
     function wireInfo() {
       var box = $('pInfo');
