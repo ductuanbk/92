@@ -47,10 +47,10 @@
     // Sửa trang dự án trong WordPress là các tab tự cập nhật. Đổi tên, thứ tự, bỏ tab: sửa danh sách này.
     tabs: [
       { id: 'quy-can', label: 'Quỹ căn', icon: 'house' },
+      { id: 'mat-bang', label: 'Mặt bằng quỹ căn', icon: 'map', match: ['mat bang', 'layout'] },
       { id: 'tong-quan', label: 'Tổng quan', icon: 'globe', match: ['tong quan', 'chu dau tu', 'tien ich', 'ly do', 'co nen', 'so sanh', 'gioi thieu'] },
       { id: 'vi-tri', label: 'Vị trí', icon: 'pin', match: ['vi tri', 'ket noi'] },
       { id: 'phan-khu', label: 'Phân khu', icon: 'grid', match: ['phan khu'] },
-      { id: 'mat-bang', label: 'Mặt bằng quỹ căn', icon: 'map', match: ['mat bang', 'layout'] },
       { id: 'chinh-sach', label: 'Chính sách bán hàng', icon: 'doc', match: ['gia ban', 'chinh sach', 'bang gia', 'uu dai', 'thanh toan'] },
       { id: 'tai-lieu', label: 'Tài liệu', icon: 'book', match: ['phap ly', 'tai lieu'] }
     ],
@@ -1132,7 +1132,7 @@ tbody tr:hover .go { color: var(--brand); }
         track('xem_muc', { code: 'mat-bang' });
       }).catch(function () {
         if (seq !== infoSeq) return;
-        box.innerHTML = '<div class="iload">Chưa tải được mặt bằng quỹ căn, vui lòng tải lại trang.</div>' + ctaHtml('Mặt bằng quỹ căn');
+        box.innerHTML = '<div class="iload">Chưa tải được mặt bằng quỹ căn, vui lòng tải lại trang.</div>';
         wireInfo();
       });
     }
@@ -1164,7 +1164,7 @@ tbody tr:hover .go { color: var(--brand); }
           '<button type="button" data-z="fit" title="Xem toàn bộ quỹ căn" aria-label="Xem toàn bộ quỹ căn">' + SV + '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>' +
           '<button type="button" data-z="full" title="Toàn màn hình" aria-label="Toàn màn hình">' + SV + '<path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></svg></button></div>' +
           '<div class="umhint">' + (window.matchMedia && matchMedia('(pointer: coarse)').matches ? 'Hai ngón tay để di chuyển, phóng to · nút ⛶ để xem toàn màn hình' : 'Kéo để di chuyển · cuộn chuột để phóng to, phóng gần để xem mã căn') + '</div>' +
-        '</div></div>' + ctaHtml('Mặt bằng quỹ căn');
+        '</div></div>';
       wireInfo();
       var wrap = box.querySelector('.umap'), vp = box.querySelector('.umv'), stage = box.querySelector('.umst'), layer = box.querySelector('.umpins');
       var mvT = 0, V = { s: 1, x: 0, y: 0, w: 0, h: 0 }, tiles = {}, els = [], raf = 0, focus = null, ring = null, MAXS = M.levels.length ? Math.min(6, M.levels[M.levels.length - 1].k * 1.4) : 2;
