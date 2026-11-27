@@ -19,6 +19,7 @@ import json
 import math
 import os
 import re
+import statistics
 import sys
 
 import pymupdf
@@ -90,8 +91,22 @@ def main():
         levels.append({'d': d, 'k': k, 'have': ';'.join('%d_%d' % t for t in sorted(have))})
         print('tầng x%d: %d ô' % (k, len(have)))
     pos = {k: ';'.join('%s:%d,%d' % (n, x, y) for n, (x, y) in sorted(v.items())) for k, v in sorted(groups.items())}
+    # Mỗi dãy: góc chữ mã căn (độ, theo hướng lô) và bề ngang lô (pixel ảnh gốc), để bảng hàng vẽ mã căn cỡ lớn khi phóng.
+    ang = {}
+    for b in page.get_text('rawdict')['blocks']:
+        for ln in b.get('lines', []):
+            t = ''.join(c['c'] for s in ln['spans'] for c in s['chars']).strip()
+            mm = CODE.match(t)
+            if mm:
+                v = pymupdf.Point(*ln['dir']) * pymupdf.Matrix(rot.a, rot.b, rot.c, rot.d, 0, 0)
+                ang.setdefault(mm.group(1), []).append(math.degrees(math.atan2(v.y, v.x)))
+    rowinfo = {}
+    for row, g in groups.items():
+        P = list(g.values())
+        nn = [min((math.hypot(x - a, y - b) for k, (a, b) in enumerate(P) if k != i), default=0) for i, (x, y) in enumerate(P)]
+        rowinfo[row] = [round(statistics.median(ang.get(row, [0]))), round(statistics.median(nn), 1)]
     with open(os.path.join(out, 'map.json'), 'w', encoding='utf-8') as f:
-        json.dump({'w': w, 'h': h, 'tile': tile, 'cols': cols, 'rows': rows, 'levels': levels, 'pos': pos}, f, ensure_ascii=False, separators=(',', ':'))
+        json.dump({'w': w, 'h': h, 'tile': tile, 'cols': cols, 'rows': rows, 'levels': levels, 'rowinfo': rowinfo, 'pos': pos}, f, ensure_ascii=False, separators=(',', ':'))
     print('ảnh %dx%d, %d ô, %d mã căn' % (w, h, cols * rows, sum(len(v) for v in groups.values())))
 
 
