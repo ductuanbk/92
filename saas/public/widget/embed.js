@@ -322,7 +322,7 @@ tbody tr:hover .go { color: var(--brand); }
 .umpins { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .upin { position: absolute; left: 0; top: 0; padding: 0; margin: 0; border: 0; background: none; font: inherit; cursor: pointer; pointer-events: auto; --c: #f97316; --g: var(--c); -webkit-tap-highlight-color: transparent; }
 .upin.c-hot { --c: #d50000; --g: linear-gradient(135deg, #ff1f1f, #d50000 55%, #a00000); }
-.upin.c-vos { --c: #16a34a; }
+.upin.c-vos { --c: #ff2a2a; }
 .upin.dot { width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--g); box-shadow: 0 0 0 1.5px #fff, 0 1px 3px rgba(0,0,0,.4); z-index: 1; }
 .upin.dot span { display: none; }
 .upin.lab { width: 0; height: 0; z-index: 2; }
@@ -1140,7 +1140,7 @@ tbody tr:hover .go { color: var(--brand); }
     }
     function buildMap(box, M, pid) {
       var cfg = unitMapCfg(pid), P = mapPrefs, items = [], miss = [], cnt = {}, nHeld = 0, hasTts = false;
-      var CATS = [['hot', C.dqShort || 'HOT', '#d50000'], ['vos', 'VOS', '#16a34a'], ['std', 'Thường', '#f97316']], RANK = { hot: 0, vos: 1, std: 2 };
+      var CATS = [['hot', C.dqShort || 'HOT', '#d50000'], ['vos', 'VOS', '#ff2a2a'], ['std', 'Thường', '#f97316']], RANK = { hot: 0, vos: 1, std: 2 };
       function collect() {
         items = []; miss = []; cnt = { hot: 0, vos: 0, std: 0 };
         state.units.forEach(function (u) {
