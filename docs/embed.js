@@ -1103,7 +1103,7 @@ tbody tr:hover .go { color: var(--brand); }
       });
     }
     // ─── Tab Mặt bằng quỹ căn: ảnh tổng mặt bằng (ô ảnh tải dần khi phóng to) và ghim giá trên từng căn ───
-    var mapCache = {}, mapView = null, mapPrefs = { hot: 1, vos: 1, std: 1, avail: 0, tts: 0 };
+    var mapCache = {}, mapView = null, mapPrefs = { hot: 1, vos: 1, std: 1, avail: 0 };
     function unitMapCfg(pid) { var m = (C.unitMaps || {})[pid]; return m && m.base ? m : null; }
     // Mã căn dạng DÃY-SỐ: bỏ khoảng trắng, chữ đuôi (VOS, ký hiệu) và số 0 đầu để khớp mã trên mặt bằng.
     function mapKey(code) {
@@ -1139,31 +1139,30 @@ tbody tr:hover .go { color: var(--brand); }
       });
     }
     function buildMap(box, M, pid) {
-      var cfg = unitMapCfg(pid), P = mapPrefs, items = [], miss = [], cnt = {}, nHeld = 0, hasTts = false;
+      var cfg = unitMapCfg(pid), P = mapPrefs, items = [], miss = [], cnt = {}, nHeld = 0;
       var CATS = [['hot', C.dqShort || 'HOT', '#d50000'], ['vos', 'VOS', '#ff2a2a'], ['std', 'Thường', '#f97316']], RANK = { hot: 0, vos: 1, std: 2 };
       function collect() {
         items = []; miss = []; cnt = { hot: 0, vos: 0, std: 0 };
         state.units.forEach(function (u) {
           var p = M.idx[mapKey(u.code)];
           if (!p) { miss.push(u.code); return; }
-          items.push({ u: u, x: p[0], y: p[1], c: u.dq ? 'hot' : ((u.tags || []).indexOf('VOS') >= 0 ? 'vos' : 'std'), held: /giữ|lock|cọc|bán|khóa/i.test(u.status || '') ? 1 : 0 });
+          items.push({ u: u, x: p[0], y: p[1], c: u.dq ? 'hot' : ((u.tags || []).indexOf('VOS') >= 0 ? 'vos' : 'std'), held: u.status && u.status !== 'Còn hàng' ? 1 : 0 });
         });
         items.sort(function (a, b) { return RANK[a.c] - RANK[b.c] || a.held - b.held || (a.u.price || 9e12) - (b.u.price || 9e12); });
         items.forEach(function (it) { cnt[it.c]++; });
         nHeld = items.filter(function (it) { return it.held; }).length;
-        hasTts = items.some(function (it) { return it.u.priceEarly; });
       }
       collect();
       var SV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
       function bar() {
         return CATS.map(function (c) { return '<button type="button" class="umchip' + (P[c[0]] ? '' : ' off') + '" data-cat="' + c[0] + '" style="--c:' + c[2] + '" aria-pressed="' + !!P[c[0]] + '"><i></i>' + esc(c[1]) + '<b>' + cnt[c[0]] + '</b></button>'; }).join('') +
           (nHeld ? '<button type="button" class="umchip tg' + (P.avail ? ' on' : '') + '" data-opt="avail" aria-pressed="' + !!P.avail + '">Chỉ căn còn hàng</button>' : '') +
-          (hasTts ? '<button type="button" class="umchip tg' + (P.tts ? ' on' : '') + '" data-opt="tts" aria-pressed="' + !!P.tts + '">Giá TTS</button>' : '');
+          '';
       }
       function note() {
         return 'Có ' + items.length + ' / ' + state.units.length + ' căn của giỏ hàng trên mặt bằng.' +
           (miss.length ? ' ' + miss.length + ' căn chưa xác định được vị trí (' + esc(miss.slice(0, 5).join(', ')) + (miss.length > 5 ? '…' : '') + '), xem ở tab Quỹ căn.' : '') +
-          ' Giá ghim là giá niêm yết (tỷ đồng)' + (hasTts ? ', bấm "Giá TTS" để xem giá thanh toán sớm' : '') + '. Vị trí căn theo tổng mặt bằng của chủ đầu tư, chỉ để tham khảo.';
+          ' Giá ghim là giá niêm yết (tỷ đồng), LH là liên hệ. Vị trí căn theo tổng mặt bằng của chủ đầu tư, chỉ để tham khảo.';
       }
       box.innerHTML = '<div class="umap">' +
         '<div class="umhead"><h2>Mặt bằng quỹ căn</h2><p>' + esc(cfg.title || state.project.name) + '. Bấm vào căn để xem chi tiết, phiếu tính giá.</p></div>' +
@@ -1219,7 +1218,7 @@ tbody tr:hover .go { color: var(--brand); }
           setSrc(im, 't/' + k + '.jpg'); stage.appendChild(im); tiles[k] = im;
         }
       }
-      function priceOf(it) { var p = P.tts && it.u.priceEarly ? it.u.priceEarly : it.u.price; return p ? num(p / 1e9, 2) : 'Liên hệ'; }
+      function priceOf(it) { var p = it.u.price; return p ? num(p / 1e9, 2) : 'LH'; }
       function pins() {
         // Đặt nhãn giá theo thứ tự ưu tiên (HOT, VOS, Thường; còn hàng trước), nhãn chồng lên nhãn đã đặt thì căn đó chỉ hiện chấm màu.
         var big = V.s >= 1.25, H = big ? 31 : 19, G = 90, grid = {};
