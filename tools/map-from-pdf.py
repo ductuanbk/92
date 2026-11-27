@@ -11,6 +11,8 @@ Kết quả:
     overview-s.jpg ảnh xem trước (rộng 720 px), hiện ngay khi mở tab
     overview.jpg   ảnh xem toàn cảnh (rộng 1800 px)
     t/<cột>_<hàng>.jpg   ô ảnh 512 px ở độ phân giải gốc, tải khi phóng to
+    t2/, t4/       ô ảnh WebP nét gấp 2 và gấp 4 (bản vẽ CAD là véc-tơ nên đọc được mã căn, diện tích),
+                   chỉ tạo cho vùng có lô đất
     map.json       kích thước ảnh gốc và toạ độ (pixel ảnh gốc) của từng mã căn đọc được trong PDF
 """
 import json
@@ -65,9 +67,31 @@ def main():
         x, y = round((c.x - x0) * scale), round((c.y - y0) * scale)
         if 0 <= x < w and 0 <= y < h:
             groups.setdefault(m.group(1), {}).setdefault(m.group(2), (x, y))
+    # Tầng nét hơn: chỉ những ô quanh lô đất (ảnh nền ngoài vùng lô không nét thêm được).
+    pts = [p for g in groups.values() for p in g.values()]
+    levels = []
+    for k in (2, 4):
+        span = tile / k
+        have = set()
+        for x, y in pts:
+            for gx in range(int((x - 110) // span), int((x + 110) // span) + 1):
+                for gy in range(int((y - 110) // span), int((y + 110) // span) + 1):
+                    if 0 <= gx * span < w and 0 <= gy * span < h:
+                        have.add((gx, gy))
+        d = 't%d' % k
+        os.makedirs(os.path.join(out, d), exist_ok=True)
+        m = pymupdf.Matrix(scale * k, scale * k)
+        for gx, gy in sorted(have):
+            px0, py0 = gx * span, gy * span
+            px1, py1 = min(w, px0 + span), min(h, py0 + span)
+            r = pymupdf.Rect(x0 + px0 / scale, y0 + py0 / scale, x0 + px1 / scale, y0 + py1 / scale)
+            pm = page.get_pixmap(matrix=m, clip=r, alpha=False)
+            Image.frombytes('RGB', (pm.width, pm.height), pm.samples).save(os.path.join(out, d, '%d_%d.webp' % (gx, gy)), 'WEBP', quality=70, method=4)
+        levels.append({'d': d, 'k': k, 'have': ';'.join('%d_%d' % t for t in sorted(have))})
+        print('tầng x%d: %d ô' % (k, len(have)))
     pos = {k: ';'.join('%s:%d,%d' % (n, x, y) for n, (x, y) in sorted(v.items())) for k, v in sorted(groups.items())}
     with open(os.path.join(out, 'map.json'), 'w', encoding='utf-8') as f:
-        json.dump({'w': w, 'h': h, 'tile': tile, 'cols': cols, 'rows': rows, 'pos': pos}, f, ensure_ascii=False, separators=(',', ':'))
+        json.dump({'w': w, 'h': h, 'tile': tile, 'cols': cols, 'rows': rows, 'levels': levels, 'pos': pos}, f, ensure_ascii=False, separators=(',', ':'))
     print('ảnh %dx%d, %d ô, %d mã căn' % (w, h, cols * rows, sum(len(v) for v in groups.values())))
 
 
