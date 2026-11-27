@@ -95,8 +95,8 @@
       VHSGP: {
         title: 'Tổng mặt bằng Khu 1 Ivy Park và Khu 2 Global Park',
         base: [
-          'https://cdn.jsdelivr.net/gh/ductuanbk/92@3ca6562c616c53a2a5e2e2ecdcb7b3b19133ef9c/docs/map/vhsgp/',
-          'https://raw.githubusercontent.com/ductuanbk/92/3ca6562c616c53a2a5e2e2ecdcb7b3b19133ef9c/docs/map/vhsgp/'
+          'https://cdn.jsdelivr.net/gh/ductuanbk/92@0eedb2a62a34cfba83571f9f79e2be96b2e7538a/docs/map/vhsgp/',
+          'https://raw.githubusercontent.com/ductuanbk/92/0eedb2a62a34cfba83571f9f79e2be96b2e7538a/docs/map/vhsgp/'
         ]
       }
     }
@@ -317,8 +317,8 @@ tbody tr:hover .go { color: var(--brand); }
 .umv.drag { cursor: grabbing; }
 .umst { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
 .umst img { position: absolute; left: 0; top: 0; display: block; max-width: none; pointer-events: none; -webkit-user-drag: none; }
-.umst .umt { opacity: 0; transition: opacity .25s; }
-.umst .umt.ok { opacity: 1; }
+.umst .umt, .umst .umbig { opacity: 0; transition: opacity .25s; }
+.umst .umt.ok, .umst .umbig.ok { opacity: 1; }
 .umpins { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .upin { position: absolute; left: 0; top: 0; padding: 0; margin: 0; border: 0; background: none; font: inherit; cursor: pointer; pointer-events: auto; --c: #f97316; --g: var(--c); -webkit-tap-highlight-color: transparent; }
 .upin.c-hot { --c: #d50000; --g: linear-gradient(135deg, #ff1f1f, #d50000 55%, #a00000); }
@@ -1165,7 +1165,7 @@ tbody tr:hover .go { color: var(--brand); }
         '<div class="umhead"><h2>Mặt bằng quỹ căn</h2><p>' + esc(cfg.title || state.project.name) + '. Bấm vào căn để xem chi tiết, phiếu tính giá.</p></div>' +
         '<div class="umbar"><div class="umchips">' + bar() + '</div><form class="umfind" role="search"><input type="search" placeholder="Tìm mã căn, ví dụ TL28-05" enterkeyhint="search" aria-label="Tìm mã căn trên mặt bằng"><button type="submit" aria-label="Tìm">' + SV + '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button></form></div>' +
         '<div class="umv" tabindex="0" aria-label="Mặt bằng quỹ căn: kéo để di chuyển, cuộn chuột hoặc chụm hai ngón để phóng to">' +
-          '<div class="umst"><img class="umov" alt="" draggable="false" style="width:' + M.w + 'px;height:' + M.h + 'px"></div><div class="umpins"></div>' +
+          '<div class="umst"><img class="umov" alt="" draggable="false" style="width:' + M.w + 'px;height:' + M.h + 'px"><img class="umov umbig" alt="" draggable="false" style="width:' + M.w + 'px;height:' + M.h + 'px"></div><div class="umpins"></div>' +
           '<div class="umctl"><button type="button" data-z="in" title="Phóng to" aria-label="Phóng to">' + SV + '<path d="M12 5v14M5 12h14"/></svg></button>' +
           '<button type="button" data-z="out" title="Thu nhỏ" aria-label="Thu nhỏ">' + SV + '<path d="M5 12h14"/></svg></button>' +
           '<button type="button" data-z="fit" title="Xem toàn bộ quỹ căn" aria-label="Xem toàn bộ quỹ căn">' + SV + '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>' +
@@ -1176,7 +1176,11 @@ tbody tr:hover .go { color: var(--brand); }
       var wrap = box.querySelector('.umap'), vp = box.querySelector('.umv'), stage = box.querySelector('.umst'), layer = box.querySelector('.umpins');
       var V = { s: 1, x: 0, y: 0, w: 0, h: 0 }, tiles = {}, els = [], raf = 0, focus = null, ring = null, MAXS = 2;
       function setSrc(im, path) { var i = 0; im.onerror = function () { if (++i < M.bases.length) im.src = M.bases[i] + path; }; im.src = M.bases[0] + path; }
-      setSrc(stage.querySelector('.umov'), 'overview.jpg');
+      // Ảnh xem trước nhỏ hiện ngay, ảnh toàn cảnh rõ hơn tải sau rồi hiện đè lên.
+      var ovs = stage.querySelectorAll('.umov');
+      setSrc(ovs[0], 'overview-s.jpg');
+      ovs[1].onload = function () { this.classList.add('ok'); };
+      setSrc(ovs[1], 'overview.jpg');
       function size() { var r = vp.getBoundingClientRect(); V.w = r.width; V.h = r.height; }
       function minS() { return Math.min(V.w / M.w, V.h / M.h) * 0.9; }
       function clampS(s) { return Math.max(minS(), Math.min(MAXS, s)); }
