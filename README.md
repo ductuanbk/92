@@ -177,7 +177,7 @@ Bảng hàng đẩy sự kiện `adl_bang_hang` vào `dataLayer` nếu website c
 
 ## Ảnh thư mục phiếu tính giá trong chi tiết căn
 
-- Mục Thông tin căn có nút **Layout** mở thư mục layout của phân khu căn đó (`layoutLinks` trong `docs/embed.js`: Saigon Park có Ivy Park, Global Park). Phân khu chưa có link thì nút hiện **Chỉ căn** như trước.
+- Mục Thông tin căn có nút **Layout** mở thư mục layout của phân khu căn đó (`layoutLinks` trong `docs/embed.js`: Saigon Park theo phân khu Ivy Park, Global Park; Green Paradise một thư mục chung cho mọi phân khu, khai báo bằng khóa `*`). Phân khu chưa có link thì nút hiện **Chỉ căn** như trước.
 
 - Khung ảnh trong chi tiết căn là slide lướt ngang các ảnh trong thư mục phiếu tính giá (cột PTG) của căn: ảnh vẽ căn đứng đầu (file trùng link ảnh chỉ căn, hoặc tên bắt đầu "VẼ CĂN" hay chứa mã căn), tiếp theo là phiếu giá thanh toán chuẩn (TTC hoặc "CHUẨN"), thanh toán sớm (TTS hoặc "SỚM"), vay ("VAY 30TH" = vay 30 tháng, "VAY 70 18" = vay 70% trong 18 tháng), rồi các ảnh khác. Bấm ảnh để xem toàn màn hình; file PDF mở trên Drive.
 - Danh sách file lấy qua `?api=ptg&f=<id thư mục>` của Apps Script công khai (`ptgResponse_`): chỉ trả thư mục có trong link PTG của bảng hàng công khai, lưu tạm 30 phút; trình duyệt nhớ thêm 3 giờ.

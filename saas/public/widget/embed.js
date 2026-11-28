@@ -94,7 +94,9 @@
       VHSGP: {
         'Ivy Park': 'https://drive.google.com/drive/folders/1Cv26ks9Vo2iUmzrQ_nuUGuLz1jDAJlbS',
         'Global Park': 'https://drive.google.com/drive/folders/14P28xAZ7foBcVECAinWV2wuu0p9rP7qd'
-      }
+      },
+      // '*': dùng chung cho mọi phân khu của dự án.
+      VHCG: { '*': 'https://drive.google.com/drive/folders/1vfMUF0PZdVDjkTb4MTBgtcUZUckSj_yp' }
     },
     // Tab Mặt bằng quỹ căn: ảnh tổng mặt bằng chia ô và toạ độ từng mã căn (tạo bằng tools/map-from-pdf.py).
     // base: thư mục chứa map.json, overview.jpg, t/; nhiều địa chỉ thì dùng lần lượt khi địa chỉ trước lỗi.
@@ -1834,7 +1836,7 @@ tbody tr:hover .go { color: var(--brand); }
     function layoutLink(u) {
       var m = (C.layoutLinks || {})[state.project && state.project.id] || {}, z = norm(u.zone).trim(), hit = '';
       Object.keys(m).some(function (k) { if (norm(k).trim() === z && /^https:\/\//i.test(m[k])) { hit = m[k]; return true; } return false; });
-      return hit;
+      return hit || (/^https:\/\//i.test(m['*'] || '') ? m['*'] : '');
     }
     function posterHtml(u) {
       return '<div class="poster"><div class="brand"><b>' + esc(C.brandName) + '</b><span>' + esc(state.project.name) + '</span></div>' +
