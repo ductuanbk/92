@@ -770,7 +770,7 @@ export function createApp(db, opts = {}) {
       logo: ws.logo_url || '', logoIcon: ws.logo_url || '', dqShort: '', dqTitle: '',
       hotline: (ws.hotline || '').replace(/[^\d+]/g, ''), hotlineText: ws.hotline || '', zalo: ws.zalo || '',
       company: { name: ws.company_name || ws.name, address: ws.address, taxCode: ws.tax_code },
-      projectOrder: projects.map((p) => 'P' + p.id), projectLinks: links, infoPages: {}, newsSearch: news, docs: {}, docButtons: {}, layouts: {}, unitMaps: {}
+      projectOrder: projects.map((p) => 'P' + p.id), projectLinks: links, infoPages: {}, newsSearch: news, docs: {}, docButtons: {}, layouts: {}, unitMaps: {}, layoutLinks: {}
     };
     // Tab thông tin dự án chỉ bật khi có ít nhất một dự án gắn trang WordPress.
     if (!Object.keys(links).length) cfg.tabs = [];

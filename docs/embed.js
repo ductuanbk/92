@@ -88,6 +88,14 @@
     layoutWords: ['mat bang', 'layout', 'so do', 'thiet ke', 'kien truc', 'mau nha', 'tmb', 'quy hoach'],
     // File mặt bằng thêm tay (ảnh, PDF, Google Drive): [{ title: 'Mặt bằng phân khu A', url: 'https://...', group: 'Phân khu, tiện ích' }]
     layouts: { VHSGP: [], VHCG: [] },
+    // Nút "Layout" trong chi tiết căn: thư mục layout theo phân khu của căn (khớp tên phân khu, không phân biệt dấu, hoa thường).
+    // Dự án hoặc phân khu chưa có link thì nút hiện "Chỉ căn" (link ảnh chỉ căn trong Sheet) như trước.
+    layoutLinks: {
+      VHSGP: {
+        'Ivy Park': 'https://drive.google.com/drive/folders/1Cv26ks9Vo2iUmzrQ_nuUGuLz1jDAJlbS',
+        'Global Park': 'https://drive.google.com/drive/folders/14P28xAZ7foBcVECAinWV2wuu0p9rP7qd'
+      }
+    },
     // Tab Mặt bằng quỹ căn: ảnh tổng mặt bằng chia ô và toạ độ từng mã căn (tạo bằng tools/map-from-pdf.py).
     // base: thư mục chứa map.json, overview.jpg, t/; nhiều địa chỉ thì dùng lần lượt khi địa chỉ trước lỗi.
     // Dự án không có mục này: tab hiện thư viện ảnh mặt bằng lấy từ trang dự án như trước.
@@ -1823,6 +1831,11 @@ tbody tr:hover .go { color: var(--brand); }
       };
       sync();
     }
+    function layoutLink(u) {
+      var m = (C.layoutLinks || {})[state.project && state.project.id] || {}, z = norm(u.zone).trim(), hit = '';
+      Object.keys(m).some(function (k) { if (norm(k).trim() === z && /^https:\/\//i.test(m[k])) { hit = m[k]; return true; } return false; });
+      return hit;
+    }
     function posterHtml(u) {
       return '<div class="poster"><div class="brand"><b>' + esc(C.brandName) + '</b><span>' + esc(state.project.name) + '</span></div>' +
         '<div><div class="mc">Mã căn</div><div class="code2">' + esc(u.code) + '</div></div>' +
@@ -1903,7 +1916,7 @@ tbody tr:hover .go { color: var(--brand); }
           tile('Giá TTS', u.priceEarly ? ty(u.priceEarly) : '') + tile('Giá vay', u.priceLoan ? ty(u.priceLoan) : '') +
           tile('Giá chưa VAT', u.priceExVat ? ty(u.priceExVat) : '') + tile('Đơn giá', perM2(u) ? num(perM2(u) / 1e6, 1) + ' <small>triệu/m²</small>' : ''), 3) +
           '<p class="tnote">Giá niêm yết gồm VAT và kinh phí bảo trì.</p>' + loanCalc(u) + '</div>' +
-        '<div class="blk"><div class="bh"><h4>Thông tin căn</h4><div class="tools2">' + lk(u.unitLink, 'Chỉ căn') + '</div></div>' +
+        '<div class="blk"><div class="bh"><h4>Thông tin căn</h4><div class="tools2">' + (layoutLink(u) ? lk(layoutLink(u), 'Layout') : lk(u.unitLink, 'Chỉ căn')) + '</div></div>' +
           tiles(tile('DT đất', u.land != null ? m2(u.land) + ' <small>m²</small>' : '') + tile('DT xây dựng', u.build != null ? m2(u.build) + ' <small>m²</small>' : '') +
           tile('Bàn giao', esc(u.handover)) + tile('Quỹ căn', u.fund ? '<i class="fund ' + fundCls + '">' + esc(u.fund) + '</i>' : '') + tile('Phân khu', esc(u.zone)), 5) + '</div>' +
         '<div class="blk"><div class="bh"><h4>Trạng thái</h4><span class="stt ' + stCls(u.status) + '">' + esc(u.status) + '</span></div>' +
